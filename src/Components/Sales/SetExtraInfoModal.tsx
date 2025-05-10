@@ -11,6 +11,7 @@ import NextOfKinForm from "./NextOfKin";
 import GuarantorForm from "./GuarantorForm";
 import { observer } from "mobx-react-lite";
 import SaleRecipientForm from "./SaleRecipientForm";
+import SalesBoltIcon from "../appIcons/sales-bolt.icon";
 
 const SetExtraInfoModal = observer(
   ({
@@ -26,16 +27,16 @@ const SetExtraInfoModal = observer(
       extraInfoModal === "parameters"
         ? "Please select parameters for this product."
         : extraInfoModal === "miscellaneous"
-        ? "Type the title of the Miscellaneous on the left and the Amount on the right. You can add another cost by clicking the add button bellow."
-        : extraInfoModal === "devices"
-        ? "Link Device(s)"
-        : extraInfoModal === "recipient"
-        ? "Fill Sale Recipient"
-        : extraInfoModal === "identification"
-        ? "Fill Identification Details"
-        : extraInfoModal === "nextOfKin"
-        ? "Fill Next of Kin Details"
-        : "Fill Guarantor Details";
+          ? "Type the title of the Miscellaneous on the left and the Amount on the right. You can add another cost by clicking the add button bellow."
+          : extraInfoModal === "devices"
+            ? "Link Device(s)"
+            : extraInfoModal === "recipient"
+              ? "Fill Sale Recipient"
+              : extraInfoModal === "identification"
+                ? "Fill Identification Details"
+                : extraInfoModal === "nextOfKin"
+                  ? "Fill Next of Kin Details"
+                  : "Fill Guarantor Details";
 
     const [description, setDescription] = useState<string>(descriptionText);
     const handleClose = () => {
@@ -103,7 +104,8 @@ const SetExtraInfoModal = observer(
             }}
           >
             <div className="flex items-start justify-between w-full">
-              <img src={skewedsettings} alt="Skewed settings" width="45px" />
+              <SalesBoltIcon />
+              {/* <img src={skewedsettings} alt="Skewed settings" width="45px" /> */}
               <button
                 onClick={handleClose}
                 className="flex items-center justify-center w-[24px] h-[24px] bg-white border border-strokeGreyTwo rounded-full top-4 right-4 hover:bg-slate-100"
@@ -114,11 +116,10 @@ const SetExtraInfoModal = observer(
               </button>
             </div>
             <p
-              className={`bg-[#FEF5DA] w-full px-2 py-1 text-textGrey text-xs italic font-medium ${
-                extraInfoModal === "miscellaneous"
-                  ? "rounded-md"
-                  : "rounded-full"
-              }`}
+              className={`bg-primary w-full px-2 py-1 text-textGrey text-xs italic font-medium ${extraInfoModal === "miscellaneous"
+                ? "rounded-md"
+                : "rounded-full"
+                }`}
             >
               {description}
             </p>

@@ -6,6 +6,36 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+  --primary: #0000FF;
+  --buttonText: #FFFFFF;
+  --ascent: #FFFFFF;
+  --secondary: #000000;
+  --textBlack: #050505;
+    --textGrey: #828DA9;
+    --textLightGrey: #9BA4BA;
+    --textDarkGrey: #49526A;
+    --textDarkBrown: #32290E;
+    --strokeGrey: #F6F8FA;
+    --strokeGreyTwo: #E0E0E0;
+    --strokeGreyThree: #EAEEF2;
+    --strokeCream: #FEF5DA;
+    --error: #EA91B4;
+    --errorTwo: #FC4C5D;
+    --paleLightBlue: #EFF2FF;
+    --brightBlue: #007AFF;
+    --success: #00AF50;
+    --successTwo: #E3FAD6;
+    --successThree: #AEF1A7;
+    --disabled: #E2E4EB;
+    --blackBrown: #1E0604;
+    --gold: #F8CB48;
+    --purpleBlue: #DADFF8;
+    --pink: #F7D3E1;
+    --inkBlue: #8396E7;
+    --inkBlueTwo: #3951B6;
+    --paleYellow: #FFF3D5;
+    --chalk: #FFFFFF;
+    --grape: #EAD2D0;
 }
 
 @layer base {

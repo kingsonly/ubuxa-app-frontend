@@ -11,6 +11,7 @@ import { DropDown } from "@/Components/DropDownComponent/DropDown";
 import { SideMenu } from "@/Components/SideMenuComponent/SideMenu";
 import { useGetRequest } from "@/utils/useApiCall";
 import CreateNewDevice from "@/Components/Devices/CreateNewDevice";
+import AddCircleIcon from "@/Components/appIcons/add-circle.icon";
 
 const DevicesTable = lazy(() => import("@/Components/Devices/DevicesTable"));
 
@@ -37,8 +38,7 @@ const Devices = () => {
     mutate: allDeviceRefresh,
     errorStates: allDevicesErrorStates,
   } = useGetRequest(
-    `/v1/device?page=${currentPage}&limit=${entriesPerPage}${
-      queryString && `&${queryString}`
+    `/v1/device?page=${currentPage}&limit=${entriesPerPage}${queryString && `&${queryString}`
     }`,
     true,
     60000
@@ -114,7 +114,7 @@ const Devices = () => {
           <div className="flex w-full items-center justify-between gap-2 min-w-max sm:w-max sm:justify-end">
             <ActionButton
               label="New Device"
-              icon={<img src={circleAction} />}
+              icon={<AddCircleIcon />}
               onClick={() => {
                 setFormType("singleUpload");
                 setIsOpen(true);

@@ -10,6 +10,7 @@ import { DataStateWrapper } from "../Loaders/DataStateWrapper";
 import DeviceDetails from "./DeviceDetails";
 import { DropDown } from "../DropDownComponent/DropDown";
 import { toast } from "react-toastify";
+import EditSettingsIcon from "../appIcons/edit-settings.icon";
 
 const DeviceDetailModal = ({
   isOpen,
@@ -104,16 +105,16 @@ const DeviceDetailModal = ({
             className="flex items-center justify-center w-[24px] h-[24px] bg-white border border-strokeGreyTwo rounded-full hover:bg-slate-100"
             onClick={() => setDisplayInput(true)}
           >
-            <img src={editInput} alt="Edit Button" width="15px" />
+            {/* <img src={editInput} alt="Edit Button" width="15px" /> */}
+            <EditSettingsIcon />
           </button>
         )
       }
     >
       <div className="bg-white">
         <header
-          className={`flex items-center ${
-            deviceData?.serialNumber ? "justify-between" : "justify-end"
-          } bg-paleGrayGradientLeft p-4 min-h-[64px] border-b-[0.6px] border-b-strokeGreyThree`}
+          className={`flex items-center ${deviceData?.serialNumber ? "justify-between" : "justify-end"
+            } bg-paleGrayGradientLeft p-4 min-h-[64px] border-b-[0.6px] border-b-strokeGreyThree`}
         >
           {deviceData?.serialNumber && (
             <p className="flex items-center justify-center bg-[#F6F8FA] w-max px-2 py-1 h-[24px] text-textBlack text-xs border-[0.4px] border-strokeGreyTwo rounded-full">

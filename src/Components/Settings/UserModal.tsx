@@ -10,6 +10,7 @@ import { Modal } from "@/Components/ModalComponent/Modal";
 import { DataStateWrapper } from "../Loaders/DataStateWrapper";
 import StaffDetails from "./StaffDetails";
 import TabComponent from "../TabComponent/TabComponent";
+import EditSettingsIcon from "../appIcons/edit-settings.icon";
 
 const UserModal = ({
   isOpen,
@@ -118,11 +119,10 @@ const UserModal = ({
               {data?.role?.role}
             </p>
             <p
-              className={`flex items-center justify-center gap-1 bg-[#F6F8FA] w-max px-2 py-1 text-xs ${
-                data?.status.toLowerCase() === "active"
-                  ? "text-success"
-                  : "text-errorTwo"
-              } border-[0.4px] border-strokeGreyTwo rounded-full uppercase`}
+              className={`flex items-center justify-center gap-1 bg-[#F6F8FA] w-max px-2 py-1 text-xs ${data?.status.toLowerCase() === "active"
+                ? "text-success"
+                : "text-errorTwo"
+                } border-[0.4px] border-strokeGreyTwo rounded-full uppercase`}
             >
               <GoDotFill />
               {data?.status}
@@ -140,22 +140,22 @@ const UserModal = ({
             Cancel Edit
           </p>
         ) : (
-          <button className="flex items-center justify-center w-[24px] h-[24px] bg-white border border-strokeGreyTwo rounded-full hover:bg-slate-100">
-            <img
+          <button onClick={() => setDisplayInput(true)} className="flex items-center justify-center w-[24px] h-[24px] bg-white border border-strokeGreyTwo rounded-full hover:bg-slate-100">
+            <EditSettingsIcon />
+            {/* <img
               src={editInput}
               alt="Edit Button"
               width="15px"
               onClick={() => setDisplayInput(true)}
-            />
+            /> */}
           </button>
         )
       }
     >
       <div className="bg-white">
         <header
-          className={`flex items-center ${
-            data ? "justify-between" : "justify-end"
-          } bg-paleGrayGradientLeft p-4 min-h-[64px] border-b-[0.6px] border-b-strokeGreyThree`}
+          className={`flex items-center ${data ? "justify-between" : "justify-end"
+            } bg-paleGrayGradientLeft p-4 min-h-[64px] border-b-[0.6px] border-b-strokeGreyThree`}
         >
           {data ? (
             <div className="flex items-center gap-1">
@@ -227,7 +227,7 @@ export const Icon = ({
 }) => {
   return (
     <button
-      className="flex items-center justify-center gap-1 w-max px-2 h-[32px] bg-white border-[0.2px] border-strokeGreyTwo rounded-full shadow-innerCustom transition-all hover:bg-gold"
+      className="flex items-center justify-center gap-1 w-max px-2 h-[32px] bg-white border-[0.2px] border-strokeGreyTwo rounded-full shadow-innerCustom transition-all hover:bg-primary"
       onClick={handleClick}
     >
       <img src={icon} alt={iconText} className="w-[16px] cursor-pointer" />

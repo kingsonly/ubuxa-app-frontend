@@ -1,3 +1,6 @@
+import HeaderBadgeIcon from "../appIcons/header-badge.icon";
+
+
 type HeaderBadgeProps = {
   pageName: string;
   image: string;
@@ -11,11 +14,12 @@ const HeaderBadge = (props: HeaderBadgeProps) => {
         {pageName}
       </h1>
       <div className="flex items-center justify-end h-[100px] md:h-[128px] overflow-hidden">
-        <img
+        {/* <img
           src={image}
           alt={`${pageName} Badge`}
           className="w-full opacity-20"
-        />
+        /> */}
+        <HeaderBadgeIcon image={image} />
       </div>
     </div>
   );

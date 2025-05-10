@@ -12,11 +12,19 @@ import contracts from "@/assets/home/contracts.svg";
 import settings from "@/assets/home/settings.svg";
 import useBreakpoint from "@/hooks/useBreakpoint";
 import ProceedButton from "@/Components/ProceedButtonComponent/ProceedButtonComponent";
+import SalesIcon from "@/Components/appIcons/sales.icon";
+import InventoryIcon from "@/Components/appIcons/inventory.icon";
+import ProductIcon from "@/Components/appIcons/product.icon";
+import SettingsIcon from "@/Components/appIcons/settings.icon";
+import AgentIcon from "@/Components/appIcons/agent.icon";
+import CustomerIcon from "@/Components/appIcons/customer.icon";
+import ContractIcon from "@/Components/appIcons/contract.icon";
+
 
 type SectionData = {
   sectionName: string;
   notificationCount?: number;
-  sectionImage: string;
+  sectionImage: any;
   location: string;
 };
 
@@ -37,7 +45,7 @@ const Home = () => {
     Settings: 0,
   };
   const homeData = [
-    { sectionName: "Sales", sectionImage: sales, location: "/sales" },
+    { sectionName: "Sales", sectionImage: <SalesIcon />, location: "/sales" },
     // {
     //   sectionName: "Transactions",
     //   sectionImage: transactions,
@@ -45,24 +53,24 @@ const Home = () => {
     // },
     {
       sectionName: "Customers",
-      sectionImage: customers,
+      sectionImage: <CustomerIcon />,
       location: "/customers",
     },
-    { sectionName: "Agents", sectionImage: agents, location: "/agents" },
-    { sectionName: "Products", sectionImage: products, location: "/products" },
+    { sectionName: "Agents", sectionImage: <AgentIcon />, location: "/agents" },
+    { sectionName: "Products", sectionImage: <ProductIcon />, location: "/products" },
     {
       sectionName: "Inventory",
-      sectionImage: inventory,
+      sectionImage: <InventoryIcon />,
       location: "/inventory",
     },
     {
       sectionName: "Devices",
-      sectionImage: inventory,
+      sectionImage: <InventoryIcon />,
       location: "/devices",
     },
     {
       sectionName: "Contracts",
-      sectionImage: contracts,
+      sectionImage: <ContractIcon />,
       location: "/contracts",
     },
     // { sectionName: "Support", sectionImage: support, location: "/support" },
@@ -71,7 +79,7 @@ const Home = () => {
     //   sectionImage: communication,
     //   location: "/communication",
     // },
-    { sectionName: "Settings", sectionImage: settings, location: "/settings" },
+    { sectionName: "Settings", sectionImage: <SettingsIcon />, location: "/settings" },
   ];
 
   const newHomeData: SectionData[] = homeData.map((data: SectionData) => ({
@@ -107,11 +115,7 @@ const Home = () => {
             <div className="sm:h-[24px]"></div>
             <div className="flex flex-col items-center justify-center pb-4 sm:p-0">
               <div className="w-[143px] h-[143px] sm:w-[128px] sm:h-[128px] overflow-hidden">
-                <img
-                  src={section.sectionImage}
-                  alt={`${section.sectionName} Icon`}
-                  className="w-full h-full object-contain transition-transform duration-300 ease-in-out group-hover:scale-110"
-                />
+                {section.sectionImage}
               </div>
               <h2 className="font-secondary font-bold text-lg sm:text-2xl text-textDarkGrey uppercase">
                 {section.sectionName}

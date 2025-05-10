@@ -10,6 +10,8 @@ import { DataStateWrapper } from "../Loaders/DataStateWrapper";
 import EditPermissions from "./EditPermissions";
 import ViewRolePermissions from "./ViewRolePermissions";
 import editInput from "../../assets/settings/editInput.svg";
+import AddCircleGoldIcon from "../appIcons/add-circle-gold.icon";
+import EditSettingsIcon from "../appIcons/edit-settings.icon";
 
 const columnList = ["TITLE", "ASSIGNED USERS", "PERMISSIONS", "ACTIONS"];
 const columnWidth = ["w-[15%]", "w-[22.5%]", "w-[50%]", "w-[12.5%]"];
@@ -80,26 +82,30 @@ const RoleAndPermissions = ({
             className="absolute top-0 left-0 w-full"
           />
           <div className="z-10 flex justify-end min-w-[575px]">
-            <img
-              src={addCircleGold}
-              alt="Edit Button"
-              className="w-[24px] h-[24px] hover:cursor-pointer"
+            <span
+              className="hover:cursor-pointer"
               onClick={() => {
                 setModalInfo("edit-permissions");
                 setIsOpen(true);
-              }}
-            />
+              }}>
+              <AddCircleGoldIcon />
+            </span>
+
+            {/* <img
+              src={addCircleGold}
+              alt="Edit Button"
+              className="w-[24px] h-[24px] hover:cursor-pointer"
+              
+            /> */}
           </div>
           <div className="z-10 flex flex-col gap-4 mt-[60px] md:mt-[80px] p-[16px_16px_0px_16px] border-[0.6px] border-strokeGreyThree rounded-[20px] min-w-[575px]">
             <div className="flex items-center justify-between w-full">
               {columnList.map((column, index) => (
                 <span
                   key={index}
-                  className={`flex items-center ${
-                    index === 3 ? "justify-center" : "justify-start"
-                  } gap-1 ${
-                    columnWidth[index]
-                  } text-xs font-light text-textDarkGrey`}
+                  className={`flex items-center ${index === 3 ? "justify-center" : "justify-start"
+                    } gap-1 ${columnWidth[index]
+                    } text-xs font-light text-textDarkGrey`}
                 >
                   <GoDotFill color="#E0E0E0" />
                   {column}
@@ -146,7 +152,7 @@ const RoleAndPermissions = ({
                     className={`flex items-center justify-center ${columnWidth[3]}`}
                   >
                     <span
-                      className="flex items-center justify-center px-2 pt-[1px] text-[10px] text-textBlack font-medium bg-[#F6F8FA] border-[0.2px] border-strokeGreyTwo rounded-[32px] shadow-innerCustom cursor-pointer hover:bg-gold"
+                      className="flex items-center justify-center px-2 pt-[1px] text-[10px] text-textBlack hover:text-buttonText font-medium bg-[#F6F8FA] border-[0.2px] border-strokeGreyTwo rounded-[32px] shadow-innerCustom cursor-pointer hover:bg-primary"
                       onClick={async () => {
                         setRoleData({
                           id: role.id,
@@ -178,24 +184,25 @@ const RoleAndPermissions = ({
         layout="right"
         rightHeaderComponents={
           modalInfo ===
-          "edit-permissions" ? null : !roleData.id ? null : displayInput ? (
-            <p
-              className="text-xs text-textDarkGrey font-semibold cursor-pointer"
-              onClick={() => setDisplayInput(false)}
-              title="Cancel editing role & permission details"
-            >
-              Cancel Edit
-            </p>
-          ) : (
-            <button className="flex items-center justify-center w-[24px] h-[24px] bg-white border border-strokeGreyTwo rounded-full hover:bg-slate-100">
-              <img
-                src={editInput}
-                alt="Edit Button"
-                width="15px"
-                onClick={() => setDisplayInput(true)}
-              />
-            </button>
-          )
+            "edit-permissions" ? null : !roleData.id ? null : displayInput ? (
+              <p
+                className="text-xs text-textDarkGrey font-semibold cursor-pointer"
+                onClick={() => setDisplayInput(false)}
+                title="Cancel editing role & permission details"
+              >
+                Cancel Edit
+              </p>
+            ) : (
+              <button onClick={() => setDisplayInput(true)} className="flex items-center justify-center w-[24px] h-[24px] bg-white border border-strokeGreyTwo rounded-full hover:bg-slate-100">
+                <EditSettingsIcon />
+                {/* <img
+                  src={editInput}
+                  alt="Edit Button"
+                  width="15px"
+                  onClick={() => setDisplayInput(true)}
+                /> */}
+              </button>
+            )
         }
       >
         {modalInfo === "edit-permissions" ? (

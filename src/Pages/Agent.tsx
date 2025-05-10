@@ -13,6 +13,7 @@ import ActionButton from "@/Components/ActionButtonComponent/ActionButton";
 import { SideMenu } from "@/Components/SideMenuComponent/SideMenu";
 import CreateNewAgents from "@/Components/Agents/CreateNewAgents";
 import { useGetRequest } from "@/utils/useApiCall";
+import AddCircleIcon from "@/Components/appIcons/add-circle.icon";
 // import { NairaSymbol } from "@/Components/CardComponents/CardComponent";
 
 const AgentsTable = lazy(() => import("@/Components/Agents/AgentsTable"));
@@ -38,8 +39,7 @@ const Agent = () => {
     error: allAgentError,
     errorStates: allAgentErrorStates,
   } = useGetRequest(
-    `/v1/agents?page=${currentPage}&limit=${entriesPerPage}${
-      queryString && `&${queryString}`
+    `/v1/agents?page=${currentPage}&limit=${entriesPerPage}${queryString && `&${queryString}`
     }`,
     true,
     60000
@@ -145,7 +145,7 @@ const Agent = () => {
           <div className="flex w-full items-center justify-between gap-2 min-w-max sm:w-max sm:justify-end">
             <ActionButton
               label="New Agents"
-              icon={<img src={circleAction} />}
+              icon={<AddCircleIcon />}
               onClick={() => setIsOpen(true)}
             />
             {/* <DropDown {...dropDownList} /> */}
