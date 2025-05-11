@@ -63,4 +63,4 @@ jobs:
           echo "${{secrets.SSH_PRIVATE_KEY}}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           rsync --delete -va -e 'ssh -p 7822 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no' \
-            dist/ .htaccess .env  skillz@103.72.76.68:energy/frontend
+            dist/ .htaccess .env  skillz@103.72.76.68:ubuxa/frontend
