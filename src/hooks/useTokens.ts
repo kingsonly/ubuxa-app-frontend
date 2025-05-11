@@ -8,6 +8,7 @@ const useTokens = () => {
     // Safely access token and other properties
     return {
       token: parsedData?.token,
+      xtenant: parsedData?.xtenant,
       createdAt: parsedData?.createdAt,
       deletedAt: parsedData?.deletedAt,
       email: parsedData?.email,
@@ -38,6 +39,7 @@ const useTokens = () => {
     console.error("Error parsing userData cookie:", error);
     return {
       token: undefined,
+      xtenant: undefined,
       createdAt: undefined,
       deletedAt: undefined,
       email: undefined,

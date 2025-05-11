@@ -67,17 +67,20 @@ export function formatNumberWithCommas(number: number | string): string {
 }
 
 export function useIsLoggedIn(route: string) {
-  const { token } = useTokens();
+  const { token, xtenant } = useTokens();
   const navigate = useNavigate();
   const sessionRedirect = sessionStorage.getItem("redirect");
-
   useEffect(() => {
-    if (token) {
+    if (token && xtenant) {
       const redirectTo = sessionRedirect || route;
       sessionStorage.removeItem("redirect");
       navigate(redirectTo);
     }
-  }, [token, navigate, route, sessionRedirect]);
+    if (token && !xtenant) {
+      sessionStorage.removeItem("redirect");
+      navigate('/tenants');
+    }
+  }, [token, navigate, route, sessionRedirect, xtenant]);
 }
 
 export const useScrollToTop = () => {
