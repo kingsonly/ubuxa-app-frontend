@@ -226,8 +226,8 @@ const InventoryTable = ({
           minimumInventoryBatchPrice === maximumInventoryBatchPrice
             ? formatNumberWithCommas(maximumInventoryBatchPrice)
             : `${formatNumberWithCommas(
-                minimumInventoryBatchPrice
-              )} - ${formatNumberWithCommas(maximumInventoryBatchPrice)}`;
+              minimumInventoryBatchPrice
+            )} - ${formatNumberWithCommas(maximumInventoryBatchPrice)}`;
 
         return (
           <div className="flex items-center gap-1">
@@ -284,18 +284,17 @@ const InventoryTable = ({
             </span>
             <div className="flex w-[77%] h-[24px] bg-[#FFFFFC] border-[0.6px] border-strokeGreyThree rounded-full">
               <span
-                className={`${getStatusLevel} flex items-center ${
-                  statusLevel === 0
-                    ? "justify-start text-errorTwo px-2"
-                    : "justify-end text-textBlack pr-1.5"
-                } h-full text-[9px] font-bold border-[0.6px] rounded-full`}
+                className={`${getStatusLevel} flex items-center ${statusLevel === 0
+                  ? "justify-start text-errorTwo px-2"
+                  : "justify-end text-textBlack pr-1.5"
+                  } h-full text-[9px] font-bold border-[0.6px] rounded-full`}
                 style={{
                   width:
                     statusLevel === 0
                       ? "100%"
                       : statusLevel <= 35
-                      ? "35%"
-                      : `${statusLevel}%`,
+                        ? "35%"
+                        : `${statusLevel}%`,
                 }}
               >
                 {displayStatusLevel}%
@@ -328,7 +327,7 @@ const InventoryTable = ({
       customValue: (_value: any, rowData: { id: string }) => {
         return (
           <span
-            className="px-2 py-1 text-[10px] text-textBlack font-medium bg-[#F6F8FA] border-[0.2px] border-strokeGreyTwo rounded-full shadow-innerCustom cursor-pointer transition-all hover:bg-gold"
+            className="px-2 py-1 text-[10px] text-textBlack hover:text-buttonText font-medium bg-[#F6F8FA] border-[0.2px] border-strokeGreyTwo rounded-full shadow-innerCustom cursor-pointer transition-all hover:bg-primary"
             onClick={() => {
               setInventoryID(rowData.id);
               setIsOpen(true);

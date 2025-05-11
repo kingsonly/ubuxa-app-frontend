@@ -1,19 +1,19 @@
 import { Link } from "react-router-dom";
-import sampleimage from "../assets/sampleuserimage.svg";
 
-const UserPill = ({ role }: { role: string }) => {
+
+const UserPill = ({ role, firstName, lastName }: { role: string, firstName: string, lastName: string }) => {
   return (
     <Link
       to={"/settings/profile"}
-      className="flex items-center justify-center p-1 gap-1 w-max bg-[#FEF5DA] border-[0.2px] border-[#A58730] rounded-[32px]"
-      onClick={() => {}}
+      className="flex items-center justify-center p-1 gap-1 w-max bg-primary border-[0.2px] border-[#A58730] rounded-[32px]"
+      onClick={() => { }}
     >
-      <img
-        src={sampleimage}
-        alt="User Image"
-        className="w-[24px] h-[24px] border-[0.2px] border-[#A58730] rounded-full"
-      />
-      <p className="px-2 py-1 bg-[#32290E] text-xs text-white font-medium rounded-full capitalize">
+      <div
+        className="text-ascent w-[24px] h-[24px] border-[0.2px] border-ascent rounded-full uppercase"
+      >
+        {firstName.charAt(0) + lastName.charAt(0)}
+      </div>
+      <p className="px-2 py-1 bg-secondary text-xs text-buttonText font-medium rounded-full capitalize">
         {role}
       </p>
     </Link>

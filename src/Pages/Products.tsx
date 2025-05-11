@@ -15,6 +15,7 @@ import CreateNewProduct, {
   ProductFormType,
 } from "../Components/Products/CreateNewProduct";
 import { useGetRequest } from "../utils/useApiCall";
+import AddCircleIcon from "@/Components/appIcons/add-circle.icon";
 
 const ProductsTable = lazy(
   () => import("../Components/Products/ProductsTable")
@@ -42,8 +43,7 @@ const Products = () => {
     error: allProductsError,
     errorStates: allProductsErrorStates,
   } = useGetRequest(
-    `/v1/products?page=${currentPage}&limit=${entriesPerPage}${
-      queryString && `&${queryString}`
+    `/v1/products?page=${currentPage}&limit=${entriesPerPage}${queryString && `&${queryString}`
     }`,
     true,
     60000
@@ -150,7 +150,7 @@ const Products = () => {
           <div className="flex w-full items-center justify-between gap-2 min-w-max sm:w-max sm:justify-end">
             <ActionButton
               label="New Product"
-              icon={<img src={circleAction} />}
+              icon={<AddCircleIcon />}
               onClick={() => {
                 setFormType("newProduct");
                 setIsOpen(true);

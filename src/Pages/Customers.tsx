@@ -13,6 +13,7 @@ import { SideMenu } from "@/Components/SideMenuComponent/SideMenu";
 import { useGetRequest } from "@/utils/useApiCall";
 import LoadingSpinner from "@/Components/Loaders/LoadingSpinner";
 import CreateNewCustomer from "@/Components/Customer/CreateNewCustomer";
+import AddCircleIcon from "@/Components/appIcons/add-circle.icon";
 
 const CustomerTable = lazy(() => import("@/Components/Customer/CustomerTable"));
 
@@ -37,8 +38,7 @@ const Customers = () => {
     error: allCustomerError,
     errorStates: allCustomerErrorStates,
   } = useGetRequest(
-    `/v1/customers?page=${currentPage}&limit=${entriesPerPage}${
-      queryString && `&${queryString}`
+    `/v1/customers?page=${currentPage}&limit=${entriesPerPage}${queryString && `&${queryString}`
     }`,
     true,
     60000
@@ -154,7 +154,7 @@ const Customers = () => {
           <div className="flex w-full items-center justify-between gap-2 min-w-max sm:w-max sm:justify-end">
             <ActionButton
               label="New Customer"
-              icon={<img src={circleAction} />}
+              icon={<AddCircleIcon />}
               onClick={() => {
                 setIsOpen(true);
               }}

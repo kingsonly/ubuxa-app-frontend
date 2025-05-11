@@ -12,6 +12,7 @@ import settingsbadge from "../assets/settings/settingsbadge.png";
 import { useGetRequest } from "../utils/useApiCall";
 import PageLayout from "./PageLayout";
 import CreateNewUserModal from "@/Components/Settings/CreateNewUserModal";
+import AddCircleIcon from "@/Components/appIcons/add-circle.icon";
 
 const RoleAndPermissions = lazy(
   () => import("../Components/Settings/RoleAndPermissions")
@@ -36,8 +37,7 @@ const Settings = () => {
 
   const fetchAllRoles = useGetRequest("/v1/roles", true, 60000);
   const fetchAllUsers = useGetRequest(
-    `/v1/users?page=${currentPage}&limit=${entriesPerPage}${
-      queryString && `&${queryString}`
+    `/v1/users?page=${currentPage}&limit=${entriesPerPage}${queryString && `&${queryString}`
     }`,
     true,
     60000
@@ -112,7 +112,7 @@ const Settings = () => {
             <div className="flex w-full items-center justify-between gap-2 min-w-max sm:w-max sm:justify-start">
               <ActionButton
                 label="New User"
-                icon={<img src={circleAction} />}
+                icon={<AddCircleIcon />}
                 onClick={() => setIsOpen(true)}
               />
               <DropDown {...dropDownList} />

@@ -14,6 +14,7 @@ import CreateNewInventory, {
   InventoryFormType,
 } from "@/Components/Inventory/CreateNewInventory";
 import { useGetRequest } from "@/utils/useApiCall";
+import AddCircleIcon from "@/Components/appIcons/add-circle.icon";
 
 const InventoryTable = lazy(
   () => import("@/Components/Inventory/InventoryTable")
@@ -42,8 +43,7 @@ const Inventory = () => {
     mutate: allInventoryRefresh,
     errorStates: allInventoryErrorStates,
   } = useGetRequest(
-    `/v1/inventory?page=${currentPage}&limit=${entriesPerPage}${
-      queryString && `&${queryString}`
+    `/v1/inventory?page=${currentPage}&limit=${entriesPerPage}${queryString && `&${queryString}`
     }`,
     true,
     60000
@@ -184,7 +184,7 @@ const Inventory = () => {
           <div className="flex w-full items-center justify-between gap-2 min-w-max sm:w-max sm:justify-end">
             <ActionButton
               label="New Inventory"
-              icon={<img src={circleAction} />}
+              icon={<AddCircleIcon />}
               onClick={() => {
                 setFormType("newInventory");
                 setIsOpen(true);

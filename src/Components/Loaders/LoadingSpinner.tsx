@@ -17,6 +17,7 @@ const LoadingSpinner = ({
       <p className={`${textClass}text-textDarkGrey text-base animate-pulse`}>
         {text || "Loading"}
       </p>
+
     </div>
   );
 };

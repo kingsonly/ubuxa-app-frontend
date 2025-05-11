@@ -19,6 +19,7 @@ import CreateNewSale from "@/Components/Sales/CreateNewSale";
 import { useGetRequest, useApiCall } from "@/utils/useApiCall";
 import { observer } from "mobx-react-lite";
 import { SaleStore } from "@/stores/SaleStore";
+import AddCircleIcon from "@/Components/appIcons/add-circle.icon";
 
 const SalesTable = lazy(() => import("@/Components/Sales/SalesTable"));
 
@@ -45,8 +46,7 @@ const Sales = observer(() => {
     error: allSalesError,
     errorStates: allSalesErrorStates,
   } = useGetRequest(
-    `/v1/sales?page=${currentPage}&limit=${entriesPerPage}${
-      queryString && `&${queryString}`
+    `/v1/sales?page=${currentPage}&limit=${entriesPerPage}${queryString && `&${queryString}`
     }`,
     true,
     60000
@@ -146,7 +146,7 @@ const Sales = observer(() => {
           <div className="flex w-full items-center justify-between gap-2 min-w-max sm:w-max sm:justify-end">
             <ActionButton
               label="New Sale"
-              icon={<img src={circleAction} />}
+              icon={<AddCircleIcon />}
               onClick={() => {
                 setIsOpen(true);
               }}

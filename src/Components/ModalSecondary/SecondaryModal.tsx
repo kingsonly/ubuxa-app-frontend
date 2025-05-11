@@ -2,6 +2,7 @@ import React from "react";
 import curvedlines from "@/assets/sales/curvedlines.png";
 import skewedsettings from "@/assets/sales/skewedsettings.svg";
 import { MdCancel } from "react-icons/md";
+import SalesBoltIcon from "../appIcons/sales-bolt.icon";
 
 interface SecondaryModalProps {
   isOpen: boolean;
@@ -52,7 +53,8 @@ const SecondaryModal: React.FC<SecondaryModalProps> = ({
             {headerIcon ? (
               headerIcon
             ) : (
-              <img src={skewedsettings} alt="Skewed settings" width="45px" />
+              <SalesBoltIcon />
+              // <img src={skewedsettings} alt="Skewed settings" width="45px" />
             )}
             <button
               onClick={onClose}
@@ -65,9 +67,8 @@ const SecondaryModal: React.FC<SecondaryModalProps> = ({
           </div>
           {description && (
             <p
-              className={`bg-[#FEF5DA] w-full px-2 py-1 text-textGrey text-xs italic font-medium ${
-                isRoundedFull ? "rounded-md" : "rounded-full"
-              } ${descriptionClassName}`}
+              className={`bg-[#FEF5DA] w-full px-2 py-1 text-textGrey text-xs italic font-medium ${isRoundedFull ? "rounded-md" : "rounded-full"
+                } ${descriptionClassName}`}
             >
               {description}
             </p>

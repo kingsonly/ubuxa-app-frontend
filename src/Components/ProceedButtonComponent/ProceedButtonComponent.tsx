@@ -22,23 +22,23 @@ const ProceedButton: React.FC<ButtonProps> = ({
   // Define different styles for each variant
   const variantClasses = {
     yellow:
-      "bg-[#FEF5DA] border border-[#A58730]/20 shadow-[2px_6px_8px_0px_rgba(0,0,0,0.15)] hover:bg-[#941C12] hover:border-[#63130C]/20",
-    gray: "bg-[#E2E4EB] border border-[#9BA4BA]/20",
-    gradient: "bg-[#FEF5DA] border border-[#A58730]/20 shadow-innerCustom",
-    red: "bg-[#941C12] border border-[#63130C]/20",
+      "bg-secondary border border-[#A58730]/20 shadow-[2px_6px_8px_0px_rgba(0,0,0,0.15)] hover:bg-[#941C12] hover:border-[#63130C]/20",
+    gray: "bg-secondary border border-[#9BA4BA]/20",
+    gradient: "bg-secondary border border-[#A58730]/20 shadow-innerCustom",
+    red: "bg-primary border border-[#63130C]/20",
   };
 
   return loading ? (
     <div className="flex items-center justify-center w-16 h-16">
-      <div className="loaderTwo"></div>
+      <img src={"/Images/loader.gif"} alt="Loader" />
+      {/* <div className="loaderTwo"></div> */}
     </div>
   ) : (
     <button
       onClick={onClick}
       type={type}
-      className={`flex items-center justify-center w-16 h-16 rounded-full transition-all ${
-        isHovered ? variantClasses.red : variantClasses[variant]
-      } ${className} ${disabled ? "cursor-not-allowed opacity-75" : ""}`}
+      className={`flex items-center justify-center w-16 h-16 rounded-full transition-all ${isHovered ? variantClasses.red : variantClasses[variant]
+        } ${className} ${disabled ? "cursor-not-allowed opacity-75" : ""}`}
       disabled={disabled}
       onMouseOver={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}

@@ -109,11 +109,9 @@ export const Input = forwardRef<HTMLInputElement, InputType>(
       return (
         <div className={`w-full ${className}`}>
           <div
-            className={`relative autofill-parent ${
-              type === "hidden" ? "hidden" : "flex"
-            } ${style ? style : "max-w-full"} ${
-              disabled ? "bg-gray-200 cursor-not-allowed" : "bg-white"
-            }
+            className={`relative autofill-parent ${type === "hidden" ? "hidden" : "flex"
+              } ${style ? style : "max-w-full"} ${disabled ? "bg-gray-200 cursor-not-allowed" : "bg-white"
+              }
         ${value ? "border-strokeCream" : "border-strokeGrey"}
           items-center w-full  px-[1.1em] py-[1.25em] gap-1 rounded-3xl h-[48px] border-[0.6px]
           transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
@@ -146,9 +144,8 @@ export const Input = forwardRef<HTMLInputElement, InputType>(
               checked={checked}
               readOnly={readOnly}
               min={0}
-              className={`w-full text-sm font-semibold ${
-                value ? "text-textBlack" : "text-textGrey"
-              } placeholder:text-textGrey placeholder:font-normal placeholder:italic`}
+              className={`w-full text-sm font-semibold ${value ? "text-textBlack" : "text-textGrey"
+                } placeholder:text-textGrey placeholder:font-normal placeholder:italic`}
               maxLength={maxLength}
               max={max}
             />
@@ -310,13 +307,11 @@ export const ModalInput = ({
     <div className="w-full">
       <div className="flex items-center justify-center gap-2 w-full">
         <div
-          className={`flex relative ${
-            isItemsSelected
-              ? "flex-col rounded-[20px] border-strokeCream"
-              : "flex-row rounded-3xl h-[48px] border-strokeGrey"
-          } items-center gap-[4px] ${style} ${
-            disabled ? "bg-gray-200 cursor-not-allowed" : "bg-white"
-          }  w-full max-w-full py-[1.25em] border-[0.6px] transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent `}
+          className={`flex relative ${isItemsSelected
+            ? "flex-col rounded-[20px] border-strokeCream"
+            : "flex-row rounded-3xl h-[48px] border-strokeGrey"
+            } items-center gap-[4px] ${style} ${disabled ? "bg-gray-200 cursor-not-allowed" : "bg-white"
+            }  w-full max-w-full py-[1.25em] border-[0.6px] transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent `}
         >
           {isItemsSelected && (
             <span className="absolute flex left-[1.6em] -top-2 z-40 items-center justify-center text-[10px] text-textGrey font-semibold px-2 py-0.5 max-w-max h-4 bg-white border-[0.6px] border-strokeCream rounded-[200px] transition-opacity duration-500 ease-in-out opacity-100">
@@ -325,9 +320,8 @@ export const ModalInput = ({
           )}
 
           <div
-            className={`flex items-center pl-[1.1em] ${
-              isItemsSelected ? "w-full" : "w-max"
-            }`}
+            className={`flex items-center pl-[1.1em] ${isItemsSelected ? "w-full" : "w-max"
+              }`}
           >
             {isItemsSelected ? (
               <button
@@ -646,14 +640,12 @@ export const RadioInput = ({
             htmlFor={`${name}-${index}`}
             className={`flex items-center justify-center bg-white w-max max-w-[400px]  
             gap-3 rounded-3xl text-base text-center text-textGrey font-semibold transition-all
-            border border-strokeGreyTwo cursor-pointer ${
-              className ? className : "h-[35px] px-[1em] py-[0.2em]"
-            }
-            ${
-              selectedValues.includes(option.value)
+            border border-strokeGreyTwo cursor-pointer ${className ? className : "h-[35px] px-[1em] py-[0.2em]"
+              }
+            ${selectedValues.includes(option.value)
                 ? `${radioSelectedStyle} bg-primaryGradient text-white`
                 : ""
-            }`}
+              }`}
           >
             <input
               type={selectMultiple ? "checkbox" : "radio"}
@@ -974,22 +966,19 @@ export const ToggleInput = ({
 
   return (
     <div
-      className={`relative inline-block w-16 h-10 ${
-        disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-      }`}
+      className={`relative inline-block w-16 h-10 ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+        }`}
       onClick={handleToggle}
     >
       <div
-        className={`absolute inset-y-1 inset-x-1 rounded-full transition-colors duration-300 border-[0.4px] ${
-          isChecked
-            ? "bg-[#FFF3D5] border-[#A58730]"
-            : "bg-[#F6F8FA] border-[#CCD0DC]"
-        }`}
+        className={`absolute inset-y-1 inset-x-1 rounded-full transition-colors duration-300 border-[0.4px] ${isChecked
+          ? "bg-secondary border-ascent"
+          : "bg-primary border-ascent"
+          }`}
       ></div>
       <div
-        className={`absolute top-2.5 left-2.5 w-5 h-5 rounded-full shadow-md transition-transform duration-300 ${
-          isChecked ? "transform translate-x-6 bg-[#A58730]" : "bg-[#CCD0DC]"
-        }`}
+        className={`absolute top-2.5 left-2.5 w-5 h-5 rounded-full shadow-md transition-transform duration-300 ${isChecked ? "transform translate-x-6 bg-primary" : "bg-secondary"
+          }`}
       ></div>
     </div>
   );

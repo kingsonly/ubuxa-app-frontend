@@ -11,6 +11,7 @@ import Cookies from "js-cookie";
 import { SmallInput } from "../InputComponent/Input";
 import { z } from "zod";
 import ApiErrorMessage from "../ApiErrorMessage";
+import EditSettingsIcon from "../appIcons/edit-settings.icon";
 
 // Define the validation schema using Zod
 const profileSchema = z
@@ -172,13 +173,14 @@ const Profile = () => {
       />
       <div className="z-10 flex justify-end">
         {!displayInput ? (
-          <div className="flex items-center justify-center w-[24px] h-[24px] bg-white border border-strokeGreyTwo rounded-full cursor-pointer hover:bg-slate-100">
-            <img
+          <div onClick={() => setDisplayInput(true)} className="flex items-center justify-center w-[24px] h-[24px] bg-white border border-strokeGreyTwo rounded-full cursor-pointer hover:bg-slate-100">
+            <EditSettingsIcon />
+            {/* <img
               src={editInput}
               alt="Edit Button"
               width="15px"
               onClick={() => setDisplayInput(true)}
-            />
+            /> */}
           </div>
         ) : (
           <div
