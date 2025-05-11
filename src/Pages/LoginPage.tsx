@@ -1,5 +1,5 @@
 import { Suspense, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+// import { useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import loginbg from "../assets/loginbg.png";
 import logo from "../assets/logo.svg";
@@ -29,8 +29,8 @@ const defaultLoginFormData: LoginFormData = {
 };
 
 const LoginPage = () => {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  // const navigate = useNavigate();
+  // const [searchParams] = useSearchParams();
   const { apiCall } = useApiCall();
   const [formData, setFormData] = useState<LoginFormData>(defaultLoginFormData);
   const [showPassword, setShowPassword] = useState(false);
@@ -41,7 +41,7 @@ const LoginPage = () => {
 
   useIsLoggedIn("/home");
 
-  const redirectPath = searchParams.get("redirect");
+  // const redirectPath = searchParams.get("redirect");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -69,6 +69,7 @@ const LoginPage = () => {
 
       const userData = {
         token: response.headers.access_token,
+        xtenant: response.headers.x_tenant,
         ...response.data,
       };
       Cookies.set("userData", JSON.stringify(userData), {
@@ -76,7 +77,14 @@ const LoginPage = () => {
         path: "/",
         sameSite: "Lax",
       }); // Token expires in 7 days
-      navigate(redirectPath || "/home");
+
+      // if (!response.header.x_tenant) {
+      //   navigate(redirectPath || "/tenants");
+      // }
+      // alert(response.header.x_tenant)
+      // console.log(response.header.x_tenant)
+      // navigate(redirectPath || "/home");
+
     } catch (error: any) {
       if (error instanceof z.ZodError) {
         setFormErrors(error.issues);
@@ -132,9 +140,8 @@ const LoginPage = () => {
         <img
           src={loginbg}
           alt="background"
-          className={`absolute w-full h-full object-cover object-center ${
-            formData.email || formData.password ? "opacity-60" : "opacity-40"
-          }`}
+          className={`absolute w-full h-full object-cover object-center ${formData.email || formData.password ? "opacity-60" : "opacity-40"
+            }`}
         />
 
         <img src={logo} alt="Logo" className="w-[120px] z-10" />
@@ -204,9 +211,8 @@ const LoginPage = () => {
               />
               {isForgotPassword ? (
                 <em
-                  className={`${
-                    formData.email ? "text-textDarkGrey" : "text-white"
-                  } text-sm font-medium underline cursor-pointer`}
+                  className={`${formData.email ? "text-textDarkGrey" : "text-white"
+                    } text-sm font-medium underline cursor-pointer`}
                   onClick={() => {
                     setIsForgotPassword(false);
                     setFormData(defaultLoginFormData);
@@ -218,11 +224,10 @@ const LoginPage = () => {
                 </em>
               ) : (
                 <em
-                  className={`${
-                    formData.email || formData.password
-                      ? "text-textDarkGrey"
-                      : "text-white"
-                  } text-sm font-medium underline cursor-pointer`}
+                  className={`${formData.email || formData.password
+                    ? "text-textDarkGrey"
+                    : "text-white"
+                    } text-sm font-medium underline cursor-pointer`}
                   onClick={() => {
                     setIsForgotPassword(true);
                     setFormData(defaultLoginFormData);
