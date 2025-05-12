@@ -6,7 +6,6 @@ import { Suspense, lazy, useState } from "react";
 import { TitlePill } from "../Components/TitlePillComponent/TitlePill";
 import settings from "../assets/settings/settings.svg";
 import ActionButton from "../Components/ActionButtonComponent/ActionButton";
-import circleAction from "../assets/settings/addCircle.svg";
 import { DropDown } from "../Components/DropDownComponent/DropDown";
 import settingsbadge from "../assets/settings/settingsbadge.png";
 import { useGetRequest } from "../utils/useApiCall";

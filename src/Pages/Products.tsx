@@ -4,7 +4,6 @@ import productsbadge from "../assets/products/productsbadge.png";
 import { TitlePill } from "../Components/TitlePillComponent/TitlePill";
 import ActionButton from "../Components/ActionButtonComponent/ActionButton";
 import { DropDown } from "../Components/DropDownComponent/DropDown";
-import circleAction from "../assets/settings/addCircle.svg";
 import productgradient from "../assets/products/productgradient.svg";
 // import productgreen from "../assets/products/productgreen.svg";
 import cancelled from "../assets/cancelled.svg";

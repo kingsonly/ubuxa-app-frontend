@@ -1,6 +1,5 @@
 import React from "react";
 import curvedlines from "@/assets/sales/curvedlines.png";
-import skewedsettings from "@/assets/sales/skewedsettings.svg";
 import { MdCancel } from "react-icons/md";
 import SalesBoltIcon from "../appIcons/sales-bolt.icon";
 

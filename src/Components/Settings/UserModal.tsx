@@ -2,7 +2,6 @@ import { useApiCall, useGetRequest } from "../../utils/useApiCall";
 import roletwo from "../../assets/table/roletwo.svg";
 // import call from "../../assets/settings/call.svg";
 // import message from "../../assets/settings/message.svg";
-import editInput from "../../assets/settings/editInput.svg";
 import { useState } from "react";
 import { GoDotFill } from "react-icons/go";
 import { DropDown } from "../DropDownComponent/DropDown";

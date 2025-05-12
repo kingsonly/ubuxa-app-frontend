@@ -5,7 +5,6 @@ import LoadingSpinner from "@/Components/Loaders/LoadingSpinner";
 import inventorybadge from "../assets/inventory/inventorybadge.png";
 import { TitlePill } from "@/Components/TitlePillComponent/TitlePill";
 import inventorygradient from "../assets/inventory/inventorygradient.svg";
-import circleAction from "../assets/settings/addCircle.svg";
 import ActionButton from "@/Components/ActionButtonComponent/ActionButton";
 import { DropDown } from "@/Components/DropDownComponent/DropDown";
 import { SideMenu } from "@/Components/SideMenuComponent/SideMenu";

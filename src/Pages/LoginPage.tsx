@@ -243,7 +243,7 @@ import { Suspense, useState } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { z } from "zod"
 import Cookies from "js-cookie"
-import { Eye, EyeOff, ArrowRight, Lock, Mail, ChevronLeft } from "lucide-react"
+import { Eye, EyeOff, Lock, Mail, ChevronLeft } from "lucide-react"
 
 import { Input } from "../Components/InputComponent/Input"
 import ProceedButton from "../Components/ProceedButtonComponent/ProceedButtonComponent";

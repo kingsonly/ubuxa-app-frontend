@@ -2,7 +2,6 @@ import { useState } from "react";
 import lightCheckeredBg from "../../assets/lightCheckeredBg.png";
 import role from "../../assets/table/role.svg";
 import { BiSolidPlusCircle } from "react-icons/bi";
-import editInput from "../../assets/settings/editInput.svg";
 import { MdCancel } from "react-icons/md";
 import ProceedButton from "../ProceedButtonComponent/ProceedButtonComponent";
 import { useApiCall } from "../../utils/useApiCall";

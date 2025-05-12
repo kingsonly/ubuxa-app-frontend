@@ -1,6 +1,5 @@
 import { useState } from "react";
 import lightCheckeredBg from "../../assets/lightCheckeredBg.png";
-import addCircleGold from "../../assets/settings/addCircleGold.svg";
 import { GoDotFill } from "react-icons/go";
 import { ApiErrorStatesType } from "../../utils/useApiCall";
 import UserModal from "./UserModal";
@@ -9,7 +8,6 @@ import { KeyedMutator } from "swr";
 import { DataStateWrapper } from "../Loaders/DataStateWrapper";
 import EditPermissions from "./EditPermissions";
 import ViewRolePermissions from "./ViewRolePermissions";
-import editInput from "../../assets/settings/editInput.svg";
 import AddCircleGoldIcon from "../appIcons/add-circle-gold.icon";
 import EditSettingsIcon from "../appIcons/edit-settings.icon";
 

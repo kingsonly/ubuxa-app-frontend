@@ -11,7 +11,6 @@ import transactionsbadge from "../assets/transactions/transactionsbadge.png";
 import { TitlePill } from "@/Components/TitlePillComponent/TitlePill";
 import ActionButton from "@/Components/ActionButtonComponent/ActionButton";
 // import { DropDown } from "@/Components/DropDownComponent/DropDown";
-import circleAction from "../assets/settings/addCircle.svg";
 import gradientsales from "../assets/sales/gradientsales.svg";
 import { SideMenu } from "@/Components/SideMenuComponent/SideMenu";
 import LoadingSpinner from "@/Components/Loaders/LoadingSpinner";

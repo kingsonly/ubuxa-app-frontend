@@ -1,15 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import PageLayout from "./PageLayout";
-import sales from "@/assets/home/sales.svg";
 // import transactions from "@/assets/home/transactions.svg";
-import customers from "@/assets/home/customers.svg";
-import agents from "@/assets/home/agents.svg";
-import products from "@/assets/home/products.svg";
-import inventory from "@/assets/home/inventory.svg";
-import contracts from "@/assets/home/contracts.svg";
 // import support from "@/assets/home/support.svg";
 // import communication from "@/assets/home/communication.svg";
-import settings from "@/assets/home/settings.svg";
 import useBreakpoint from "@/hooks/useBreakpoint";
 import ProceedButton from "@/Components/ProceedButtonComponent/ProceedButtonComponent";
 import SalesIcon from "@/Components/appIcons/sales.icon";

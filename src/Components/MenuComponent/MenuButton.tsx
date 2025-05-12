@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, Link } from "react-router-dom";
-import buttonIcon from "../../assets/menu/menu.svg";
 import { navData } from "./navInfo";
 import MenuIcon from "../appIcons/menuicon.icon";
 
@@ -10,9 +9,9 @@ export type MenuButtonType = {
 };
 
 export const MenuButton = (props: MenuButtonType) => {
-  const primaryColor = getComputedStyle(document.documentElement)
-    .getPropertyValue('--primary')
-    .trim();
+  //const primaryColor = getComputedStyle(document.documentElement)
+  //.getPropertyValue('--primary')
+  //.trim();
   const location = useLocation();
   const { buttonStyle, sections = navData } = props;
   const [dialog, setDialog] = useState<boolean>(false);

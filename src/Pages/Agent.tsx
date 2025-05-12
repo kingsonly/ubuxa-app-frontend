@@ -7,7 +7,6 @@ import { TitlePill } from "@/Components/TitlePillComponent/TitlePill";
 import avatar from "../assets/agents/avatar.svg";
 // import cancelled from "../assets/cancelled.svg";
 // import wallet from "../assets/agents/wallet.svg";
-import circleAction from "../assets/settings/addCircle.svg";
 import ActionButton from "@/Components/ActionButtonComponent/ActionButton";
 // import { DropDown } from "@/Components/DropDownComponent/DropDown";
 import { SideMenu } from "@/Components/SideMenuComponent/SideMenu";

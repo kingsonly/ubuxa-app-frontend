@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import curvedlines from "@/assets/sales/curvedlines.png";
-import skewedsettings from "@/assets/sales/skewedsettings.svg";
 import { ExtraInfoType } from "./CreateNewSale";
 import { MdCancel } from "react-icons/md";
 import ParametersForm from "./ParametersForm";

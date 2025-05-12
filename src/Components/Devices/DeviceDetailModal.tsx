@@ -4,7 +4,6 @@ import { KeyedMutator } from "swr";
 import { TabNamesType } from "../Inventory/InventoryDetailModal";
 import { Modal } from "../ModalComponent/Modal";
 import { DeviceEntries } from "./DevicesTable";
-import editInput from "../../assets/settings/editInput.svg";
 import TabComponent from "../TabComponent/TabComponent";
 import { DataStateWrapper } from "../Loaders/DataStateWrapper";
 import DeviceDetails from "./DeviceDetails";
