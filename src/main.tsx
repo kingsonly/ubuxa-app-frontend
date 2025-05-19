@@ -5,7 +5,7 @@ import App from "./App";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "mobx-react";
 import rootStore from "./stores/rootStore";
-import { TenantProvider } from "./hooks/tenantsContext";
+import { TenantProvider } from "./Context/tenantsContext";
 
 
 createRoot(document.getElementById("root")!).render(

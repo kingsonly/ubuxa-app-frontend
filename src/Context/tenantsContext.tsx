@@ -1,5 +1,6 @@
 "use client"
 
+import Cookies from "js-cookie"
 import { createContext, useState, useContext, useEffect, type ReactNode } from "react"
 
 // Define the shape of your context
@@ -51,6 +52,20 @@ export const TenantProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState<boolean>(false)
 
   useEffect(() => {
+    const userData = Cookies.get("userData")
+    if (userData) {
+      try {
+        const parsed = JSON.parse(userData)
+        if (parsed?.tenant?.theme) {
+          setTenant(parsed.tenant)
+        }
+      } catch (err) {
+        console.error("Failed to parse userData cookie:", err)
+      }
+    }
+  }, [])
+
+  useEffect(() => {
     if (!tenant) return
 
     let isMounted = true
@@ -58,17 +73,9 @@ export const TenantProvider = ({ children }: { children: ReactNode }) => {
 
     const fetchColors = async () => {
       try {
-        const response = await fetch(`/api/colors?userId=${tenant.id}`)
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch colors: ${response.status}`)
-        }
-
-        const data = await response.json()
-
         if (isMounted) {
-          setColors(data)
-          updateColors(data)
+          setColors(tenant.theme)
+          updateColors(tenant.theme)
         }
       } catch (error) {
         console.error("Error fetching colors:", error)

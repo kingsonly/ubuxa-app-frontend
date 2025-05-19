@@ -250,6 +250,7 @@ import ProceedButton from "../Components/ProceedButtonComponent/ProceedButtonCom
 import { useApiCall } from "../utils/useApiCall"
 import LoadingSpinner from "../Components/Loaders/LoadingSpinner"
 import { useIsLoggedIn } from "../utils/helpers"
+import { useTenant } from "@/Context/tenantsContext"
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -277,7 +278,7 @@ const LoginPage = () => {
   const [loading, setLoading] = useState<boolean>(false)
   const [formErrors, setFormErrors] = useState<z.ZodIssue[]>([])
   const [apiError, setApiError] = useState<string | null>(null)
-
+  const { login: setTenantContext } = useTenant();
   useIsLoggedIn("/home")
 
   const redirectPath = searchParams.get("redirect")
@@ -298,23 +299,66 @@ const LoginPage = () => {
     setLoading(true)
 
     try {
+
       const validatedData = loginSchema.parse(formData)
       const response = await apiCall({
         endpoint: "/v1/auth/login",
         method: "post",
         data: validatedData,
         successMessage: "Login Successful!",
+        showToast: false
       })
+
+      const user = response.data.user;
+      const tenantInfo = user.tenants?.[0]; // Assuming tenant is selected or default
+      const tenant = tenantInfo?.tenant;
+      const role = tenantInfo?.role;
 
       const userData = {
         token: response.headers.access_token,
-        ...response.data,
-      }
+        id: user.id,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        username: user.username,
+        email: user.email,
+        phone: user.phone,
+        location: user.location,
+        //staffId: user.staffId,
+        status: user.status,
+        isBlocked: user.isBlocked,
+
+        // createdAt: user.createdAt,
+        // updatedAt: user.updatedAt,
+        // deletedAt: user.deletedAt,
+        roleId: tenantInfo?.roleId,
+        role: {
+          id: role?.id,
+          role: role?.role,
+          active: role?.active,
+          // permissionIds: role?.permissionIds,
+          // permissions: role?.permissions,
+          created_at: role?.created_at,
+          updated_at: role?.updated_at,
+          deleted_at: role?.deleted_at,
+        },
+        tenant: {
+          id: tenant?.id,
+          status: tenant?.status,
+          paymentProvider: tenant?.paymentProvider,
+          providerPublicKey: tenant?.providerPublicKey,
+          logoUrl: tenant?.logoUrl,
+          faviconUrl: tenant?.faviconUrl,
+          theme: tenant?.theme,
+        },
+      };
+
+
       Cookies.set("userData", JSON.stringify(userData), {
         expires: 7,
         path: "/",
         sameSite: "Lax",
       }) // Token expires in 7 days
+      setTenantContext(tenant)
       navigate(redirectPath || "/home")
     } catch (error: any) {
       if (error instanceof z.ZodError) {

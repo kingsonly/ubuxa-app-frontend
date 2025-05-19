@@ -15,7 +15,7 @@ import { formatNumberWithSuffix } from "../../hooks/useFormatNumberWithSuffix";
 import { Modal } from "@/Components/ModalComponent/Modal";
 
 const TopNavComponent = () => {
-  const { role, firstname, lastname } = useTokens();
+  const { role, firstname, lastname, tenant } = useTokens();
   const navigate = useNavigate();
   const currentDate = useFormattedCurrentDate();
   // const [showSearchInput, setSearchInput] = useState<boolean>(false);
@@ -76,7 +76,7 @@ const TopNavComponent = () => {
         <div className="flex items-start sm:items-center justify-between gap-1 w-full max-w-screen-2xl">
           <div className="flex flex-wrap sm:flex-nowrap items-center w-max gap-1 sm:gap-2">
             <img
-              src={logoplain}
+              src={tenant?.logoUrl || logoplain}
               alt="Logo"
               width="51px"
               className="w-[25px] sm:w-[51px] cursor-pointer"

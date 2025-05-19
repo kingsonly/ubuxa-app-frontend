@@ -186,11 +186,11 @@ const useEndpointErrors = () => {
         return prev.map((entry) =>
           entry.endpoint === endpoint
             ? {
-                ...entry,
-                errorExists: error,
-                errorCount: error ? entry.errorCount + 1 : 0,
-                toastShown: resetToast ? false : entry.toastShown,
-              }
+              ...entry,
+              errorExists: error,
+              errorCount: error ? entry.errorCount + 1 : 0,
+              toastShown: resetToast ? false : entry.toastShown,
+            }
             : entry
         );
       } else if (error) {
