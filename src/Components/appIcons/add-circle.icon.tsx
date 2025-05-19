@@ -1,7 +1,8 @@
+import useTokens from "@/hooks/useTokens";
+
 const AddCircleIcon = () => {
-    const primaryColor = getComputedStyle(document.documentElement)
-        .getPropertyValue('--buttonText')
-        .trim();
+    const { tenant } = useTokens();
+    const primaryColor = tenant?.theme?.buttonText?.trim();
 
     return (
         <svg

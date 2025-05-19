@@ -1,7 +1,9 @@
+import useTokens from "@/hooks/useTokens";
+
 const MenuIcon = () => {
-    const primaryColor = getComputedStyle(document.documentElement)
-        .getPropertyValue('--primary')
-        .trim();
+    const { tenant } = useTokens();
+    const primaryColor = tenant?.theme?.primary?.trim();
+
     return (
         <svg
             width="16"

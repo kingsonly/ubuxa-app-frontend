@@ -1,11 +1,13 @@
+import useTokens from "@/hooks/useTokens";
+
 type HeaderBadgeIconProps = {
     image: string;
 };
 const HeaderBadgeIcon = (props: HeaderBadgeIconProps) => {
     const { image } = props;
-    const primaryColor = getComputedStyle(document.documentElement)
-        .getPropertyValue('--primary')
-        .trim();
+    const { tenant } = useTokens();
+    const primaryColor = tenant?.theme?.primary?.trim();
+
 
     return (
         <svg width="129"

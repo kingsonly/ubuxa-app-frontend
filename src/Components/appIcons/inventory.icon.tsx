@@ -1,8 +1,8 @@
-const InventoryIcon = () => {
-    const primaryColor = getComputedStyle(document.documentElement)
-        .getPropertyValue('--primary')
-        .trim();
+import useTokens from "@/hooks/useTokens";
 
+const InventoryIcon = () => {
+    const { tenant } = useTokens();
+    const primaryColor = tenant?.theme?.primary?.trim();
     return (
         <svg width="129"
             height="128"

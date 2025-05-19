@@ -1,10 +1,9 @@
+import useTokens from "@/hooks/useTokens";
+
 const AddCircleGoldIcon = () => {
-    const primaryColor = getComputedStyle(document.documentElement)
-        .getPropertyValue('--primary')
-        .trim();
-    const secondaryColor = getComputedStyle(document.documentElement)
-        .getPropertyValue('--ascent')
-        .trim();
+    const { tenant } = useTokens();
+    const primaryColor = tenant?.theme?.primary?.trim();
+    const secondaryColor = tenant?.theme?.ascent?.trim();
 
     return (
         <svg
