@@ -5,25 +5,26 @@ import tailwindcss from "tailwindcss";
 import tsconfigPaths from "vite-tsconfig-paths";
 // https://vitejs.dev/config/
 export default defineConfig({
-    server: {
-        host: "0.0.0.0",
-        port: 5173,
-        watch: {
-            usePolling: true,
-        },
+  server: {
+    host: "0.0.0.0",
+    port: 5173,
+    allowedHosts: ["ubuxa.lvh.me"],
+    watch: {
+      usePolling: true,
     },
-    plugins: [react(), tsconfigPaths()],
-    resolve: {
-        alias: {
-            "@": resolve(__dirname, "src"),
-        },
+  },
+  plugins: [react(), tsconfigPaths()],
+  resolve: {
+    alias: {
+      "@": resolve(__dirname, "src"),
     },
-    optimizeDeps: {
-        include: ["@axios", "@react-icons"],
+  },
+  optimizeDeps: {
+    include: ["@axios", "@react-icons"],
+  },
+  css: {
+    postcss: {
+      plugins: [tailwindcss()],
     },
-    css: {
-        postcss: {
-            plugins: [tailwindcss()],
-        },
-    },
+  },
 });
