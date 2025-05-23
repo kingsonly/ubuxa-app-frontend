@@ -238,8 +238,7 @@
 "use client"
 
 import type React from "react"
-
-import { Suspense, useState } from "react"
+import { Suspense, useState, useEffect } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { z } from "zod"
 import Cookies from "js-cookie"
@@ -251,6 +250,7 @@ import { useApiCall } from "../utils/useApiCall"
 import LoadingSpinner from "../Components/Loaders/LoadingSpinner"
 import { useIsLoggedIn } from "../utils/helpers"
 import { useTenant } from "@/Context/tenantsContext"
+import { useTenantCustomization } from "@/hooks/useTenantCustomization"
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -278,8 +278,32 @@ const LoginPage = () => {
   const [loading, setLoading] = useState<boolean>(false)
   const [formErrors, setFormErrors] = useState<z.ZodIssue[]>([])
   const [apiError, setApiError] = useState<string | null>(null)
-  const { login: setTenantContext } = useTenant();
+  const { login: setTenantContext} = useTenant();
+  const { tenantInfo : activeTenant, loading: tenantLoading } = useTenantCustomization()
+
+  const [tenantBranding, setTenantBranding] = useState({
+    logoUrl: "/Images/logo.png", // Default logo
+    theme: {
+      primary: "#3b82f6", // Default blue
+      secondary: "#10b981", // Default green
+    }
+  });
+  
   useIsLoggedIn("/home")
+
+  // Fetch tenant branding based on URL
+  useEffect(() => {
+    const fetchTenantBranding = async () => {
+      
+      if(activeTenant){
+        console.log("Emeka",activeTenant)
+        setTenantContext(activeTenant)
+        
+      }
+    };
+
+    fetchTenantBranding();
+  }, [tenantLoading]);
 
   const redirectPath = searchParams.get("redirect")
 
@@ -299,7 +323,6 @@ const LoginPage = () => {
     setLoading(true)
 
     try {
-
       const validatedData = loginSchema.parse(formData)
       const response = await apiCall({
         endpoint: "/v1/auth/login",
@@ -310,7 +333,11 @@ const LoginPage = () => {
       })
 
       const user = response.data.user;
-      const tenantInfo = user.tenants?.[0]; // Assuming tenant is selected or default
+      
+      // If we already have a tenant from URL context, use that
+      // Otherwise use the first tenant from user's tenants
+      const tenantInfo = user.tenants?.[0];
+        
       const tenant = tenantInfo?.tenant;
       const role = tenantInfo?.role;
 
@@ -323,20 +350,13 @@ const LoginPage = () => {
         email: user.email,
         phone: user.phone,
         location: user.location,
-        //staffId: user.staffId,
         status: user.status,
         isBlocked: user.isBlocked,
-
-        // createdAt: user.createdAt,
-        // updatedAt: user.updatedAt,
-        // deletedAt: user.deletedAt,
         roleId: tenantInfo?.roleId,
         role: {
           id: role?.id,
           role: role?.role,
           active: role?.active,
-          // permissionIds: role?.permissionIds,
-          // permissions: role?.permissions,
           created_at: role?.created_at,
           updated_at: role?.updated_at,
           deleted_at: role?.deleted_at,
@@ -352,12 +372,12 @@ const LoginPage = () => {
         },
       };
 
-
       Cookies.set("userData", JSON.stringify(userData), {
         expires: 7,
         path: "/",
         sameSite: "Lax",
-      }) // Token expires in 7 days
+      })
+      
       setTenantContext(tenant)
       navigate(redirectPath || "/home")
     } catch (error: any) {
@@ -403,12 +423,19 @@ const LoginPage = () => {
   const isFormFilled = isForgotPassword
     ? forgotPasswordSchema.safeParse(formData).success
     : loginSchema.safeParse(formData).success
-
+   if(tenantLoading){
+        return(<div>Loading</div>)
+   }
   return (
     <Suspense fallback={<LoadingSpinner parentClass="flex items-center justify-center w-full h-full" />}>
       <div className="flex min-h-screen w-full">
-        {/* Left side - Decorative */}
-        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary to-secondary relative overflow-hidden">
+        {/* Left side - Decorative with tenant colors */}
+        <div 
+          className="hidden lg:flex lg:w-1/2 relative overflow-hidden"
+          style={{
+            background: `linear-gradient(to bottom right, ${tenantBranding.theme.primary}, ${tenantBranding.theme.secondary})`
+          }}
+        >
           <div className="absolute inset-0 bg-black opacity-20"></div>
           <div className="absolute inset-0 flex flex-col justify-center items-center text-white p-12 z-10">
             <h1 className="text-4xl font-bold mb-6">Welcome to Your Workspace</h1>
@@ -467,7 +494,16 @@ const LoginPage = () => {
         {/* Right side - Login form */}
         <div className="w-full lg:w-1/2 flex flex-col items-center justify-center px-6 py-12 lg:px-8 bg-white">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
-            <img src="/Images/logo.png" alt="Logo" className="mx-auto h-16 w-auto" />
+           
+            <img 
+              src={tenantBranding.logoUrl} 
+              alt="Logo" 
+              className="mx-auto h-16 w-auto" 
+              onError={(e) => {
+                
+                (e.target as HTMLImageElement).src = "/Images/logo.png";
+              }}
+            />
 
             <div className="mt-10 text-center">
               <h2 className="text-3xl font-bold tracking-tight text-gray-900">
@@ -566,7 +602,6 @@ const LoginPage = () => {
                     variant={isFormFilled ? "gradient" : "gray"}
                     disabled={!isFormFilled}
                   />
-
                 </div>
               </form>
 
