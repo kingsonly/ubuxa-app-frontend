@@ -76,6 +76,7 @@ export const TenantProvider = ({ children }: { children: ReactNode }) => {
         if (isMounted) {
           setColors(tenant.theme)
           updateColors(tenant.theme)
+          setFavicon(tenant.logoUrl)
         }
       } catch (error) {
         console.error("Error fetching colors:", error)
@@ -97,6 +98,18 @@ export const TenantProvider = ({ children }: { children: ReactNode }) => {
 
   const login = (tenantData: any) => {
     setTenant(tenantData)
+  }
+
+  function setFavicon(href: string) {
+    let link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']");
+
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'icon';
+      document.head.appendChild(link);
+    }
+
+    link.href = href;
   }
 
   return (

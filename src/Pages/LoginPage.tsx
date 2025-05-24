@@ -281,6 +281,7 @@ const LoginPage = () => {
   const { login: setTenantContext } = useTenant();
   useIsLoggedIn("/home")
 
+
   const redirectPath = searchParams.get("redirect")
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
