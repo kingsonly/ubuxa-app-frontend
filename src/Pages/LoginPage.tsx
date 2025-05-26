@@ -481,8 +481,7 @@
 "use client"
 
 import type React from "react"
-
-import { Suspense, useState } from "react"
+import { Suspense, useState, useEffect } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { z } from "zod"
 import Cookies from "js-cookie"
@@ -494,10 +493,12 @@ import { useApiCall } from "../utils/useApiCall"
 import LoadingSpinner from "../Components/Loaders/LoadingSpinner"
 import { useIsLoggedIn } from "../utils/helpers"
 import { useTenant } from "@/Context/tenantsContext"
+import { useTenantCustomization } from "@/hooks/useTenantCustomization"
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
+  tenantId: z.string().optional(),
 })
 
 const forgotPasswordSchema = z.object({
@@ -527,7 +528,20 @@ const LoginPage = () => {
   const [apiError, setApiError] = useState<string | null>(null)
   const { login: setTenantContext } = useTenant()
 
+  const { tenantInfo: activeTenant, loading: tenantLoading } = useTenantCustomization()
+
   useIsLoggedIn("/home")
+
+  // Fetch tenant branding based on URL
+  useEffect(() => {
+    const fetchTenantBranding = async () => {
+      if (activeTenant) {
+        setTenantContext(activeTenant)
+      }
+    }
+
+    fetchTenantBranding()
+  }, [activeTenant, setTenantContext])
 
   const redirectPath = searchParams.get("redirect")
 
@@ -548,12 +562,18 @@ const LoginPage = () => {
 
     try {
       const validatedData = loginSchema.parse(formData)
+
+      if (activeTenant) {
+        validatedData.tenantId = activeTenant.id
+        console.log("tenants")
+      }
+
       const response = await apiCall({
         endpoint: "/v1/auth/login",
         method: "post",
         data: validatedData,
         successMessage: "Login Successful!",
-        showToast: false,
+        showToast: false
       })
 
       if (response.data.hasMultipleTenants) {
@@ -605,6 +625,7 @@ const LoginPage = () => {
         path: "/",
         sameSite: "Lax",
       })
+
       setTenantContext(tenant)
       navigate(redirectPath || "/home")
     } catch (error: any) {
@@ -722,6 +743,13 @@ const LoginPage = () => {
     ? forgotPasswordSchema.safeParse(formData).success
     : loginSchema.safeParse(formData).success
 
+  if (tenantLoading) {
+    return (<div className="flex flex-col items-center justify-center min-h-screen p-4">
+      <img src="/Images/loader.gif" alt="Loader" className="w-['100px'] height-['100px']" />
+      <p className="text-lg text-[#333333]">Loading tenant information...</p>
+    </div>)
+  }
+
   return (
     <Suspense fallback={<LoadingSpinner parentClass="flex items-center justify-center w-full h-full" />}>
       <div className="flex min-h-screen w-full">
@@ -785,7 +813,11 @@ const LoginPage = () => {
         {/* Right side - Login form */}
         <div className="w-full lg:w-1/2 flex flex-col items-center justify-center px-6 py-12 lg:px-8 bg-white">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
-            <img src="/Images/logo.png" alt="Logo" className="mx-auto h-16 w-auto" />
+            <img
+              src={activeTenant?.logoUrl || "/Images/logo.png"}
+              alt="Logo"
+              className="mx-auto h-16 w-auto"
+            />
 
             <div className="mt-10 text-center">
               <h2 className="text-3xl font-bold tracking-tight text-gray-900">
