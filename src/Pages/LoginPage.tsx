@@ -499,7 +499,6 @@ const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
   tenantId: z.string().optional(),
-
 })
 
 const forgotPasswordSchema = z.object({
@@ -511,7 +510,6 @@ type LoginFormData = z.infer<typeof loginSchema>
 const defaultLoginFormData: LoginFormData = {
   email: "",
   password: "",
-
 }
 
 const LoginPage = () => {
@@ -528,26 +526,22 @@ const LoginPage = () => {
   const [selectedTenantId, setSelectedTenantId] = useState<string | null>(null)
   const [formErrors, setFormErrors] = useState<z.ZodIssue[]>([])
   const [apiError, setApiError] = useState<string | null>(null)
-  const { login: setTenantContext} = useTenant()
+  const { login: setTenantContext } = useTenant()
 
-  const { tenantInfo : activeTenant, loading: tenantLoading } = useTenantCustomization()
+  const { tenantInfo: activeTenant, loading: tenantLoading } = useTenantCustomization()
 
- 
-  
   useIsLoggedIn("/home")
 
   // Fetch tenant branding based on URL
   useEffect(() => {
     const fetchTenantBranding = async () => {
-      
-      if(activeTenant){
-        console.log("Emeka",activeTenant)
+      if (activeTenant) {
         setTenantContext(activeTenant)
       }
-    };
+    }
 
-    fetchTenantBranding();
-  }, [tenantLoading]);
+    fetchTenantBranding()
+  }, [activeTenant, setTenantContext])
 
   const redirectPath = searchParams.get("redirect")
 
@@ -565,11 +559,11 @@ const LoginPage = () => {
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
-    
+
     try {
       const validatedData = loginSchema.parse(formData)
 
-      if(activeTenant){
+      if (activeTenant) {
         validatedData.tenantId = activeTenant.id
         console.log("tenants")
       }
@@ -580,17 +574,6 @@ const LoginPage = () => {
         data: validatedData,
         successMessage: "Login Successful!",
         showToast: false
-      })
-
-      const user = response.data.user;
-      
-      // If we already have a tenant from URL context, use that
-      // Otherwise use the first tenant from user's tenants
-      const tenantInfo = user.tenants?.[0];
-        
-      const tenant = tenantInfo?.tenant;
-      const role = tenantInfo?.role;
-        showToast: false,
       })
 
       if (response.data.hasMultipleTenants) {
@@ -635,7 +618,6 @@ const LoginPage = () => {
           faviconUrl: tenant?.faviconUrl,
           theme: tenant?.theme,
         },
-      };
       }
 
       Cookies.set("userData", JSON.stringify(userData), {
@@ -643,8 +625,7 @@ const LoginPage = () => {
         path: "/",
         sameSite: "Lax",
       })
-      
-      })
+
       setTenantContext(tenant)
       navigate(redirectPath || "/home")
     } catch (error: any) {
@@ -761,88 +742,83 @@ const LoginPage = () => {
   const isFormFilled = isForgotPassword
     ? forgotPasswordSchema.safeParse(formData).success
     : loginSchema.safeParse(formData).success
-   if(tenantLoading){
-        return(<div>Loading</div>)
-   }
+
+  if (tenantLoading) {
+    return (<div className="flex flex-col items-center justify-center min-h-screen p-4">
+      <img src="/Images/loader.gif" alt="Loader" className="w-['100px'] height-['100px']" />
+      <p className="text-lg text-[#333333]">Loading tenant information...</p>
+    </div>)
+  }
+
   return (
     <Suspense fallback={<LoadingSpinner parentClass="flex items-center justify-center w-full h-full" />}>
-    <div className="flex min-h-screen w-full">
-      {/* Left side - Decorative */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary to-secondary relative overflow-hidden">
-        <div className="absolute inset-0 bg-black opacity-20"></div>
-        <div className="absolute inset-0 flex flex-col justify-center items-center text-white p-12 z-10">
-          <h1 className="text-4xl font-bold mb-6">Welcome to Your Workspace</h1>
-          <p className="text-xl max-w-md text-center mb-8">
-            Access your projects, collaborate with your team, and boost your productivity.
-          </p>
-          <div className="grid grid-cols-2 gap-6 w-full max-w-md">
-            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-xl">
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mb-3">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                </svg>
-              </div>
-              <h3 className="font-medium mb-1">Secure Access</h3>
-              <p className="text-sm text-white/80">Your data is protected with enterprise-grade security</p>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-xl">
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mb-3">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="9" cy="7" r="4"></circle>
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                </svg>
-              </div>
-              <h3 className="font-medium mb-1">Team Collaboration</h3>
-              <p className="text-sm text-white/80">Work together seamlessly with your team</p>
-            </div>
-          </div>
-        </div>
-        {/* Decorative circles */}
-        <div className="absolute -bottom-32 -left-32 w-80 h-80 rounded-full bg-white/10"></div>
-        <div className="absolute -top-32 -right-32 w-80 h-80 rounded-full bg-white/10"></div>
-      </div>
-
-      {/* Right side - Login form */}
-      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center px-6 py-12 lg:px-8 bg-white">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
-
-          <img src={
-            activeTenant?.logoUrl || "/Images/logo.png"
-          } alt="Logo" className="mx-auto h-16 w-auto" />
-
-          <div className="mt-10 text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900">
-              {isForgotPassword ? "Reset Your Password" : "Sign in to your account"}
-            </h2>
-            <p className="mt-2 text-sm text-gray-600 max-w-sm mx-auto">
-              {isForgotPassword
-                ? "Enter your email address and we'll send you a link to reset your password."
-                : "Enter your credentials to access your workspace and continue your work."}
+      <div className="flex min-h-screen w-full">
+        {/* Left side - Decorative */}
+        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary to-secondary relative overflow-hidden">
+          <div className="absolute inset-0 bg-black opacity-20"></div>
+          <div className="absolute inset-0 flex flex-col justify-center items-center text-white p-12 z-10">
+            <h1 className="text-4xl font-bold mb-6">Welcome to Your Workspace</h1>
+            <p className="text-xl max-w-md text-center mb-8">
+              Access your projects, collaborate with your team, and boost your productivity.
             </p>
+            <div className="grid grid-cols-2 gap-6 w-full max-w-md">
+              <div className="bg-white/10 backdrop-blur-sm p-4 rounded-xl">
+                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mb-3">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                  </svg>
+                </div>
+                <h3 className="font-medium mb-1">Secure Access</h3>
+                <p className="text-sm text-white/80">Your data is protected with enterprise-grade security</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm p-4 rounded-xl">
+                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mb-3">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                </div>
+                <h3 className="font-medium mb-1">Team Collaboration</h3>
+                <p className="text-sm text-white/80">Work together seamlessly with your team</p>
+              </div>
+            </div>
           </div>
+          {/* Decorative circles */}
+          <div className="absolute -bottom-32 -left-32 w-80 h-80 rounded-full bg-white/10"></div>
+          <div className="absolute -top-32 -right-32 w-80 h-80 rounded-full bg-white/10"></div>
         </div>
+
+        {/* Right side - Login form */}
+        <div className="w-full lg:w-1/2 flex flex-col items-center justify-center px-6 py-12 lg:px-8 bg-white">
+          <div className="sm:mx-auto sm:w-full sm:max-w-md">
+            <img
+              src={activeTenant?.logoUrl || "/Images/logo.png"}
+              alt="Logo"
+              className="mx-auto h-16 w-auto"
+            />
+
             <div className="mt-10 text-center">
               <h2 className="text-3xl font-bold tracking-tight text-gray-900">
                 {hasMultipleTenants
@@ -861,26 +837,6 @@ const LoginPage = () => {
             </div>
           </div>
 
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
-          <div className="bg-white px-6 py-12 shadow-sm sm:rounded-lg sm:px-12 border border-gray-100">
-            <form className="space-y-6" onSubmit={isForgotPassword ? handleForgotPassword : handleLogin} noValidate>
-              <div>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <Input
-                    type="email"
-                    name="email"
-                    label="EMAIL"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="you@example.com"
-                    required={true}
-                    style="pl-10"
-                    className="flex flex-col"
-                    errorMessage={getFieldError("email")}
-                  />
-                </div>
-              </div>
           <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
             <div className="bg-white px-6 py-12 shadow-sm sm:rounded-lg sm:px-12 border border-gray-100">
               {hasMultipleTenants ? (
@@ -970,38 +926,6 @@ const LoginPage = () => {
                     </div>
                   </div>
 
-              {!isForgotPassword && (
-                <div>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      name="password"
-                      label="PASSWORD"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      placeholder="••••••••"
-                      required={true}
-                      style="pl-10"
-                      className="flex flex-col"
-                      errorMessage={getFieldError("password")}
-                      iconRight={
-                        showPassword ? (
-                          <EyeOff
-                            className="h-5 w-5 text-gray-400 cursor-pointer"
-                            onClick={() => setShowPassword(false)}
-                          />
-                        ) : (
-                          <Eye
-                            className="h-5 w-5 text-gray-400 cursor-pointer"
-                            onClick={() => setShowPassword(true)}
-                          />
-                        )
-                      }
-                    />
-                  </div>
-                </div>
-              )}
                   {!isForgotPassword && (
                     <div>
                       <div className="relative">
@@ -1035,29 +959,6 @@ const LoginPage = () => {
                     </div>
                   )}
 
-              {apiError && (
-                <div className="rounded-md bg-red-50 p-4">
-                  <div className="flex">
-                    <div className="flex-shrink-0">
-                      <svg
-                        className="h-5 w-5 text-red-400"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        aria-hidden="true"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <div className="ml-3">
-                      <h3 className="text-sm font-medium text-red-800">{apiError}</h3>
-                    </div>
-                  </div>
-                </div>
-              )}
                   {apiError && (
                     <div className="rounded-md bg-red-50 p-4">
                       <div className="flex">
@@ -1082,16 +983,6 @@ const LoginPage = () => {
                     </div>
                   )}
 
-              <div className="flex items-center justify-center">
-                <ProceedButton
-                  type="submit"
-                  loading={loading}
-                  variant={isFormFilled ? "gradient" : "gray"}
-                  disabled={!isFormFilled}
-                />
-
-              </div>
-            </form>
                   <div className="flex items-center justify-center">
                     <ProceedButton
                       type="submit"
@@ -1103,17 +994,6 @@ const LoginPage = () => {
                 </form>
               )}
 
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200"></div>
-                </div>
-                <div className="relative flex justify-center text-sm font-medium leading-6">
-                  <span className="bg-white px-6 text-gray-500">
-                    {isForgotPassword ? "Remember your password?" : "Forgot your password?"}
-                  </span>
-                </div>
-              </div>
               {!hasMultipleTenants && (
                 <div className="mt-6">
                   <div className="relative">
@@ -1127,29 +1007,6 @@ const LoginPage = () => {
                     </div>
                   </div>
 
-              <div className="mt-6 flex justify-center">
-                <button
-                  type="button"
-                  className="text-sm font-medium text-blue-600 hover:text-blue-500 flex items-center gap-1"
-                  onClick={() => {
-                    setIsForgotPassword(!isForgotPassword)
-                    setFormData(defaultLoginFormData)
-                    setFormErrors([])
-                    setApiError(null)
-                  }}
-                >
-                  {isForgotPassword ? (
-                    <>
-                      <ChevronLeft className="h-4 w-4" />
-                      Back to login
-                    </>
-                  ) : (
-                    "Reset your password"
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
                   <div className="mt-6 flex justify-center">
                     <button
                       type="button"
@@ -1175,17 +1032,16 @@ const LoginPage = () => {
               )}
             </div>
 
-          <p className="mt-10 text-center text-sm text-gray-500">
-            Need help?{" "}
-            <a href="#" className="font-semibold leading-6 text-blue-600 hover:text-blue-500">
-              Contact support
-            </a>
-          </p>
+            <p className="mt-10 text-center text-sm text-gray-500">
+              Need help?{" "}
+              <a href="#" className="font-semibold leading-6 text-blue-600 hover:text-blue-500">
+                Contact support
+              </a>
+            </p>
+          </div>
         </div>
       </div>
-    </div>
-  </Suspense>
-
+    </Suspense>
   )
 }
 
