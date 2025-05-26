@@ -90,10 +90,10 @@ export default function ErrorPage({
                 If this problem persists, please contact our support team by
                 sending an email to{" "}
                 <a
-                  href="mailto:support@a4tpowersolutions.com"
+                  href="mailto:support@ubuxa.ng"
                   className="text-primary hover:underline"
                 >
-                  support@a4tpowersolutions.com
+                  support@ubuxa.ng
                 </a>
                 .
               </p>

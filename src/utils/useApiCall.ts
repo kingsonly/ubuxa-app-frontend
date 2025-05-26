@@ -53,7 +53,7 @@ export const useApiCall = () => {
       data,
       headers: {
         ...headers,
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${headers.Authorization || token}`,
       },
     };
 
