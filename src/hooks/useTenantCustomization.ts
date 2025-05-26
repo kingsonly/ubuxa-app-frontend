@@ -17,7 +17,7 @@ type TenantInfo = z.infer<typeof tenantSchema>;
 
 export function useTenantCustomization() {
   const { apiCall } = useApiCall();
-  const [tenantInfo, setTenantInfo] = useState<TenantInfo | null>(null);
+  const [tenantInfo, setTenantInfo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { login: setTenantContext} = useTenant();
