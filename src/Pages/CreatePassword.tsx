@@ -66,14 +66,13 @@ const LoginPage = () => {
       <img
         src={loginbg}
         alt="background"
-        className={`absolute w-full h-full object-cover object-center ${
-          newPassword || confirmPassword ? "opacity-60" : "opacity-40"
-        }`}
+        className={`absolute w-full h-full object-cover object-center ${newPassword || confirmPassword ? "opacity-60" : "opacity-40"
+          }`}
       />
       <img src={logo} alt="Logo" className="w-[120px] z-10" />
       <section className="flex w-full flex-col items-center justify-center gap-2 z-10 max-w-[500px]">
         <div className="flex flex-col items-center justify-center">
-          <h1 className="text-[32px] text-primary font-medium font-secondary">
+          <h1 className="text-[32px] text-customPrimary font-medium font-secondary">
             Welcome
           </h1>
           <em className="text-xs text-textDarkGrey text-center max-w-[220px]">
@@ -95,11 +94,10 @@ const LoginPage = () => {
             placeholder="New Password"
             required={true}
             errorMessage=""
-            style={`mb-4 ${
-              newPassword || confirmPassword
+            style={`mb-4 ${newPassword || confirmPassword
                 ? "border-strokeCream"
                 : "border-strokeGrey"
-            }`}
+              }`}
             iconRight={
               <img
                 src={showPassword ? eyeopen : eyeclosed}
@@ -117,11 +115,10 @@ const LoginPage = () => {
             placeholder="Confirm New Password"
             required={true}
             errorMessage=""
-            style={`${
-              newPassword || confirmPassword
+            style={`${newPassword || confirmPassword
                 ? "border-strokeCream"
                 : "border-strokeGrey"
-            }`}
+              }`}
             iconRight={
               <img
                 src={showPassword ? eyeopen : eyeclosed}

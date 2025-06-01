@@ -207,7 +207,7 @@ const TransactionTable = ({
       customValue: (_value: any, rowData: { transactionId: string }) => {
         return (
           <span
-            className="px-2 py-1 text-[10px] text-textBlack hover:text-buttonText font-medium bg-[#F6F8FA] border-[0.2px] border-strokeGreyTwo rounded-full shadow-innerCustom cursor-pointer transition-all hover:bg-primary"
+            className="px-2 py-1 text-[10px] text-textBlack hover:text-customButtonText font-medium bg-[#F6F8FA] border-[0.2px] border-strokeGreyTwo rounded-full shadow-innerCustom cursor-pointer transition-all hover:bg-customPrimary"
             onClick={() => {
               setTransactionID(rowData.transactionId);
               setIsOpen(true);

@@ -223,11 +223,10 @@ const CreateNewSale = observer(
             noValidate
           >
             <div
-              className={`flex items-center justify-center px-4 w-full min-h-[64px] border-b-[0.6px] border-strokeGreyThree ${
-                getIsFormFilled()
+              className={`flex items-center justify-center px-4 w-full min-h-[64px] border-b-[0.6px] border-strokeGreyThree ${getIsFormFilled()
                   ? "bg-paleCreamGradientLeft"
                   : "bg-paleGrayGradientLeft"
-              }`}
+                }`}
             >
               <h2
                 style={{ textShadow: "1px 1px grey" }}
@@ -236,8 +235,8 @@ const CreateNewSale = observer(
                 {!summaryState
                   ? "New Sale"
                   : !SaleStore.paymentDetails.tx_ref
-                  ? "Sale Summary"
-                  : "Proceed to Payment"}
+                    ? "Sale Summary"
+                    : "Proceed to Payment"}
               </h2>
             </div>
             <div className="flex flex-col items-center justify-center w-full px-[2.5em] gap-4 py-8">

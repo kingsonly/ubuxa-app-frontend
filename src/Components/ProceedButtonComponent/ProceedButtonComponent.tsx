@@ -22,10 +22,10 @@ const ProceedButton: React.FC<ButtonProps> = ({
   // Define different styles for each variant
   const variantClasses = {
     yellow:
-      "bg-secondary border border-[#A58730]/20 shadow-[2px_6px_8px_0px_rgba(0,0,0,0.15)] hover:bg-[#941C12] hover:border-[#63130C]/20",
-    gray: "bg-secondary border border-[#9BA4BA]/20",
-    gradient: "bg-secondary border border-[#A58730]/20 shadow-innerCustom",
-    red: "bg-primary border border-[#63130C]/20",
+      "bg-customSecondary border border-[#A58730]/20 shadow-[2px_6px_8px_0px_rgba(0,0,0,0.15)] hover:bg-[#941C12] hover:border-[#63130C]/20",
+    gray: "bg-customSecondary border border-[#9BA4BA]/20",
+    gradient: "bg-customSecondary border border-[#A58730]/20 shadow-innerCustom",
+    red: "bg-customPrimary border border-[#63130C]/20",
   };
 
   //return 

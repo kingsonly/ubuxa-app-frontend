@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     port: 5173,
-    allowedHosts: ["ubuxa.lvh.me","kingsonly.lvh.me"],
+    allowedHosts: ["kingsonly.lvh.me", "ubuxa.lvh.me"],
     watch: {
       usePolling: true,
     },

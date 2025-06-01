@@ -114,7 +114,7 @@ export const Input = forwardRef<HTMLInputElement, InputType>(
               }
         ${value ? "border-strokeCream" : "border-strokeGrey"}
           items-center w-full  px-[1.1em] py-[1.25em] gap-1 rounded-3xl h-[48px] border-[0.6px]
-          transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
+          transition-all focus:outline-none focus:ring-2 focus:ring-customPrimary focus:border-transparent`}
             onClick={onClick}
           >
             <span
@@ -311,7 +311,7 @@ export const ModalInput = ({
             ? "flex-col rounded-[20px] border-strokeCream"
             : "flex-row rounded-3xl h-[48px] border-strokeGrey"
             } items-center gap-[4px] ${style} ${disabled ? "bg-gray-200 cursor-not-allowed" : "bg-white"
-            }  w-full max-w-full py-[1.25em] border-[0.6px] transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent `}
+            }  w-full max-w-full py-[1.25em] border-[0.6px] transition-all focus:outline-none focus:ring-2 focus:ring-customPrimary focus:border-transparent `}
         >
           {isItemsSelected && (
             <span className="absolute flex left-[1.6em] -top-2 z-40 items-center justify-center text-[10px] text-textGrey font-semibold px-2 py-0.5 max-w-max h-4 bg-white border-[0.6px] border-strokeCream rounded-[200px] transition-opacity duration-500 ease-in-out opacity-100">
@@ -425,7 +425,7 @@ export const FileInput = ({
           ${disabled ? "bg-gray-200 cursor-not-allowed" : "bg-white"}
           items-center w-full max-w-full h-[48px] px-[1.1em] py-[1.25em] 
           gap-1 rounded-3xl border-[0.6px] cursor-pointer
-          transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
+          transition-all focus:outline-none focus:ring-2 focus:ring-customPrimary focus:border-transparent`}
         onClick={openFile}
       >
         <span
@@ -756,7 +756,7 @@ export const SelectInput = ({
           className={`relative flex items-center
             w-full max-w-full h-[48px] px-[1.25em] py-[1.25em] 
             rounded-3xl text-sm text-textGrey border-[0.6px] gap-1 cursor-pointer
-            transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent
+            transition-all focus:outline-none focus:ring-2 focus:ring-customPrimary focus:border-transparent
             ${disabled ? "bg-gray-200 cursor-not-allowed" : "bg-white"}
             ${value ? "border-strokeCream" : "border-strokeGrey"}
             ${style}`}
@@ -887,7 +887,7 @@ export const SelectMultipleInput = ({
           ${disabled ? "bg-gray-200 cursor-not-allowed" : "bg-white"} 
           w-full h-[48px] px-[1.3em] py-[1em] cursor-pointer
           rounded-3xl text-sm text-textGrey border-[0.6px] gap-[4.23px]
-          transition-all focus:outline-none focus:ring-2 focus:ring-primary`}
+          transition-all focus:outline-none focus:ring-2 focus:ring-customPrimary`}
           onClick={() => !disabled && setIsOpen(!isOpen)}
         >
           <span
@@ -972,12 +972,12 @@ export const ToggleInput = ({
     >
       <div
         className={`absolute inset-y-1 inset-x-1 rounded-full transition-colors duration-300 border-[0.4px] ${isChecked
-          ? "bg-secondary border-ascent"
-          : "bg-primary border-ascent"
+          ? "bg-customSecondary border-customAscent"
+          : "bg-customPrimary border-customAscent"
           }`}
       ></div>
       <div
-        className={`absolute top-2.5 left-2.5 w-5 h-5 rounded-full shadow-md transition-transform duration-300 ${isChecked ? "transform translate-x-6 bg-primary" : "bg-secondary"
+        className={`absolute top-2.5 left-2.5 w-5 h-5 rounded-full shadow-md transition-transform duration-300 ${isChecked ? "transform translate-x-6 bg-customPrimary" : "bg-customSecondary"
           }`}
       ></div>
     </div>

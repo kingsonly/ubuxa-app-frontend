@@ -150,7 +150,7 @@ const RoleAndPermissions = ({
                     className={`flex items-center justify-center ${columnWidth[3]}`}
                   >
                     <span
-                      className="flex items-center justify-center px-2 pt-[1px] text-[10px] text-textBlack hover:text-buttonText font-medium bg-[#F6F8FA] border-[0.2px] border-strokeGreyTwo rounded-[32px] shadow-innerCustom cursor-pointer hover:bg-primary"
+                      className="flex items-center justify-center px-2 pt-[1px] text-[10px] text-textBlack hover:text-customButtonText font-medium bg-[#F6F8FA] border-[0.2px] border-strokeGreyTwo rounded-[32px] shadow-innerCustom cursor-pointer hover:bg-customPrimary"
                       onClick={async () => {
                         setRoleData({
                           id: role.id,

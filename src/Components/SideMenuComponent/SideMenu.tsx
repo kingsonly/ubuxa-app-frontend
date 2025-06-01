@@ -42,8 +42,8 @@ export const SideMenu = (props: SideMenuType) => {
             <span
               className={`flex items-center justify-center max-w-max px-1 border-[0.2px] text-xs rounded-full transition-all
               ${location.pathname === item.link
-                  ? "bg-ascent text-textDarkBrown border-textDarkBrown"
-                  : "bg-ascent text-textDarkGrey border-strokeGrey group-hover:bg-ascent group-hover:text-textDarkBrown group-hover:border-textDarkBrown"
+                  ? "bg-customAscent text-textDarkBrown border-textDarkBrown"
+                  : "bg-customAscent text-textDarkGrey border-strokeGrey group-hover:bg-customAscent group-hover:text-textDarkBrown group-hover:border-textDarkBrown"
                 }`}
             >
               {formatNumberWithSuffix(item?.count)}

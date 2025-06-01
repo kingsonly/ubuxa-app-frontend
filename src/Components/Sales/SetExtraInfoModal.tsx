@@ -115,7 +115,7 @@ const SetExtraInfoModal = observer(
               </button>
             </div>
             <p
-              className={`bg-primary w-full px-2 py-1 text-textGrey text-xs italic font-medium ${extraInfoModal === "miscellaneous"
+              className={`bg-customPrimary w-full px-2 py-1 text-textGrey text-xs italic font-medium ${extraInfoModal === "miscellaneous"
                 ? "rounded-md"
                 : "rounded-full"
                 }`}

@@ -534,6 +534,7 @@ const LoginPage = () => {
 
   // Fetch tenant branding based on URL
   useEffect(() => {
+
     const fetchTenantBranding = async () => {
       if (activeTenant) {
         setTenantContext(activeTenant)
@@ -550,6 +551,7 @@ const LoginPage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }))
     resetFormErrors(name)
   }
+
 
   const resetFormErrors = (name: string) => {
     setFormErrors((prev) => prev.filter((error) => error.path[0] !== name))
@@ -627,7 +629,17 @@ const LoginPage = () => {
       })
 
       setTenantContext(tenant)
-      navigate(redirectPath || "/home")
+      switch (tenant?.status) {
+        case "ACTIVE":
+          navigate(redirectPath || "/home")
+          break
+        case "DEACTIVATED":
+          navigate("/deactivated")
+          break
+        default:
+          navigate("/onboarding")
+          break
+      }
     } catch (error: any) {
       if (error instanceof z.ZodError) {
         setFormErrors(error.issues)
@@ -754,7 +766,7 @@ const LoginPage = () => {
     <Suspense fallback={<LoadingSpinner parentClass="flex items-center justify-center w-full h-full" />}>
       <div className="flex min-h-screen w-full">
         {/* Left side - Decorative */}
-        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary to-secondary relative overflow-hidden">
+        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-customPrimary to-customSecondary relative overflow-hidden">
           <div className="absolute inset-0 bg-black opacity-20"></div>
           <div className="absolute inset-0 flex flex-col justify-center items-center text-white p-12 z-10">
             <h1 className="text-4xl font-bold mb-6">Welcome to Your Workspace</h1>

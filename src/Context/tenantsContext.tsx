@@ -18,7 +18,7 @@ const updateColors = (colors: any) => {
   Object.keys(colors).forEach((color) => {
     const value = colors[color];
     if (value !== undefined && value !== null && value !== '') {
-      document.documentElement.style.setProperty(`--${color}`, value);
+      document.documentElement.style.setProperty(`--custom-${color}`, value);
     }
   });
 };

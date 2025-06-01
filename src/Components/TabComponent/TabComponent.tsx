@@ -56,8 +56,8 @@ const TabComponent: React.FC<TabComponentProps> = ({
             <span
               className={`flex items-center justify-center max-w-max px-1 border-[0.2px] text-xs rounded-full transition-all
             ${activeTab?.name === tab.name
-                  ? "bg-ascent text-textDarkBrown border-textDarkBrown"
-                  : "bg-ascent text-textDarkGrey border-strokeGrey group-hover:bg-ascent group-hover:text-textDarkBrown group-hover:border-textDarkBrown"
+                  ? "bg-customAscent text-textDarkBrown border-textDarkBrown"
+                  : "bg-customAscent text-textDarkGrey border-strokeGrey group-hover:bg-customAscent group-hover:text-textDarkBrown group-hover:border-textDarkBrown"
                 }`}
             >
               {tab.count && formatNumberWithSuffix(tab.count)}
