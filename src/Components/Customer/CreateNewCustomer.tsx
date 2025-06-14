@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { KeyedMutator } from "swr";
 import { Modal } from "../ModalComponent/Modal";
 import ProceedButton from "../ProceedButtonComponent/ProceedButtonComponent";
-import { Input, SelectInput } from "../InputComponent/Input";
+import { FileInput, Input, SelectInput } from "../InputComponent/Input";
 import { z } from "zod";
 import ApiErrorMessage from "../ApiErrorMessage";
 import { GooglePlacesInput } from "../InputComponent/GooglePlacesInput";
@@ -32,6 +32,20 @@ const customerSchema = z.object({
     .default("HOME"),
   longitude: z.string().optional(),
   latitude: z.string().optional(),
+  landmark: z.string().optional(),
+  customerImage: z
+    .instanceof(File)
+    .refine(
+      (file) =>
+        ["image/png", "image/jpeg", "image/jpg", "image/svg+xml"].includes(
+          file.type
+        ),
+      {
+        message: "Only PNG, JPEG, JPG, or SVG files are allowed.",
+      }
+    )
+    .nullable()
+    .default(null).optional(),
 });
 
 type CustomerFormData = z.infer<typeof customerSchema>;
@@ -43,6 +57,8 @@ const defaultFormData = {
   phone: "",
   addressType: "HOME" as "HOME" | "WORK",
   location: "",
+  landmark: "",
+  customerImage: null,
 };
 
 const CreateNewCustomer = ({
@@ -59,13 +75,23 @@ const CreateNewCustomer = ({
   );
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: {
+      target: { name: any; value: any; files: any };
+    }
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    const { name, value, files } = e.target;
+    if (name === "customerImage" && files && files.length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: files[0],
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+
     resetFormErrors(name);
   };
 
@@ -89,10 +115,18 @@ const CreateNewCustomer = ({
 
     try {
       const validatedData = customerSchema.parse(formData);
+      const submissionData = new FormData();
+      Object.entries(validatedData).forEach(([key, value]) => {
+        if (value instanceof File) {
+          submissionData.append(key, value);
+        } else if (value !== null && value !== undefined) {
+          submissionData.append(key, String(value));
+        }
+      });
       await apiCall({
         endpoint: "/v1/customers/create",
         method: "post",
-        data: validatedData,
+        data: submissionData,
         successMessage: "Customer created successfully!",
       });
 
@@ -132,11 +166,10 @@ const CreateNewCustomer = ({
         noValidate
       >
         <div
-          className={`flex items-center justify-center px-4 w-full min-h-[64px] border-b-[0.6px] border-strokeGreyThree ${
-            isFormFilled
-              ? "bg-paleCreamGradientLeft"
-              : "bg-paleGrayGradientLeft"
-          }`}
+          className={`flex items-center justify-center px-4 w-full min-h-[64px] border-b-[0.6px] border-strokeGreyThree ${isFormFilled
+            ? "bg-paleCreamGradientLeft"
+            : "bg-paleGrayGradientLeft"
+            }`}
         >
           <h2
             style={{ textShadow: "1px 1px grey" }}
@@ -186,6 +219,16 @@ const CreateNewCustomer = ({
             required={true}
             errorMessage={getFieldError("phone")}
           />
+          <FileInput
+            name="customerImage"
+            label="CUSTOMER IMAGE"
+            onChange={handleInputChange}
+            required={false}
+            accept=".jpg,.jpeg,.png,.svg"
+            placeholder="Upload Customer Image"
+            errorMessage={getFieldError("customerImage")}
+          />
+
           <GooglePlacesInput
             type="text"
             name="location"
@@ -202,6 +245,16 @@ const CreateNewCustomer = ({
                 latitude: coordinates?.lat || "",
               }));
             }}
+          />
+          <Input
+            type="text"
+            name="landmark"
+            label="Landmark"
+            value={formData.landmark || ""}
+            onChange={handleInputChange}
+            placeholder="Landmark"
+            required={false}
+            errorMessage={getFieldError("phone")}
           />
           <SelectInput
             label="Address Type"

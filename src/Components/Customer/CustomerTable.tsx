@@ -63,6 +63,8 @@ export type CustomerType = {
   isBlocked: boolean;
   status: string;
   roleId: string;
+  image?: string | null;
+  landmark?: string | null;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -223,7 +225,7 @@ const CustomerTable = ({
           </span>
         );
       },
-      rightIcon: <img src={clock} alt="clock icon" className="ml-auto" />,
+      //rightIcon: <img src={clock} alt="clock icon" className="ml-auto" />,
     },
     {
       title: "ACTIONS",

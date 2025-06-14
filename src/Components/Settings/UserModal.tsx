@@ -62,7 +62,7 @@ const UserModal = ({
 
   const dropDownList = {
     items: [
-      "Edit Staff Details",
+      // "Edit Staff Details",
       `${data?.isBlocked ? "Unblock" : "Block"} Staff`,
       "Delete Staff",
     ],

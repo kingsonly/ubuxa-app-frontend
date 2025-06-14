@@ -148,6 +148,7 @@ export const Input = forwardRef<HTMLInputElement, InputType>(
                 } placeholder:text-textGrey placeholder:font-normal placeholder:italic`}
               maxLength={maxLength}
               max={max}
+              onWheel={(e) => (e.target as HTMLInputElement).blur()}
             />
 
             {iconRight && iconRight}

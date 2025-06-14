@@ -1,30 +1,3 @@
-// import OnboardPaymentGateway from "@/Components/Onboard/OnboardPaymentGateway";
-// import OnboardTenantCustomization from "@/Components/Onboard/OnboardTenantCustomization";
-// import OnboardTenantRoleCreation from "@/Components/Onboard/OnboardTenantRoleCreation";
-// import OnboardTenantUserInvitation from "@/Components/Onboard/OnboardTenantUserInvitation";
-// import useTokens from "@/hooks/useTokens";
-
-// const Onboarding = () => {
-//   const { tenant } = useTokens();
-//   const render = () => {
-//     switch (tenant?.status) {
-//       case "ONBOARD_PAYMENT_DETAILS":
-//         return <OnboardPaymentGateway />
-//       case "ONBOARD_CUSTOMIZATION":
-//         return <OnboardTenantCustomization />
-//       case "ONBOARD_ROLE":
-//         return <OnboardTenantRoleCreation />
-//       case "ONBOARD_TEAMMATE":
-//         return <OnboardTenantUserInvitation />
-//     }
-//   }
-
-//   return <>{render()}</>;
-
-// };
-
-// export default Onboarding;
-
 "use client"
 
 import { useEffect } from "react"
@@ -43,7 +16,7 @@ import { useTenant } from "@/Context/tenantsContext"
 const OnboardingPage = () => {
   const navigate = useNavigate()
   const { tenant } = useTokens()
-  const { login: setTenantContext } = useTenant()
+  const { login: setTenantContext, tenant: tenantContext } = useTenant()
   //const [currentStep, setCurrentStep] = useState(1)
   useEffect(() => {
     // Redirect if tenant is already active
@@ -57,7 +30,7 @@ const OnboardingPage = () => {
 
   const updateTenantStatus = (newStatus: string) => {
     if (tenant) {
-      const updatedTenant = { ...tenant, status: newStatus }
+      const updatedTenant = { ...tenantContext, status: newStatus }
       setTenantContext(updatedTenant)
 
       // Update cookies
@@ -135,6 +108,8 @@ const OnboardingPage = () => {
         return <OnboardPaymentGateway updateTenantStatus={updateTenantStatus} />
     }
   }
+
+
 
   return (
     <Suspense fallback={<LoadingSpinner parentClass="flex items-center justify-center w-full h-full" />}>

@@ -25,11 +25,9 @@ const UsersAssigned = ({
             {usersColumnList.map((column, index) => (
               <span
                 key={index}
-                className={`flex items-center ${
-                  index === 2 ? "justify-center" : "justify-start"
-                } gap-1 ${
-                  userColumnWidth[index]
-                } text-xs font-light text-textDarkGrey`}
+                className={`flex items-center ${index === 2 ? "justify-center" : "justify-start"
+                  } gap-1 ${userColumnWidth[index]
+                  } text-xs font-light text-textDarkGrey`}
               >
                 <GoDotFill color="#E0E0E0" />
                 {column}
@@ -41,17 +39,17 @@ const UsersAssigned = ({
               <div className={`flex items-center gap-1 ${userColumnWidth[0]}`}>
                 <img src={roletwo} alt="icon" />
                 <span className="bg-[#EFF2FF] px-2 py-1 text-xs text-textBlack font-semibold rounded-full capitalize">
-                  {user.firstname} {user.lastname}
+                  {user?.user?.firstname} {user?.user?.lastname}
                 </span>
               </div>
               <div className={`${userColumnWidth[1]}`}>
                 <div className="flex items-center justify-center gap-1 bg-[#F6F8FA] px-2 py-1 w-max border-[0.4px] border-strokeGreyTwo rounded-full">
                   <p className="text-xs text-textDarkGrey font-semibold">
-                    {formatDateTime("date", user?.createdAt)}
+                    {formatDateTime("date", user?.user?.createdAt)}
                   </p>
                   <GoDotFill color="#E2E4EB" />
                   <p className="text-xs text-textDarkGrey">
-                    {formatDateTime("time", user?.createdAt)}
+                    {formatDateTime("time", user?.user?.createdAt)}
                   </p>
                 </div>
               </div>
@@ -61,7 +59,7 @@ const UsersAssigned = ({
                 <span
                   className="flex w-max items-center justify-center px-2 pt-[1px] text-[10px] text-textBlack font-medium bg-[#F6F8FA] border-[0.2px] border-strokeGreyTwo rounded-[32px] shadow-innerCustom cursor-pointer"
                   onClick={() => {
-                    setUserID(user.id);
+                    setUserID(user?.user?.id);
                     setIsOpen(false);
                     setIsUserOpen(true);
                   }}

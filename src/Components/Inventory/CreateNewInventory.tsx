@@ -210,10 +210,10 @@ const CreateNewInventory: React.FC<CreatNewInventoryProps> = ({
   const isFormFilled =
     formType === "newInventory"
       ? Object.values(formData).some((value) => Boolean(value)) &&
-        formSchema.safeParse(formData).success
+      formSchema.safeParse(formData).success
       : formType === "newCategory"
-      ? createCategoryDataSchema.safeParse(categoryFormData).success
-      : createSubCategoryDataSchema.safeParse(subCategoryFormData).success;
+        ? createCategoryDataSchema.safeParse(categoryFormData).success
+        : createSubCategoryDataSchema.safeParse(subCategoryFormData).success;
 
   const resetFormErrors = (name: string) => {
     setFormErrors((prev) => prev.filter((error) => error.path[0] !== name));
@@ -320,9 +320,8 @@ const CreateNewInventory: React.FC<CreatNewInventoryProps> = ({
               ? createCategoryData(validatedData as CategoryFormData)
               : createSubCategoryData(validatedData as SubCategoryFormData),
           headers: { "Content-Type": "application/json" },
-          successMessage: `Inventory ${
-            formType === "newSubCategory" ? "Sub-" : ""
-          } Category created successfully!`,
+          successMessage: `Inventory ${formType === "newSubCategory" ? "Sub-" : ""
+            } Category created successfully!`,
         });
 
         // Refresh both inventory and categories
@@ -338,8 +337,7 @@ const CreateNewInventory: React.FC<CreatNewInventoryProps> = ({
       } else {
         const message =
           error?.response?.data?.message ||
-          `Inventory ${
-            formType !== "newInventory" ? "Category" : ""
+          `Inventory ${formType !== "newInventory" ? "Category" : ""
           } Creation Failed: Internal Server Error`;
         setApiError(message);
       }
@@ -365,11 +363,10 @@ const CreateNewInventory: React.FC<CreatNewInventoryProps> = ({
         noValidate
       >
         <div
-          className={`flex items-center justify-center px-4 w-full min-h-[64px] border-b-[0.6px] border-strokeGreyThree ${
-            isFormFilled
-              ? "bg-paleCreamGradientLeft"
-              : "bg-paleGrayGradientLeft"
-          }`}
+          className={`flex items-center justify-center px-4 w-full min-h-[64px] border-b-[0.6px] border-strokeGreyThree ${isFormFilled
+            ? "bg-paleCreamGradientLeft"
+            : "bg-paleGrayGradientLeft"
+            }`}
         >
           <h2
             style={{ textShadow: "1px 1px grey" }}
@@ -379,8 +376,8 @@ const CreateNewInventory: React.FC<CreatNewInventoryProps> = ({
             {formType === "newInventory"
               ? "Inventory"
               : formType === "newCategory"
-              ? "Category"
-              : "Sub-Category"}
+                ? "Category"
+                : "Sub-Category"}
           </h2>
         </div>
         <div className="flex flex-col items-center justify-center w-full px-[2.5em] gap-4 py-8">
@@ -407,15 +404,15 @@ const CreateNewInventory: React.FC<CreatNewInventoryProps> = ({
                 options={
                   inventoryCategories.length > 0
                     ? inventoryCategories.map((category: Category) => ({
-                        label: category?.name,
-                        value: category?.id,
-                      }))
+                      label: category?.name,
+                      value: category?.id,
+                    }))
                     : [
-                        {
-                          label: "No Category Available",
-                          value: "",
-                        },
-                      ]
+                      {
+                        label: "No Category Available",
+                        value: "",
+                      },
+                    ]
                 }
                 value={formData.inventoryCategoryId}
                 onChange={(selectedValue) =>
@@ -453,20 +450,20 @@ const CreateNewInventory: React.FC<CreatNewInventoryProps> = ({
                         })) || []
                     )?.length > 0
                       ? inventoryCategories
-                          .find(
-                            (category: Category) =>
-                              category?.id === formData?.inventoryCategoryId
-                          )
-                          ?.children?.map((child: { name: any; id: any }) => ({
-                            label: child?.name,
-                            value: child?.id,
-                          }))
+                        .find(
+                          (category: Category) =>
+                            category?.id === formData?.inventoryCategoryId
+                        )
+                        ?.children?.map((child: { name: any; id: any }) => ({
+                          label: child?.name,
+                          value: child?.id,
+                        }))
                       : [
-                          {
-                            label: "No Sub-Category Available",
-                            value: "",
-                          },
-                        ]) as SelectOption[]
+                        {
+                          label: "No Sub-Category Available",
+                          value: "",
+                        },
+                      ]) as SelectOption[]
                   }
                   value={formData.inventorySubCategoryId}
                   onChange={(selectedValue) =>

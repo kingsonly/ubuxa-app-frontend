@@ -1,23 +1,23 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import PageLayout from "./PageLayout";
 import { TitlePill } from "@/Components/TitlePillComponent/TitlePill";
 import ActionButton from "@/Components/ActionButtonComponent/ActionButton";
 import customerbadge from "../assets/customers/customerbadge.png";
 import cancelled from "../assets/cancelled.svg";
 import greencustomer from "../assets/customers/greencustomer.svg";
-import gradientcustomer from "../assets/customers/gradientcustomer.svg";
-// import { DropDown } from "@/Components/DropDownComponent/DropDown";
 import { SideMenu } from "@/Components/SideMenuComponent/SideMenu";
 import { useGetRequest } from "@/utils/useApiCall";
 import LoadingSpinner from "@/Components/Loaders/LoadingSpinner";
 import CreateNewCustomer from "@/Components/Customer/CreateNewCustomer";
 import AddCircleIcon from "@/Components/appIcons/add-circle.icon";
 
+
 const CustomerTable = lazy(() => import("@/Components/Customer/CustomerTable"));
 
 const Customers = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [entriesPerPage, setEntriesPerPage] = useState<number>(20);
@@ -33,7 +33,7 @@ const Customers = () => {
   const {
     data: customerData,
     isLoading: customerLoading,
-    mutate: allCustomerRefresh,
+    mutate: handleAllCustomerRefresh,
     error: allCustomerError,
     errorStates: allCustomerErrorStates,
   } = useGetRequest(
@@ -116,6 +116,12 @@ const Customers = () => {
 
   const customerPaths = ["all", "active", "barred"];
 
+  const allCustomerRefresh = () => {
+    const result = handleAllCustomerRefresh();
+    navigate("/customers/all"); // Push navigation
+    return result;
+  };
+
   return (
     <>
       <PageLayout pageName="Customers" badge={customerbadge}>
@@ -128,13 +134,13 @@ const Customers = () => {
               bottomText="CUSTOMERS"
               value={fetchCustomerStats?.data?.totalCustomerCount || 0}
             />
-            <TitlePill
+            {/* <TitlePill
               icon={gradientcustomer}
               iconBgColor="bg-[#FDEEC2]"
               topText="New"
               bottomText="LEADS"
               value={fetchCustomerStats?.data?.newCustomerCount || 0}
-            />
+            /> */}
             <TitlePill
               icon={greencustomer}
               iconBgColor="bg-[#E3FAD6]"

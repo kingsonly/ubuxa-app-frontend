@@ -1,17 +1,14 @@
 import React, { useState } from "react";
 import { KeyedMutator } from "swr";
 import { Modal } from "@/Components/ModalComponent/Modal";
-// import editInput from "../../assets/settings/editInput.svg";
 import { DropDown } from "../DropDownComponent/DropDown";
-import { useGetRequest } from "@/utils/useApiCall";
+import { useGetRequest, useApiCall } from "@/utils/useApiCall";
 import { CustomerType } from "./CustomerTable";
 import TabComponent from "../TabComponent/TabComponent";
-// import { Icon } from "../Settings/UserModal";
-// import call from "../../assets/settings/call.svg";
-// import message from "../../assets/settings/message.svg";
 import CustomerDetails, { DetailsType } from "./CustomerDetails";
 import { DataStateWrapper } from "../Loaders/DataStateWrapper";
-
+import EditSettingsIcon from "../appIcons/edit-settings.icon";
+import { toast } from "react-toastify";
 const CustomerModal = ({
   isOpen,
   setIsOpen,
@@ -23,8 +20,10 @@ const CustomerModal = ({
   customerID: string;
   refreshTable: KeyedMutator<any>;
 }) => {
-  // const [displayInput, setDisplayInput] = useState<boolean>(false);
+  const { apiCall } = useApiCall();
   const [tabContent, setTabContent] = useState<string>("customerDetails");
+  const [displayInput, setDisplayInput] = useState<boolean>(false);
+  const [activeTabName, setActiveTabName] = useState<string>("");
 
   const fetchSingleCustomer = useGetRequest(
     `/v1/customers/single/${customerID}`,
@@ -42,17 +41,90 @@ const CustomerModal = ({
       location: data?.location,
       longitude: data?.longitude || "",
       latitude: data?.latitude || "",
+      image: data?.image || "",
+      landmark: data?.landmark || "",
     };
   };
+  const handleCancelClick = () => setDisplayInput(false);
+  const deleteCustomerById = async () => {
+    const confirmation = prompt(
+      `Are you sure you want to delete the customer with the name " ${fetchSingleCustomer?.data?.firstname} ${fetchSingleCustomer?.data?.lastname}" This action is irreversible! Enter "Yes" or "No".`,
+      "No"
+    );
 
-  // const handleCancelClick = () => setDisplayInput(false);
+    if (confirmation?.trim()?.toLowerCase() === "yes") {
+      toast.info(`Deleting "${fetchSingleCustomer?.data?.firstname} ${fetchSingleCustomer?.data?.lastname}" `);
+      apiCall({
+        endpoint: `/v1/customers/${customerID}`,
+        method: "delete",
+        successMessage: "Customer deleted successfully!",
+      })
+        .then(async () => {
+          await refreshTable();
+          setIsOpen(false);
+        })
+        .catch(() =>
+          toast.error(`Failed to delete ${fetchSingleCustomer?.data?.firstname} ${fetchSingleCustomer?.data?.lastname}`)
+        );
+    }
+  };
+  const barCustomerById = async () => {
+    if (fetchSingleCustomer?.data?.status === "barred") {
+      const confirmation = prompt(
+        `Are you sure you want to unbar the customer with the name " ${fetchSingleCustomer?.data?.firstname} ${fetchSingleCustomer?.data?.lastname}" ! Enter "Yes" or "No".`,
+        "No"
+      );
 
+      if (confirmation?.trim()?.toLowerCase() === "yes") {
+        toast.info(`Customer with the name "${fetchSingleCustomer?.data?.firstname} ${fetchSingleCustomer?.data?.lastname}" is being unbarred`);
+        apiCall({
+          endpoint: `/v1/customers/${customerID}`,
+          method: "put",
+          data: { status: "active" },
+          successMessage: "Customer unbarred successfully!",
+        })
+          .then(async () => {
+            await refreshTable();
+            setIsOpen(false);
+          })
+          .catch(() =>
+            toast.error(`Failed to unbar ${fetchSingleCustomer?.data?.firstname} ${fetchSingleCustomer?.data?.lastname}`)
+          );
+      }
+    } else {
+      const confirmation = prompt(
+        `Are you sure you want to barr the customer with the name " ${fetchSingleCustomer?.data?.firstname} ${fetchSingleCustomer?.data?.lastname}" ! Enter "Yes" or "No".`,
+        "No"
+      );
+
+      if (confirmation?.trim()?.toLowerCase() === "yes") {
+        toast.info(`Customer with the name "${fetchSingleCustomer?.data?.firstname} ${fetchSingleCustomer?.data?.lastname}" is being barred`);
+        apiCall({
+          endpoint: `/v1/customers/${customerID}`,
+          method: "put",
+          data: { status: "barred" },
+          successMessage: "Customer barred successfully!",
+        })
+          .then(async () => {
+            await refreshTable();
+            setIsOpen(false);
+          })
+          .catch(() =>
+            toast.error(`Failed to barr ${fetchSingleCustomer?.data?.firstname} ${fetchSingleCustomer?.data?.lastname}`)
+          );
+      }
+    }
+  };
+  const barCustomerText = fetchSingleCustomer?.data?.status === "barred" ? "Unbar Customer" : "Bar Customer";
   const dropDownList = {
-    items: ["Delete Customer"],
+    items: ["Delete Customer", barCustomerText],
     onClickLink: (index: number) => {
       switch (index) {
         case 0:
-          console.log("Delete Customer");
+          deleteCustomerById();
+          break;
+        case 1:
+          barCustomerById();
           break;
         default:
           break;
@@ -89,35 +161,40 @@ const CustomerModal = ({
       onClose={() => {
         setTabContent("customerDetails");
         setIsOpen(false);
-        // setDisplayInput(false)
+        setDisplayInput(false)
+        handleCancelClick();
       }}
       leftHeaderContainerClass="pl-2"
-      // rightHeaderComponents={
-      //   displayInput ? (
-      //     <p
-      //       className="text-xs text-textDarkGrey font-semibold cursor-pointer over"
-      //       onClick={handleCancelClick}
-      //       title="Cancel editing customer details"
-      //     >
-      //       Cancel Edit
-      //     </p>
-      //   ) : (
-      //     <button
-      //       className="flex items-center justify-center w-[24px] h-[24px] bg-white border border-strokeGreyTwo rounded-full hover:bg-slate-100"
-      //       onClick={() => setDisplayInput(true)}
-      //     >
-      //       <img src={editInput} alt="Edit Button" width="15px" />
-      //     </button>
-      //   )
-      // }
+      rightHeaderComponents={
+        displayInput ? (
+          <p
+            className="text-xs text-textDarkGrey font-semibold cursor-pointer over"
+            onClick={handleCancelClick}
+            title="Cancel editing customer details"
+          >
+            Cancel Edit
+          </p>
+        ) : (
+          <button
+            className="flex items-center justify-center w-[24px] h-[24px] bg-white border border-strokeGreyTwo rounded-full hover:bg-slate-100"
+            onClick={() => {
+              setActiveTabName(tabNames[0].name);
+              setTabContent(tabNames[0].key);
+              setDisplayInput(true)
+            }
+            }
+          >
+            <EditSettingsIcon />
+          </button>
+        )
+      }
     >
       <div className="bg-white">
         <header
-          className={`flex items-center ${
-            fetchSingleCustomer?.data?.firstname
-              ? "justify-between"
-              : "justify-end"
-          } bg-paleGrayGradientLeft p-4 min-h-[64px] border-b-[0.6px] border-b-strokeGreyThree`}
+          className={`flex items-center ${fetchSingleCustomer?.data?.firstname
+            ? "justify-between"
+            : "justify-end"
+            } bg-paleGrayGradientLeft p-4 min-h-[64px] border-b-[0.6px] border-b-strokeGreyThree`}
         >
           {fetchSingleCustomer?.data?.firstname && (
             <p className="flex items-center justify-center bg-paleLightBlue w-max p-2 h-[24px] text-textBlack text-xs font-semibold rounded-full">
@@ -142,9 +219,14 @@ const CustomerModal = ({
               key,
               count,
             }))}
-            onTabSelect={(key) => setTabContent(key)}
             tabsContainerClass="p-2 rounded-[20px]"
+            activeTabName={activeTabName}
+            onTabSelect={(key) => {
+              setActiveTabName("");
+              setTabContent(key);
+            }}
           />
+
           {tabContent === "customerDetails" ? (
             <DataStateWrapper
               isLoading={fetchSingleCustomer?.isLoading}
@@ -156,7 +238,7 @@ const CustomerModal = ({
               <CustomerDetails
                 {...generateCustomerEntries(fetchSingleCustomer?.data)}
                 refreshTable={refreshTable}
-                displayInput={false}
+                displayInput={displayInput}
               />
             </DataStateWrapper>
           ) : (

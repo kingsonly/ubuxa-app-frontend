@@ -42,13 +42,20 @@ const CreateNewUserModal = ({
   allUsersRefresh,
   allRolesError,
   allRolesErrorStates,
+  withoutModal = false,
+  onboarding = false,
+  callback = () => { },
+
 }: {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   rolesList: { label: string; value: string }[];
-  allUsersRefresh: KeyedMutator<any>;
+  allUsersRefresh?: KeyedMutator<any>;
   allRolesError: any;
   allRolesErrorStates: ApiErrorStatesType;
+  withoutModal?: boolean;
+  onboarding?: boolean;
+  callback?: () => void
 }) => {
   const { apiCall } = useApiCall();
   const [formData, setFormData] = useState<FormData>(defaultFormData);
@@ -96,13 +103,20 @@ const CreateNewUserModal = ({
 
     try {
       const validatedData = formSchema.parse(formData);
+
+      const data = { ...validatedData, onboarding: true };
       await apiCall({
         endpoint: "/v1/auth/add-user",
         method: "post",
-        data: validatedData,
+        data: onboarding ? data : validatedData,
         successMessage: "User created successfully!",
       });
-      await allUsersRefresh();
+      if (allUsersRefresh) {
+        await allUsersRefresh();
+      } else {
+        callback()
+
+      }
       resetForm();
     } catch (error: any) {
       if (error instanceof z.ZodError) {
@@ -124,28 +138,25 @@ const CreateNewUserModal = ({
     return formErrors.find((error) => error.path[0] === fieldName)?.message;
   };
 
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={() => resetForm()}
-      layout="right"
-      bodyStyle="pb-44"
-    >
+  const formComponent = () => {
+    return (
       <form className="flex flex-col items-center bg-white">
-        <div
-          className={`flex items-center justify-center px-4 w-full min-h-[64px] border-b-[0.6px] border-strokeGreyThree ${
-            isFormFilled
+        {!withoutModal && (
+          <div
+            className={`flex items-center justify-center px-4 w-full min-h-[64px] border-b-[0.6px] border-strokeGreyThree ${isFormFilled
               ? "bg-paleCreamGradientLeft"
               : "bg-paleGrayGradientLeft"
-          }`}
-        >
-          <h2
-            style={{ textShadow: "1px 1px grey" }}
-            className="text-xl text-textBlack font-semibold font-secondary"
+              }`}
           >
-            New User
-          </h2>
-        </div>
+            <h2
+              style={{ textShadow: "1px 1px grey" }}
+              className="text-xl text-textBlack font-semibold font-secondary"
+            >
+              New User
+            </h2>
+          </div>
+        )}
+
         <div className="flex flex-col items-center justify-center w-full px-4 gap-4 py-8">
           <Input
             type="text"
@@ -177,7 +188,18 @@ const CreateNewUserModal = ({
             required={true}
             errorMessage={getFieldError("email")}
           />
-          <GooglePlacesInput
+          <Input
+            type="text"
+            name="location"
+            label="OFFICE LOCATION"
+            value={formData.location}
+            onChange={handleInputChange}
+            placeholder="enter office Location"
+            required={true}
+            errorMessage={getFieldError("location")}
+          />
+
+          {/* <GooglePlacesInput
             type="text"
             name="location"
             label="Location"
@@ -193,7 +215,7 @@ const CreateNewUserModal = ({
                 latitude: coordinates?.lat || "",
               }));
             }}
-          />
+          /> */}
           <Input
             type="text"
             name="phone"
@@ -217,8 +239,8 @@ const CreateNewUserModal = ({
               allRolesErrorStates.isPermissionError
                 ? "You don't have permission to create a new user"
                 : allRolesError
-                ? "Failed to fetch user roles."
-                : getFieldError("role")
+                  ? "Failed to fetch user roles."
+                  : getFieldError("role")
             }
           />
           <ApiErrorMessage apiError={apiError} />
@@ -231,6 +253,24 @@ const CreateNewUserModal = ({
           />
         </div>
       </form>
+    );
+  }
+
+  if (withoutModal) {
+    return (<div>
+
+      {formComponent()}
+    </div>)
+  }
+  return (
+
+    <Modal
+      isOpen={isOpen}
+      onClose={() => resetForm()}
+      layout="right"
+      bodyStyle="pb-44"
+    >
+      {formComponent()}
     </Modal>
   );
 };

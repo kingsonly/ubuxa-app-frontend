@@ -218,6 +218,7 @@ const RoleAndPermissions = ({
               setIsUserOpen={setIsUserOpen}
               displayInput={displayInput}
               setDisplayInput={setDisplayInput}
+              defaultTab={displayInput}
             />
           )
         )}

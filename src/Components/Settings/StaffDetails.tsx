@@ -168,15 +168,40 @@ const StaffDetails = ({
 
   return (
     <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
-      <div className="p-2.5 border-[0.6px] border-[#8396E7] rounded-[20px]">
+
+      <div className="flex flex-col gap-2 p-2.5 border-[0.6px] border-[#8396E7] rounded-[20px]">
         <p className="flex items-center gap-1 pb-2 w-max text-xs text-textLightGrey font-medium">
           <img src={user} alt="User" width="16px" />
-          STAFF ID
+          STAFF DATA
         </p>
-        <DetailComponent label="User ID" value={data.id} parentClass="mb-2" />
-        <div className="flex items-start justify-between bg-white w-full text-textDarkGrey text-xs rounded-full z-10 p-2.5 h-[44px] border-[0.6px] border-strokeGreyThree">
+        {Object.entries(formData).map(([fieldName, fieldValue]) => (
+          <div
+            key={fieldName}
+            className="flex items-start justify-between bg-white w-full text-textDarkGrey text-xs rounded-full"
+          >
+            <Tag name={fieldLabels[fieldName]} />
+            {!displayInput ? (
+              <span className="text-xs font-bold text-textDarkGrey">
+                {fieldValue || "N/A"}
+              </span>
+            ) : (
+              <SmallInput
+                type="text"
+                name={fieldName}
+                value={fieldValue}
+                onChange={handleInputChange}
+                required={true}
+                placeholder={`Enter your ${fieldLabels[fieldName]}`}
+                errorMessage={getFieldError(fieldName)}
+              />
+            )}
+
+
+          </div>
+        ))}
+        <div className="flex items-start justify-between bg-white w-full text-textDarkGrey text-xs rounded-full">
           <span className="flex items-center justify-center bg-[#F6F8FA] text-textBlack text-xs p-2 h-[24px] rounded-full">
-            Designation
+            Role
           </span>
           {!displayInput ? (
             <span className="flex items-center justify-center bg-paleLightBlue text-textBlack font-semibold p-2 h-[24px] rounded-full capitalize text-xs">
@@ -201,35 +226,6 @@ const StaffDetails = ({
           </p>
         )}
       </div>
-      <div className="flex flex-col gap-2 p-2.5 border-[0.6px] border-[#8396E7] rounded-[20px]">
-        <p className="flex items-center gap-1 pb-2 w-max text-xs text-textLightGrey font-medium">
-          <img src={user} alt="User" width="16px" />
-          STAFF ID
-        </p>
-        {Object.entries(formData).map(([fieldName, fieldValue]) => (
-          <div
-            key={fieldName}
-            className="flex items-start justify-between bg-white w-full text-textDarkGrey text-xs rounded-full"
-          >
-            <Tag name={fieldLabels[fieldName]} />
-            {!displayInput ? (
-              <span className="text-xs font-bold text-textDarkGrey">
-                {fieldValue || "N/A"}
-              </span>
-            ) : (
-              <SmallInput
-                type="text"
-                name={fieldName}
-                value={fieldValue}
-                onChange={handleInputChange}
-                required={true}
-                placeholder={`Enter your ${fieldLabels[fieldName]}`}
-                errorMessage={getFieldError(fieldName)}
-              />
-            )}
-          </div>
-        ))}
-      </div>
 
       <ApiErrorMessage apiError={apiError} />
 
@@ -249,24 +245,23 @@ const StaffDetails = ({
               Status
             </p>
             <p
-              className={`flex items-center justify-center gap-1 bg-[#F6F8FA] w-max px-2 py-1 text-xs border-[0.4px] border-strokeGreyTwo rounded-full uppercase ${
-                data.status.toLowerCase() === "active"
-                  ? "text-success"
-                  : "text-errorTwo"
-              }`}
+              className={`flex items-center justify-center gap-1 bg-[#F6F8FA] w-max px-2 py-1 text-xs border-[0.4px] border-strokeGreyTwo rounded-full uppercase ${data.status.toLowerCase() === "active"
+                ? "text-success"
+                : "text-errorTwo"
+                }`}
             >
               <GoDotFill />
               {data.status}
             </p>
           </div>
-          <div className="flex items-center justify-between p-2 border-[0.6px] border-strokeGreyThree rounded-full">
+          {/* <div className="flex items-center justify-between p-2 border-[0.6px] border-strokeGreyThree rounded-full">
             <p className="bg-[#F6F8FA] px-2 py-1 text-xs text-textBlack rounded-full">
               Last Login
             </p>
             <p className="text-textDarkGrey text-xs font-bold">
               {data.lastLogin || "N/A"}
             </p>
-          </div>
+          </div> */}
         </>
       )}
     </form>

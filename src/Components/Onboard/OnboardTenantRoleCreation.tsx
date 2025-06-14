@@ -1,22 +1,15 @@
-// const OnboardTenantRoleCreation = () => {
-
-//     return (
-//         <>
-//             OnboardTenantRoleCreation
-//         </>
-//     );
-// };
-
-// export default OnboardTenantRoleCreation;
-
 "use client"
 
-import { useState } from "react"
-import { Shield, ArrowRight, Users } from "lucide-react"
+import { useEffect, useState } from "react"
+import { Shield, Users } from "lucide-react"
 import { Button } from "../ui/button"
-import { useApiCall, useGetRequest } from "@/utils/useApiCall"
+import { useApiCall } from "@/utils/useApiCall"
 import EditPermissions from "../Settings/EditPermissions"
 import useTokens from "@/hooks/useTokens"
+import { useTenant } from "@/Context/tenantsContext"
+import Cookies from "js-cookie"
+// import { useTenantCustomization } from "@/hooks/useTenantCustomization"
+// import { useTenant } from "@/Context/tenantsContext"
 
 
 const OnboardTenantRoleCreation = ({ updateTenantStatus }: { updateTenantStatus: (status: string) => void }) => {
@@ -24,16 +17,41 @@ const OnboardTenantRoleCreation = ({ updateTenantStatus }: { updateTenantStatus:
     const { tenant } = useTokens()
     const [loading, setLoading] = useState(false)
     const [showRoleCreation, setShowRoleCreation] = useState(false)
-    const fetchAllRoles = useGetRequest("/v1/roles", true, 60000);
+    // const fetchAllRoles = useGetRequest("/v1/roles", true, 60000);
+    // const { tenantInfo: activeTenant, loading: tenantLoading } = useTenantCustomization()
+    const { login: setTenantContext } = useTenant()
+
+
+    useEffect(() => {
+
+        setCustomization()
+    }, [])
+
+    const setCustomization = async () => {
+        const response = await apiCall({
+            endpoint: `/v1/tenants/${tenant.id}`,
+            method: "get",
+            showToast: false
+        })
+        setTenantContext(response.data)
+        const userData = JSON.parse(Cookies.get("userData") || "{}")
+        userData.tenant.theme = response.data.theme
+        Cookies.set("userData", JSON.stringify(userData), {
+            expires: 7,
+            path: "/",
+            sameSite: "Lax",
+        })
+    }
+
     const handleContinue = async () => {
         setLoading(true)
         try {
-            await apiCall({
-                endpoint: "/v1/tenant/status",
-                method: "put",
-                data: { status: "ONBOARD_TEAMMATE" },
-                successMessage: "Roles configured successfully!",
-            })
+            // await apiCall({
+            //     endpoint: "/v1/tenant/status",
+            //     method: "put",
+            //     data: { status: "ONBOARD_TEAMMATE" },
+            //     successMessage: "Roles configured successfully!",
+            // })
             updateTenantStatus("ONBOARD_TEAMMATE")
         } catch (error) {
             console.error("Failed to continue:", error)
@@ -68,20 +86,9 @@ const OnboardTenantRoleCreation = ({ updateTenantStatus }: { updateTenantStatus:
                     </Button>
                 </div>
 
-                <EditPermissions setIsOpen={setShowRoleCreation} allRolesRefresh={fetchAllRoles.mutate} />
+                <EditPermissions onboarding={true} setIsOpen={setShowRoleCreation} callback={handleContinue} />
 
-                <div className="flex justify-end mt-6">
-                    <Button onClick={handleContinue} disabled={loading} className="px-8 flex items-center space-x-2">
-                        {loading ? (
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        ) : (
-                            <>
-                                <span>Continue</span>
-                                <ArrowRight className="h-4 w-4" />
-                            </>
-                        )}
-                    </Button>
-                </div>
+
             </div>
         )
     }

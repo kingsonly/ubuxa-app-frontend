@@ -79,22 +79,7 @@ const OnboardPaymentGateway = ({ updateTenantStatus }: { updateTenantStatus: (st
         }
     }
 
-    const handleSkip = async () => {
-        setLoading(true)
-        try {
-            await apiCall({
-                endpoint: "/v1/tenant/status",
-                method: "put",
-                data: { status: "ONBOARD_CUSTOMIZATION" },
-                successMessage: "Skipped payment setup",
-            })
-            updateTenantStatus("ONBOARD_CUSTOMIZATION")
-        } catch (error) {
-            console.error("Failed to skip step:", error)
-        } finally {
-            setLoading(false)
-        }
-    }
+
 
     const getFieldError = (fieldName: string) => {
         return formErrors.find((error) => error.path[0] === fieldName)?.message
@@ -246,9 +231,7 @@ const OnboardPaymentGateway = ({ updateTenantStatus }: { updateTenantStatus: (st
 
                 {/* Action Buttons */}
                 <div className="flex items-center justify-between pt-6">
-                    <Button type="button" variant="outline" onClick={handleSkip} disabled={loading} className="px-6">
-                        Skip for now
-                    </Button>
+
 
                     <Button type="submit" disabled={!isFormFilled || loading} className="px-8 flex items-center space-x-2">
                         {loading ? (

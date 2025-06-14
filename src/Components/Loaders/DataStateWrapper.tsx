@@ -12,6 +12,7 @@ export type DataStateWrapperProps = {
   errorClass?: string;
   refreshData: KeyedMutator<any>;
   className?: string;
+  disableLoaderStyle?: boolean;
   children: React.ReactNode;
 };
 
@@ -24,9 +25,11 @@ export const DataStateWrapper: React.FC<DataStateWrapperProps> = ({
   refreshData,
   className,
   children,
+  disableLoaderStyle = false
 }) => {
   if (isLoading)
-    return <LoadingSpinner parentClass="absolute top-[50%] w-full" />;
+
+    return <LoadingSpinner parentClass={!disableLoaderStyle ? "absolute top-[50%] w-full" : ""} />;
   if (error)
     return (
       <ErrorComponent

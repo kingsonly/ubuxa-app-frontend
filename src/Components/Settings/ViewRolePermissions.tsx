@@ -17,7 +17,9 @@ const ViewRolePermissions = ({
   setIsUserOpen,
   displayInput,
   setDisplayInput,
+  defaultTab,
 }: {
+  defaultTab?: boolean;
   roleData: {
     id: string;
     role: string;
@@ -39,6 +41,14 @@ const ViewRolePermissions = ({
   const { apiCall } = useApiCall();
   const [activeTabName, setActiveTabName] = useState<string>("");
   const [tabContent, setTabContent] = useState<string>("roleDetails");
+
+  useEffect(() => {
+    if (defaultTab) {
+      setActiveTabName(tabNames[0].name);
+      setTabContent(tabNames[0].key);
+      setDisplayInput(true);
+    }
+  }, [defaultTab]);
 
   const fetchSingleRoleData = useGetRequest(
     `/v1/roles/more_details/${roleData.id}`,
@@ -67,16 +77,17 @@ const ViewRolePermissions = ({
   };
 
   const dropDownList = {
-    items: ["Edit Role & Permissions", "Delete Role"],
+    //items: ["Edit Role & Permissions", "Delete Role"],
+    items: ["Delete Role"],
     onClickLink: (index: number) => {
       switch (index) {
         case 0:
+          deleteUserById();
+          break;
+        case 1:
           setActiveTabName(tabNames[0].name);
           setTabContent(tabNames[0].key);
           setDisplayInput(true);
-          break;
-        case 1:
-          deleteUserById();
           break;
         default:
           break;
@@ -183,9 +194,8 @@ export const DetailComponent = ({
 }) => {
   return (
     <div
-      className={`${
-        parentClass ? parentClass : "p-2.5"
-      } flex items-center justify-between bg-white w-full text-textDarkGrey text-xs rounded-full border-[0.6px] border-strokeGreyThree`}
+      className={`${parentClass ? parentClass : "p-2.5"
+        } flex items-center justify-between bg-white w-full text-textDarkGrey text-xs rounded-full border-[0.6px] border-strokeGreyThree`}
     >
       <span
         className={`${labelClass} flex items-center justify-center bg-[#F6F8FA] text-textBlack text-xs p-2 h-[24px] rounded-full`}

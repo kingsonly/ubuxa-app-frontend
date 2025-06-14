@@ -78,7 +78,7 @@ const Settings = () => {
   ];
 
   const dropDownList = {
-    items: ["Add new user"],
+    items: [],
     onClickLink: (index: number) => {
       switch (index) {
         case 0:
