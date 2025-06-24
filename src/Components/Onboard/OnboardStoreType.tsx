@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { z } from 'zod';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '../ui/button';
+import { useApiCall } from '@/utils/useApiCall';
 import { useTenantApi } from '@/utils/tenant-api';
 import { useTenant } from '@/Context/tenantsContext';
+import Cookies from 'js-cookie';
 
 export enum StoreType {
   SINGLE_STORE = 'SINGLE_STORE',
@@ -22,17 +24,16 @@ interface OnboardStoreTypeProps {
 }
 
 const OnboardStoreType: React.FC<OnboardStoreTypeProps> = ({ updateTenantStatus }) => {
+  const { apiCall } = useApiCall();
+  const { tenant } = useTenant();
   const [selectedStoreType, setSelectedStoreType] = useState<StoreType | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { updateTenant } = useTenantApi();
-  const { tenant } = useTenant();
+  
+  const [loading, setLoading] = useState(false);
 
-  const handleSelect = (type: StoreType) => {
-    setSelectedStoreType(type);
-    setError(null);
-  };
+  const handleFinish = async () => {
 
-  const handleNext = async () => {
     if (!selectedStoreType) {
       setError('Please select a store type');
       return;
@@ -44,17 +45,73 @@ const OnboardStoreType: React.FC<OnboardStoreTypeProps> = ({ updateTenantStatus 
       
       // Update tenant with store type
       await updateTenant(tenant?.id, { storeType: validatedData.storeType });
+
+      await apiCall({
+        endpoint: `/v1/tenants/tenant-update/${tenant?.id}`,
+        method: "patch",
+        data: { status: "ACTIVE" },
+        successMessage: "Workspace activated! You can add store type later.",
+    })
       
       // Update tenant status after successful API call
-      updateTenantStatus('ONBOARD_STORE_TYPE');
+      updateTenantStatus('ACTIVE');
     } catch (err) {
       if (err instanceof z.ZodError) {
         setError(err.errors[0].message);
       } else {
         setError('Failed to save store type. Please try again.');
       }
+    } finally {
+      setLoading(false)
     }
+
+}
+
+const handleSkip = async () => {
+    setLoading(true)
+    try {
+        await apiCall({
+            endpoint: `/v1/tenants/tenant-update/${tenant?.id}`,
+            method: "patch",
+            data: { status: "ACTIVE" },
+            successMessage: "Workspace activated! You can add store type later.",
+        })
+        updateTenantStatus("ACTIVE")
+    } catch (error) {
+        console.error("Failed to skip step:", error)
+    } finally {
+        setLoading(false)
+    }
+}
+
+  const handleSelect = (type: StoreType) => {
+    setSelectedStoreType(type);
+    setError(null);
   };
+
+  // const handleNext = async () => {
+  //   if (!selectedStoreType) {
+  //     setError('Please select a store type');
+  //     return;
+  //   }
+
+  //   try {
+  //     // Validate the selection
+  //     const validatedData = storeTypeSchema.parse({ storeType: selectedStoreType });
+      
+  //     // Update tenant with store type
+  //     await updateTenant(tenant?.id, { storeType: validatedData.storeType });
+      
+  //     // Update tenant status after successful API call
+  //     updateTenantStatus('ONBOARD_STORE_TYPE');
+  //   } catch (err) {
+  //     if (err instanceof z.ZodError) {
+  //       setError(err.errors[0].message);
+  //     } else {
+  //       setError('Failed to save store type. Please try again.');
+  //     }
+  //   }
+  // };
 
   return (
     <div className="max-w-2xl mx-auto p-6">
@@ -107,7 +164,7 @@ const OnboardStoreType: React.FC<OnboardStoreTypeProps> = ({ updateTenantStatus 
 
       <div className="mt-8">
         <Button
-          onClick={handleNext}
+          onClick={handleFinish}
           disabled={!selectedStoreType}
           className={`w-full flex items-center justify-center space-x-2 ${
             !selectedStoreType ? 'opacity-50 cursor-not-allowed' : ''
@@ -116,6 +173,15 @@ const OnboardStoreType: React.FC<OnboardStoreTypeProps> = ({ updateTenantStatus 
           <span>Continue</span>
           <ArrowRight className="w-5 h-5" />
         </Button>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex items-center justify-between pt-6">
+          <Button type="button" variant="outline" onClick={handleSkip} disabled={loading} className="px-6">
+              Skip for now
+          </Button>
+
+          <div className="text-sm text-gray-500">You can always modify store type later in settings</div>
       </div>
     </div>
   );

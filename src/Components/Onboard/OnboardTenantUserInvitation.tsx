@@ -27,16 +27,16 @@ const OnboardTenantUserInvitation = ({ updateTenantStatus }: { updateTenantStatu
     );
 
 
-    const handleFinish = async () => {
+    // const handleFinish = async () => {
 
-        try {
-            updateTenantStatus("ACTIVE")
-        } catch (error) {
-            console.error("Failed to continue:", error)
-        } finally {
-            setLoading(false)
-        }
-    }
+    //     try {
+    //         updateTenantStatus("ACTIVE")
+    //     } catch (error) {
+    //         console.error("Failed to continue:", error)
+    //     } finally {
+    //         setLoading(false)
+    //     }
+    // }
 
     const handleSkip = async () => {
         setLoading(true)
@@ -44,10 +44,10 @@ const OnboardTenantUserInvitation = ({ updateTenantStatus }: { updateTenantStatu
             await apiCall({
                 endpoint: `/v1/tenants/tenant-update/${tenant?.id}`,
                 method: "patch",
-                data: { status: "ACTIVE" },
-                successMessage: "Workspace activated! You can invite team members later.",
+                data: { status: "ONBOARD_STORE_TYPE" },
+                successMessage: "You can invite team members later.",
             })
-            updateTenantStatus("ACTIVE")
+            updateTenantStatus("ONBOARD_STORE_TYPE")
         } catch (error) {
             console.error("Failed to skip step:", error)
         } finally {
@@ -100,7 +100,7 @@ const OnboardTenantUserInvitation = ({ updateTenantStatus }: { updateTenantStatu
 
 
                         {/* Action Cards */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols gap-4">
                             <div className="border border-gray-200 rounded-lg p-6 hover:border-primary transition-colors">
                                 <div className="text-center">
                                     <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
@@ -114,14 +114,16 @@ const OnboardTenantUserInvitation = ({ updateTenantStatus }: { updateTenantStatu
                                 </div>
                             </div>
 
-                            <div className="border border-gray-200 rounded-lg p-6">
+                            // TODO: Still needed
+
+                            {/* <div className="border border-gray-200 rounded-lg p-6">
                                 <div className="text-center">
                                     <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                                         <ArrowRight className="h-6 w-6 text-green-600" />
                                     </div>
                                     <h4 className="font-semibold text-gray-900 mb-2">Start Using Ubuxa</h4>
                                     <p className="text-sm text-gray-600 mb-4">Begin with just yourself and invite others later.</p>
-                                    <Button onClick={handleFinish} disabled={loading} variant="outline" className="w-full">
+                                    <Button disabled={loading} variant="outline" className="w-full">
                                         {loading ? (
                                             <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
                                         ) : (
@@ -129,7 +131,7 @@ const OnboardTenantUserInvitation = ({ updateTenantStatus }: { updateTenantStatu
                                         )}
                                     </Button>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
 
 
@@ -158,7 +160,7 @@ const OnboardTenantUserInvitation = ({ updateTenantStatus }: { updateTenantStatu
                             </div>
 
                             <CreateNewUserModal
-                                callback={handleFinish}
+                                // callback={handleFinish}
                                 onboarding={true}
                                 withoutModal={true}
                                 isOpen={showUserCreation}
