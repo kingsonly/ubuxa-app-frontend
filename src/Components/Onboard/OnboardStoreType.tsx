@@ -5,7 +5,6 @@ import { Button } from '../ui/button';
 import { useApiCall } from '@/utils/useApiCall';
 import { useTenantApi } from '@/utils/tenant-api';
 import { useTenant } from '@/Context/tenantsContext';
-import Cookies from 'js-cookie';
 
 export enum StoreType {
   SINGLE_STORE = 'SINGLE_STORE',
