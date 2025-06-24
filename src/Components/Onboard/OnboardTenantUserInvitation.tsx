@@ -114,7 +114,7 @@ const OnboardTenantUserInvitation = ({ updateTenantStatus }: { updateTenantStatu
                                 </div>
                             </div>
 
-                            // TODO: Still needed
+                            {/* TODO: Still needed */}
 
                             {/* <div className="border border-gray-200 rounded-lg p-6">
                                 <div className="text-center">
