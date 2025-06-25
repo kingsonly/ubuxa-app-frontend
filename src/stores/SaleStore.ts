@@ -211,7 +211,7 @@ const PaymentDataModel = types.model({
 
 const saleStore = types
   .model({
-    category: types.enumeration(["PRODUCT"]),
+    category: types.enumeration(["PRODUCT", "INVENTORY"]),
     customer: types.maybeNull(CustomerModel),
     doesCustomerExist: types.boolean,
     products: types.array(ProductModel),
@@ -367,7 +367,7 @@ const saleStore = types
     removeCustomer() {
       self.customer = null;
     },
-    addUpdateCategory(category: "PRODUCT") {
+    addUpdateCategory(category: "PRODUCT" | "INVENTORY" ) {
       self.category = category;
     },
     setCustomerExist(value: boolean) {

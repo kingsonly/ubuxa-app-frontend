@@ -59,7 +59,8 @@ const CreateNewSale = observer(
     const [loading, setLoading] = useState(false);
     const [isCustomerProductModalOpen, setIsCustomerProductModalOpen] =
       useState<boolean>(false);
-    const [modalType, setModalType] = useState<"customer" | "product">(
+   // const [iscustomerInventoryModalOpen, setIsCustomerInventoryModalOpen] = useState<boolean>(false);
+    const [modalType, setModalType] = useState<"customer" | "product" | "inventory">(
       "customer"
     );
     const [formErrors, setFormErrors] = useState<z.ZodIssue[]>([]);
@@ -223,11 +224,10 @@ const CreateNewSale = observer(
             noValidate
           >
             <div
-              className={`flex items-center justify-center px-4 w-full min-h-[64px] border-b-[0.6px] border-strokeGreyThree ${
-                getIsFormFilled()
+              className={`flex items-center justify-center px-4 w-full min-h-[64px] border-b-[0.6px] border-strokeGreyThree ${getIsFormFilled()
                   ? "bg-paleCreamGradientLeft"
                   : "bg-paleGrayGradientLeft"
-              }`}
+                }`}
             >
               <h2
                 style={{ textShadow: "1px 1px grey" }}
@@ -236,14 +236,30 @@ const CreateNewSale = observer(
                 {!summaryState
                   ? "New Sale"
                   : !SaleStore.paymentDetails.tx_ref
-                  ? "Sale Summary"
-                  : "Proceed to Payment"}
+                    ? "Sale Summary"
+                    : "Proceed to Payment"}
               </h2>
             </div>
             <div className="flex flex-col items-center justify-center w-full px-[2.5em] gap-4 py-8">
               {!summaryState ? (
                 <>
+
                   <SelectInput
+                    label="Sale Category"
+                    options={[
+                      { label: "Product", value: "PRODUCT" },
+                      { label: "Inventory", value: "INVENTORY" }
+                    ]}
+                    value={formData.category}
+                    onChange={(selectedValue) => {
+                      handleSelectChange("category", selectedValue);
+                      SaleStore.addUpdateCategory(selectedValue as "PRODUCT" | "INVENTORY");
+                    }}
+                    required={true}
+                    placeholder="Select Sale Category"
+                    errorMessage={getFieldError("category")}
+                  />
+                  {/*   <SelectInput
                     label="Sale Category"
                     options={[{ label: "Product", value: "PRODUCT" }]}
                     value={formData.category}
@@ -254,7 +270,7 @@ const CreateNewSale = observer(
                     required={true}
                     placeholder="Select Sale Category"
                     errorMessage={getFieldError("category")}
-                  />
+                  /> */}
                   <ModalInput
                     type="button"
                     name="customerId"
@@ -291,7 +307,48 @@ const CreateNewSale = observer(
                         : getFieldError("customerId")
                     }
                   />
-                  <ModalInput
+                  {
+                    formData.category === 'INVENTORY' && <ModalInput
+                    type="button"
+                    name="inventory"
+                    label="INVENTORY"
+                    onClick={() => {
+                      setIsCustomerProductModalOpen(true);
+                      setModalType("inventory");
+                    }}
+                    placeholder="Select Inventory"
+                    required={true}
+                    isItemsSelected={selectedProducts.length > 0}
+                    itemsSelected={
+                      <div className="flex flex-wrap items-center w-full gap-6">
+                        {selectedProducts?.map((data, index) => {
+                          return (
+                            <ProductSaleDisplay
+                              key={index}
+                              productData={data}
+                              onRemoveProduct={(productId) =>
+                                SaleStore.removeProduct(productId)
+                              }
+                              setExtraInfoModal={(value) => {
+                                setCurrentProductId(data.productId);
+                                setExtraInfoModal(value);
+                              }}
+                              getIsFormFilled={getIsFormFilled}
+                              getFieldError={getSaleItemFieldErrorByIndex}
+                            />
+                          );
+                        })}
+                      </div>
+                    }
+                    errorMessage={
+                      !SaleStore.doesProductCategoryExist
+                        ? "Failed to fetch products"
+                        : getFieldError("products")
+                    }
+                  />
+                  }
+                  {
+                    formData.category === 'PRODUCT' && <ModalInput
                     type="button"
                     name="products"
                     label="PRODUCTS"
@@ -329,6 +386,8 @@ const CreateNewSale = observer(
                         : getFieldError("products")
                     }
                   />
+                  }
+                  
                   {SaleStore.doesSaleItemHaveInstallment() && (
                     <>
                       <Input

@@ -78,7 +78,7 @@ const SelectCustomerProductModal = observer(
   }: {
     isModalOpen: boolean;
     setModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    modalType: "customer" | "product";
+    modalType: "customer" | "product" | 'inventory'; 
   }) => {
     const [queryValue, setQueryValue] = useState<string>("");
     const [productCategoryId, setProductCategoryId] = useState<string>("");

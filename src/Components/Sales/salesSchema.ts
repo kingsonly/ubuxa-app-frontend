@@ -129,7 +129,7 @@ export const saleItemSchema = z
 
 export const formSchema = z
   .object({
-    category: z.enum(["PRODUCT"], {
+    category: z.enum(["PRODUCT", "INVENTORY"], {
       message: "Category is required",
     }),
     customerId: z.string().min(1, "Please select at least one customer"),
@@ -274,7 +274,7 @@ type GuarantorDetails = {
 };
 
 export type SalePayload = {
-  category: "PRODUCT";
+  category: "PRODUCT" | "INVENTORY";
   customerId: string;
   bvn?: string;
   saleItems: SaleItem[];
