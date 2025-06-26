@@ -28,6 +28,7 @@ import SalesSummary from "./SalesSummary";
 import ApiErrorMessage from "../ApiErrorMessage";
 import { FlutterwaveConfig } from "flutterwave-react-v3/dist/types";
 import { toJS } from "mobx";
+import SelectInventoryModal from "../Products/SelectInventoryModal";
 
 const public_key =
   import.meta.env.VITE_FLW_PUBLIC_KEY ||
@@ -59,7 +60,7 @@ const CreateNewSale = observer(
     const [loading, setLoading] = useState(false);
     const [isCustomerProductModalOpen, setIsCustomerProductModalOpen] =
       useState<boolean>(false);
-   // const [iscustomerInventoryModalOpen, setIsCustomerInventoryModalOpen] = useState<boolean>(false);
+    // const [iscustomerInventoryModalOpen, setIsCustomerInventoryModalOpen] = useState<boolean>(false);
     const [modalType, setModalType] = useState<"customer" | "product" | "inventory">(
       "customer"
     );
@@ -67,12 +68,14 @@ const CreateNewSale = observer(
     const [apiError, setApiError] = useState<string | Record<string, string[]>>(
       ""
     );
+     const [isInventoryOpen, setIsInventoryOpen] = useState<boolean>(false);
     const [extraInfoModal, setExtraInfoModal] = useState<ExtraInfoType>("");
     const [currentProductId, setCurrentProductId] = useState<string>("");
     const [summaryState, setSummaryState] = useState<boolean>(false);
 
     const selectedCustomer = SaleStore.customer;
     const selectedProducts = SaleStore.products;
+    const selectedInventories = SaleStore.inventories;
 
     const resetFormErrors = (name: string) => {
       setFormErrors((prev) => prev.filter((error) => error.path[0] !== name));
@@ -225,8 +228,8 @@ const CreateNewSale = observer(
           >
             <div
               className={`flex items-center justify-center px-4 w-full min-h-[64px] border-b-[0.6px] border-strokeGreyThree ${getIsFormFilled()
-                  ? "bg-paleCreamGradientLeft"
-                  : "bg-paleGrayGradientLeft"
+                ? "bg-paleCreamGradientLeft"
+                : "bg-paleGrayGradientLeft"
                 }`}
             >
               <h2
@@ -307,87 +310,62 @@ const CreateNewSale = observer(
                         : getFieldError("customerId")
                     }
                   />
-                  {
-                    formData.category === 'INVENTORY' && <ModalInput
-                    type="button"
-                    name="inventory"
-                    label="INVENTORY"
-                    onClick={() => {
-                      setIsCustomerProductModalOpen(true);
-                      setModalType("inventory");
-                    }}
-                    placeholder="Select Inventory"
-                    required={true}
-                    isItemsSelected={selectedProducts.length > 0}
-                    itemsSelected={
-                      <div className="flex flex-wrap items-center w-full gap-6">
-                        {selectedProducts?.map((data, index) => {
-                          return (
-                            <ProductSaleDisplay
-                              key={index}
-                              productData={data}
-                              onRemoveProduct={(productId) =>
-                                SaleStore.removeProduct(productId)
-                              }
-                              setExtraInfoModal={(value) => {
-                                setCurrentProductId(data.productId);
-                                setExtraInfoModal(value);
-                              }}
-                              getIsFormFilled={getIsFormFilled}
-                              getFieldError={getSaleItemFieldErrorByIndex}
-                            />
-                          );
-                        })}
-                      </div>
-                    }
-                    errorMessage={
-                      !SaleStore.doesProductCategoryExist
-                        ? "Failed to fetch products"
-                        : getFieldError("products")
-                    }
-                  />
-                  }
+                   {formData.category === "INVENTORY" && (
+                    <ModalInput
+                      type="button"
+                      name="inventory"
+                      label="INVENTORY"
+                      onClick={() => {
+                        setIsInventoryOpen(true);
+                        setModalType("inventory");
+                      }}
+                      placeholder="Select Inventory"
+                      required
+                      isItemsSelected={selectedInventories.length > 0}
+                      itemsSelected={<div>{selectedInventories.length} inventory selected</div>}
+                    />
+                  )}
                   {
                     formData.category === 'PRODUCT' && <ModalInput
-                    type="button"
-                    name="products"
-                    label="PRODUCTS"
-                    onClick={() => {
-                      setIsCustomerProductModalOpen(true);
-                      setModalType("product");
-                    }}
-                    placeholder="Select Product"
-                    required={true}
-                    isItemsSelected={selectedProducts.length > 0}
-                    itemsSelected={
-                      <div className="flex flex-wrap items-center w-full gap-6">
-                        {selectedProducts?.map((data, index) => {
-                          return (
-                            <ProductSaleDisplay
-                              key={index}
-                              productData={data}
-                              onRemoveProduct={(productId) =>
-                                SaleStore.removeProduct(productId)
-                              }
-                              setExtraInfoModal={(value) => {
-                                setCurrentProductId(data.productId);
-                                setExtraInfoModal(value);
-                              }}
-                              getIsFormFilled={getIsFormFilled}
-                              getFieldError={getSaleItemFieldErrorByIndex}
-                            />
-                          );
-                        })}
-                      </div>
-                    }
-                    errorMessage={
-                      !SaleStore.doesProductCategoryExist
-                        ? "Failed to fetch products"
-                        : getFieldError("products")
-                    }
-                  />
+                      type="button"
+                      name="products"
+                      label="PRODUCTS"
+                      onClick={() => {
+                        setIsCustomerProductModalOpen(true);
+                        setModalType("product");
+                      }}
+                      placeholder="Select Product"
+                      required={true}
+                      isItemsSelected={selectedProducts.length > 0}
+                      itemsSelected={
+                        <div className="flex flex-wrap items-center w-full gap-6">
+                          {selectedProducts?.map((data, index) => {
+                            return (
+                              <ProductSaleDisplay
+                                key={index}
+                                productData={data}
+                                onRemoveProduct={(productId) =>
+                                  SaleStore.removeProduct(productId)
+                                }
+                                setExtraInfoModal={(value) => {
+                                  setCurrentProductId(data.productId);
+                                  setExtraInfoModal(value);
+                                }}
+                                getIsFormFilled={getIsFormFilled}
+                                getFieldError={getSaleItemFieldErrorByIndex}
+                              />
+                            );
+                          })}
+                        </div>
+                      }
+                      errorMessage={
+                        !SaleStore.doesProductCategoryExist
+                          ? "Failed to fetch products"
+                          : getFieldError("products")
+                      }
+                    />
                   }
-                  
+
                   {SaleStore.doesSaleItemHaveInstallment() && (
                     <>
                       <Input
@@ -525,6 +503,11 @@ const CreateNewSale = observer(
             </div>
           </form>
         </Modal>
+
+        <SelectInventoryModal
+          isInventoryOpen={isInventoryOpen}
+          setIsInventoryOpen={setIsInventoryOpen}
+        />
         <SelectCustomerProductModal
           isModalOpen={isCustomerProductModalOpen}
           setModalOpen={setIsCustomerProductModalOpen}

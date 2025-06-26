@@ -104,8 +104,22 @@ const SelectCustomerProductModal = observer(
       }`,
       false
     );
-    const fetchedData =
-      modalType === "customer" ? fetchAllCustomers : fetchProductCategoryById;
+
+    const fetchAllInventoryCategories = useGetRequest(
+      "/v1/inventory/categories/all",
+      false
+    );
+
+    const fetchInventoryCategoryById = useGetRequest(
+      `/v1/inventory?page=${currentPage}&limit=${entriesPerPage}&inventoryCategoryId=${_filterValue}${
+        queryValue && `&search=${queryValue}`
+      }`
+    );
+    const fetchedData = useMemo(() => {
+      if (modalType === "customer") return fetchAllCustomers;
+      if (modalType === "product") return fetchProductCategoryById;
+      return fetchInventoryCategoryById;
+    }, [modalType, fetchAllCustomers, fetchProductCategoryById, fetchInventoryCategoryById]);
 
     useEffect(() => {
       if (fetchAllProductCategories?.error) {
@@ -124,15 +138,23 @@ const SelectCustomerProductModal = observer(
     }, [fetchAllCustomers]);
 
     const tabNames: TabNamesType[] = useMemo(() => {
-      return (
-        fetchAllProductCategories.data?.map((data: { name: any; id: any }) => ({
+      if (modalType === "inventory") {
+        return fetchAllInventoryCategories.data?.map((data: { name: any; id: any }) => ({
           name: data.name,
           key: data.name,
           id: data.id,
-        })) || []
-      );
-    }, [fetchAllProductCategories.data]);
-
+        })) || [];
+      }
+      if (modalType === "product") {
+        return fetchAllProductCategories.data?.map((data: { name: any; id: any }) => ({
+          name: data.name,
+          key: data.name,
+          id: data.id,
+        })) || [];
+      }
+      return [];
+    }, [modalType, fetchAllProductCategories.data, fetchAllInventoryCategories.data]);
+    
     const fetchTabData = useCallback(
       async (categoryId: string) => {
         setFilterValue(categoryId);

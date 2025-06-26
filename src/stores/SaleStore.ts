@@ -7,9 +7,62 @@ import {
   SnapshotIn,
 } from "mobx-state-tree";
 
+const CategoryModel = types.model("CategoryModel", {
+  id: types.string,
+  name: types.string,
+  description: types.maybe(types.string),
+  createdAt: types.maybe(types.string),
+  updatedAt: types.maybe(types.string)
+});
+
+const SalePriceModel = types.model("SalePriceModel", {
+  price: types.number,
+  currency: types.string,
+  discount: types.maybe(types.number),
+  discountedPrice: types.maybe(types.number),
+  priceBeforeTax: types.maybe(types.number),
+  taxAmount: types.maybe(types.number)
+});
+
+
+const BatchModel = types.model("BatchModel", {
+  id: types.string,
+  batchNumber: types.string,
+  quantity: types.number,
+  expiryDate: types.string,
+  manufactureDate: types.maybe(types.string),
+  purchasePrice: types.maybe(types.number),
+  sellingPrice: types.maybe(types.number)
+});
+
+const InventoryModel = types.model("InventoryModel", {
+  id: types.string,
+  name: types.string,
+  manufacturerName: types.string,
+  sku: types.string,
+  image: types.maybeNull(types.string),
+  dateOfManufacture: types.string,
+  status: types.enumeration(["IN_STOCK", "OUT_OF_STOCK", "DISCONTINUED"]),
+  class: types.enumeration(["REGULAR", "PREMIUM", "DISCOUNTED"]),
+  inventoryCategoryId: types.string,
+  inventorySubCategoryId: types.string,
+  tenantId: types.string,
+  inventoryCategory: CategoryModel,
+  inventorySubCategory: CategoryModel,
+  batches: types.array(BatchModel),
+  salePrice: SalePriceModel,
+  inventoryValue: types.number,
+  totalRemainingQuantities: types.number,
+  totalInitialQuantities: types.number,
+  inventoryUnits: types.maybe(types.number)
+});
+
+
+
 const defaultValues: SnapshotIn<typeof saleStore> = {
   category: "PRODUCT",
   customer: null,
+  inventories: [],
   doesCustomerExist: false,
   products: [],
   doesProductCategoryExist: false,
@@ -125,6 +178,7 @@ const ProductModel = types.model({
   productPaymentModes: types.string,
 });
 
+
 const ParamModel = types.model({
   paymentMode: types.enumeration(["INSTALLMENT", "ONE_OFF"]),
   installmentDuration: types.number,
@@ -215,6 +269,7 @@ const saleStore = types
     customer: types.maybeNull(CustomerModel),
     doesCustomerExist: types.boolean,
     products: types.array(ProductModel),
+    inventories: types.array(InventoryModel),
     doesProductCategoryExist: types.boolean,
     parameters: types.array(ParametersModel),
     miscellaneousPrices: types.array(MiscellaneousPricesModel),
