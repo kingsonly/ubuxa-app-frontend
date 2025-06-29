@@ -8,11 +8,12 @@ import InventoryDetails from "./InventoryDetails";
 import InventoryStats from "./InventoryStats";
 import InventoryHistory, { Batch } from "./InventoryHistory";
 import { GoDotFill } from "react-icons/go";
-import { useGetRequest } from "../../utils/useApiCall";
+import { useApiCall, useGetRequest } from "../../utils/useApiCall";
 import { KeyedMutator } from "swr";
 import { DataStateWrapper } from "../Loaders/DataStateWrapper";
 import CreateInventoryBatchForm from "./CreateInventoryBatchForm";
-
+import EditSettingsIcon from "../appIcons/edit-settings.icon";
+import { toast } from "react-toastify";
 type InventoryData = {
   id: string;
   name: string;
@@ -26,6 +27,7 @@ type InventoryData = {
   inventorySubCategoryId: string;
   createdAt: string;
   updatedAt: string;
+  hasDevice?: boolean;
   deletedAt: string | null;
   batches: Batch[];
   inventoryCategory: {
@@ -33,14 +35,14 @@ type InventoryData = {
     name: string;
     parentId: string | null;
     type: string;
-    // children?: {
-    //   id: string;
-    //   name: string;
-    //   parentId: string;
-    //   type: string;
-    //   createdAt: string;
-    //   updatedAt: string;
-    // }[];
+    children?: {
+      id: string;
+      name: string;
+      parentId: string;
+      type: string;
+      createdAt: string;
+      updatedAt: string;
+    }[];
   };
   inventorySubCategory: {
     id: string;
@@ -77,6 +79,7 @@ const InventoryDetailModal = ({
   refreshTable: KeyedMutator<any>;
   inventoryIdParamExists: boolean;
 }) => {
+  const { apiCall } = useApiCall();
   const fetchSingleBatchInventory = useGetRequest(
     `/v1/inventory/${inventoryID}`,
     false
@@ -87,7 +90,8 @@ const InventoryDetailModal = ({
   const [entriesPerPage, setEntriesPerPage] = useState<number>(20);
   const [secModal, setSecModal] = useState<boolean>(false);
   const [paramError, setParamError] = useState<boolean>(false);
-
+  const [displayInput, setDisplayInput] = useState<boolean>(false);
+  const [activeTabName, setActiveTabName] = useState<string>("");
   useEffect(() => {
     if (fetchSingleBatchInventory?.error && inventoryIdParamExists) {
       setParamError(true);
@@ -108,10 +112,12 @@ const InventoryDetailModal = ({
   const getInventoryData = (data: InventoryData) => {
     const entries = {
       inventoryId: data?.id,
+      hasDevice: data?.hasDevice,
       inventoryImage: data?.image,
       inventoryName: data?.name,
       inventoryClass: data?.class,
-      inventoryCategory: data?.inventoryCategory?.name,
+      inventoryCategory: data?.inventoryCategory,
+      inventorySubCategory: data?.inventorySubCategory,
       sku: data?.sku,
       manufacturerName: data?.manufacturerName,
       dateOfManufacture: data?.dateOfManufacture,
@@ -131,7 +137,7 @@ const InventoryDetailModal = ({
     return getInventoryData(fetchSingleBatchInventory?.data);
   }, [fetchSingleBatchInventory]);
 
-  // const handleCancelClick = () => setDisplayInput(false);
+  const handleCancelClick = () => setDisplayInput(false);
 
   const getStatsData = (data: InventoryData) => {
     // Early return if data is undefined or doesn't have batches
@@ -151,10 +157,10 @@ const InventoryDetailModal = ({
     const percentageAvailable =
       data.batches.length > 0
         ? `${Math.round(
-            ((data.batches[data.batches.length - 1]?.remainingQuantity ?? 0) /
-              (data.batches[data.batches.length - 1]?.numberOfStock || 1)) *
-              100
-          )}%`
+          ((data.batches[data.batches.length - 1]?.remainingQuantity ?? 0) /
+            (data.batches[data.batches.length - 1]?.numberOfStock || 1)) *
+          100
+        )}%`
         : "0%";
 
     return {
@@ -169,24 +175,47 @@ const InventoryDetailModal = ({
   const statsData = useMemo(() => {
     return getStatsData(fetchSingleBatchInventory?.data);
   }, [fetchSingleBatchInventory]);
+  const deleteInventoryById = async () => {
+    const confirmation = prompt(
+      `Are you sure you want to delete the inventory with the name " ${inventoryData.inventoryName}" This action is irreversible! Enter "Yes" or "No".`,
+      "No"
+    );
 
+    if (confirmation?.trim()?.toLowerCase() === "yes") {
+      toast.info(`Deleting "${inventoryData.inventoryName} " `);
+      apiCall({
+        endpoint: `/v1/inventory/${inventoryData.inventoryId}`,
+        method: "delete",
+        successMessage: "Customer deleted successfully!",
+      })
+        .then(async () => {
+          await refreshTable();
+          setIsOpen(false);
+        })
+        .catch(() =>
+          toast.error(`Failed to delete ${inventoryData.inventoryName} inventory`)
+        );
+    }
+  };
   const dropDownList = {
     items: [
       "Create New Batch",
+      "Delete Stock",
+      // "Delete Stock",
       // "Request Restock",
       // "Change Stock Status",
       // "Transfer Stock Details",
       // "Reset Stock Levels",
-      // "Delete Stock",
+
     ],
     onClickLink: (index: number) => {
       switch (index) {
         case 0:
           setSecModal(true);
           break;
-        // case 1:
-        //   console.log("Request Restock");
-        //   break;
+        case 1:
+          deleteInventoryById();
+          break;
         // case 2:
         //   console.log("Change Stock Status");
         //   break;
@@ -220,11 +249,14 @@ const InventoryDetailModal = ({
   const tagStyle = (value: string) => {
     if (value === "REGULAR") {
       return "bg-[#EAEEF2] text-textDarkGrey";
-    } else if (value === "RETURNED") {
-      return "bg-[#FFEBEC] text-errorTwo";
     } else {
       return "bg-[#FEF5DA] text-textDarkBrown";
     }
+  };
+
+  const inventoryUpdateCallBack = async () => {
+    await fetchSingleBatchInventory.mutate();
+    setDisplayInput(false)
   };
 
   return (
@@ -250,30 +282,34 @@ const InventoryDetailModal = ({
             </span>
           )
         }
-        // rightHeaderComponents={
-        //   displayInput ? (
-        //     <p
-        //       className="text-xs text-textDarkGrey font-semibold cursor-pointer over"
-        //       onClick={handleCancelClick}
-        //       title="Cancel editing inventory details"
-        //     >
-        //       Cancel Edit
-        //     </p>
-        //   ) : (
-        //     <button
-        //       className="flex items-center justify-center w-[24px] h-[24px] bg-white border border-strokeGreyTwo rounded-full hover:bg-slate-100"
-        //       onClick={() => setDisplayInput(true)}
-        //     >
-        //       <img src={editInput} alt="Edit Button" width="15px" />
-        //     </button>
-        //   )
-        // }
+        rightHeaderComponents={
+          displayInput ? (
+            <p
+              className="text-xs text-textDarkGrey font-semibold cursor-pointer over"
+              onClick={handleCancelClick}
+              title="Cancel editing inventory details"
+            >
+              Cancel Edit
+            </p>
+          ) : (
+            <button
+              className="flex items-center justify-center w-[24px] h-[24px] bg-white border border-strokeGreyTwo rounded-full hover:bg-slate-100"
+              onClick={() => {
+                setActiveTabName(tabNames[0].name);
+                setTabContent(tabNames[0].key);
+                setDisplayInput(true)
+              }
+              }
+            >
+              <EditSettingsIcon />
+            </button>
+          )
+        }
       >
         <div className="bg-white">
           <header
-            className={`flex items-center ${
-              inventoryData.inventoryName ? "justify-between" : "justify-end"
-            } bg-paleGrayGradientLeft p-4 min-h-[64px] border-b-[0.6px] border-b-strokeGreyThree`}
+            className={`flex items-center ${inventoryData.inventoryName ? "justify-between" : "justify-end"
+              } bg-paleGrayGradientLeft p-4 min-h-[64px] border-b-[0.6px] border-b-strokeGreyThree`}
           >
             {inventoryData.inventoryName && (
               <p className="flex items-center justify-center bg-[#F6F8FA] w-max px-2 py-1 h-[24px] text-textBlack text-xs border-[0.4px] border-strokeGreyTwo rounded-full">
@@ -293,7 +329,11 @@ const InventoryDetailModal = ({
                 key,
                 count,
               }))}
-              onTabSelect={(key) => setTabContent(key)}
+              activeTabName={activeTabName}
+              onTabSelect={(key) => {
+                setActiveTabName("");
+                setTabContent(key);
+              }}
             />
             {tabContent === "details" ? (
               <DataStateWrapper
@@ -310,8 +350,9 @@ const InventoryDetailModal = ({
                 <InventoryDetails
                   {...inventoryData}
                   tagStyle={tagStyle}
-                  displayInput={false}
+                  displayInput={displayInput}
                   refreshTable={refreshTable}
+                  callback={inventoryUpdateCallBack}
                 />
               </DataStateWrapper>
             ) : tabContent === "stats" ? (

@@ -224,8 +224,8 @@ const CreateNewSale = observer(
           >
             <div
               className={`flex items-center justify-center px-4 w-full min-h-[64px] border-b-[0.6px] border-strokeGreyThree ${getIsFormFilled()
-                  ? "bg-paleCreamGradientLeft"
-                  : "bg-paleGrayGradientLeft"
+                ? "bg-paleCreamGradientLeft"
+                : "bg-paleGrayGradientLeft"
                 }`}
             >
               <h2

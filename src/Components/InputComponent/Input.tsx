@@ -4,6 +4,7 @@ import { useState } from "react";
 import { LuImagePlus } from "react-icons/lu";
 import useBreakpoint from "@/hooks/useBreakpoint";
 import { IoIosSwap } from "react-icons/io";
+import { Tag } from "../Products/ProductDetails";
 
 export const Asterik = () => {
   return (
@@ -812,7 +813,8 @@ export const SelectInput = ({
 };
 
 export type MultipleSelectInputType = {
-  label: string;
+  label?: string;
+  plainBorder?: boolean;
   options: SelectOption[];
   value: string[];
   onChange: (values: string[]) => void;
@@ -836,6 +838,7 @@ export const SelectMultipleInput = ({
   style,
   icon = <CgChevronDown />,
   iconStyle = "text-lg",
+  plainBorder = false,
   errorMessage,
 }: MultipleSelectInputType) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -884,20 +887,23 @@ export const SelectMultipleInput = ({
         <div
           className={`relative flex items-center justify-between 
           ${style}
-          ${value ? "border-strokeCream" : "border-strokeGrey"}
+          ${plainBorder ? "border-strokeGrey" : value ? "border-strokeCream" : "border-strokeGrey"}
           ${disabled ? "bg-gray-200 cursor-not-allowed" : "bg-white"} 
           w-full h-[48px] px-[1.3em] py-[1em] cursor-pointer
           rounded-3xl text-sm text-textGrey border-[0.6px] gap-[4.23px]
           transition-all focus:outline-none focus:ring-2 focus:ring-customPrimary`}
           onClick={() => !disabled && setIsOpen(!isOpen)}
         >
-          <span
-            className={`absolute flex -top-2 items-center justify-center text-[10px] text-textGrey font-semibold px-2 py-0.5 max-w-max h-4 bg-white border-[0.6px] border-strokeCream rounded-[200px] 
+          {
+            label &&
+            <span
+              className={`absolute flex -top-2 items-center justify-center text-[10px] text-textGrey font-semibold px-2 py-0.5 max-w-max h-4 bg-white border-[0.6px] border-strokeCream rounded-[200px] 
             transition-opacity duration-500 ease-in-out
             ${value.length > 0 ? "opacity-100" : "opacity-0"}`}
-          >
-            {label.toUpperCase()}
-          </span>
+            >
+              {label?.toUpperCase()}
+            </span>
+          }
 
           {required && <Asterik />}
 
@@ -953,15 +959,16 @@ export const ToggleInput = ({
   defaultChecked = false,
   disabled = false,
 }: ToggleInputType) => {
-  const [isChecked, setIsChecked] = useState(defaultChecked);
+  //const [isChecked, setIsChecked] = useState(defaultChecked);
 
   const handleToggle = () => {
     if (!disabled) {
-      setIsChecked((prev) => {
-        const newChecked = !prev;
-        onChange(newChecked);
-        return newChecked;
-      });
+      onChange(!defaultChecked);
+      // setIsChecked((prev) => {
+      //   const newChecked = !prev;
+      //   onChange(defaultChecked);
+      //   return defaultChecked;
+      // });
     }
   };
 
@@ -972,15 +979,59 @@ export const ToggleInput = ({
       onClick={handleToggle}
     >
       <div
-        className={`absolute inset-y-1 inset-x-1 rounded-full transition-colors duration-300 border-[0.4px] ${isChecked
+        className={`absolute inset-y-1 inset-x-1 rounded-full transition-colors duration-300 border-[0.4px] ${defaultChecked
           ? "bg-customSecondary border-customAscent"
           : "bg-customPrimary border-customAscent"
           }`}
       ></div>
       <div
-        className={`absolute top-2.5 left-2.5 w-5 h-5 rounded-full shadow-md transition-transform duration-300 ${isChecked ? "transform translate-x-6 bg-customPrimary" : "bg-customSecondary"
+        className={`absolute top-2.5 left-2.5 w-5 h-5 rounded-full shadow-md transition-transform duration-300 ${defaultChecked ? "transform translate-x-6 bg-customPrimary" : "bg-customSecondary"
           }`}
       ></div>
     </div>
   );
 };
+
+"use client"
+
+
+
+interface ProductDescriptionInputProps {
+  value: string
+  onChange: (value: string) => void
+  errorMessage?: string
+  required?: boolean
+  label?: string
+  placeholder?: string
+}
+
+export const ProductDescriptionInput: React.FC<ProductDescriptionInputProps> = ({
+  value,
+  onChange,
+  errorMessage,
+  required = false,
+  label = "PRODUCT DESCRIPTION",
+  placeholder = "Enter product description...",
+}) => {
+  return (
+    <div className="flex flex-col w-full gap-2">
+      <div className="flex items-center gap-1">
+        <Tag name={label} variant="ink" />
+
+        {required && <span className="text-red-500">*</span>}
+      </div>
+
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        rows={4}
+        className={`w-full px-3 py-2 text-sm border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 ${errorMessage ? "border-red-500" : "border-strokeGreyThree"
+          }`}
+      />
+
+      {errorMessage && <p className="text-sm text-red-500">{errorMessage}</p>}
+    </div>
+  )
+}
+

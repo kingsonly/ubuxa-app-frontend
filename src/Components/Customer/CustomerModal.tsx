@@ -54,7 +54,7 @@ const CustomerModal = ({
 
     if (confirmation?.trim()?.toLowerCase() === "yes") {
       toast.info(`Deleting "${fetchSingleCustomer?.data?.firstname} ${fetchSingleCustomer?.data?.lastname}" `);
-      apiCall({
+      await apiCall({
         endpoint: `/v1/customers/${customerID}`,
         method: "delete",
         successMessage: "Customer deleted successfully!",
