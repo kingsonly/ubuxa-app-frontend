@@ -38,6 +38,8 @@ const generateBatchEntries = (data: Batch[]): BatchHistoryEntries[] => {
       datetime: item.createdAt,
       stockNumber: item.numberOfStock || 0,
       stockValue: item.stockValue || "0",
+      costOfItem: item.costOfItem || "0",
+      price: item.price || "0",
       staffName: item?.creatorDetails
         ? `${item.creatorDetails?.firstname} ${item.creatorDetails?.lastname}`
         : "N/A",
@@ -94,6 +96,40 @@ const InventoryHistory = ({
       },
     },
     {
+      title: "COST OF ITEM",
+      key: "costOfItem",
+      styles: "w-[15%]",
+      valueIsAComponent: true,
+      customValue: (value: string) => {
+        return (
+          <div className="flex items-center gap-1">
+            <NairaSymbol color="#A58730" />
+            <span className="text-textBlack">
+              {formatNumberWithCommas(value)}
+            </span>
+          </div>
+        );
+      },
+    },
+
+    {
+      title: "SALE PRICE",
+      key: "price",
+      styles: "w-[15%]",
+      valueIsAComponent: true,
+      customValue: (value: string) => {
+        return (
+          <div className="flex items-center gap-1">
+            <NairaSymbol color="#A58730" />
+            <span className="text-textBlack">
+              {formatNumberWithCommas(value)}
+            </span>
+          </div>
+        );
+      },
+    },
+
+    {
       title: "STOCK VALUE",
       key: "stockValue",
       styles: "w-[15%]",
@@ -118,32 +154,36 @@ const InventoryHistory = ({
         return (
           <div className="flex items-center gap-1 h-[24px]">
             <img src={roletwo} alt="Icon" />
-            <span className="flex items-center justify-center bg-[#EFF2FF] px-2 h-full rounded-full text-xs font-semibold text-textBlack capitalize">
+            <span className="flex items-center justify-start bg-[#EFF2FF] px-2 h-full rounded-full text-xs font-semibold text-textBlack capitalize overflow-x-auto whitespace-nowrap"
+              style={{
+                scrollbarWidth: 'none', /* Firefox */
+                msOverflowStyle: 'none', /* IE and Edge */
+              }}>
               {value}
             </span>
           </div>
         );
       },
     },
-    {
-      title: "ACTIONS",
-      key: "actions",
-      valueIsAComponent: true,
-      customValue: (value: any, rowData: any) => {
-        return (
-          <span
-            className="px-2 py-1 text-[10px] text-textBlack hover:text-customButtonText font-medium bg-[#F6F8FA] border-[0.2px] border-strokeGreyTwo rounded-full shadow-innerCustom cursor-pointer transition-all hover:bg-customPrimary"
-            onClick={() => {
-              // setHistoryID(rowData.id);
-              // setIsOpen(true);
-              console.log(value, rowData);
-            }}
-          >
-            View
-          </span>
-        );
-      },
-    },
+    // {
+    //   title: "ACTIONS",
+    //   key: "actions",
+    //   valueIsAComponent: true,
+    //   customValue: (value: any, rowData: any) => {
+    //     return (
+    //       <span
+    //         className="px-2 py-1 text-[10px] text-textBlack hover:text-customButtonText font-medium bg-[#F6F8FA] border-[0.2px] border-strokeGreyTwo rounded-full shadow-innerCustom cursor-pointer transition-all hover:bg-customPrimary"
+    //         onClick={() => {
+    //           // setHistoryID(rowData.id);
+    //           // setIsOpen(true);
+    //           console.log(value, rowData);
+    //         }}
+    //       >
+    //         View
+    //       </span>
+    //     );
+    //   },
+    // },
   ];
 
   return (

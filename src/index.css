@@ -404,3 +404,7 @@ table {
     @apply bg-background text-foreground;
   }
 }
+
+.overflow-x-auto::-webkit-scrollbar {
+  display: none;
+}

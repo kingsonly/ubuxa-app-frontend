@@ -93,15 +93,12 @@ const ProductsTable = ({
   ];
 
   const dropDownList = {
-    items: ["View Product", "Cancel Product"],
+    items: ["View Product"],
     onClickLink: (index: number, cardData: any) => {
       switch (index) {
         case 0:
           setProductId(cardData?.productId);
           setIsOpen(true);
-          break;
-        case 1:
-          console.log("Cancel product");
           break;
         default:
           break;
@@ -136,10 +133,10 @@ const ProductsTable = ({
                   minimumInventoryBatchPrice === maximumInventoryBatchPrice
                     ? `₦ ${formatNumberWithCommas(maximumInventoryBatchPrice)}`
                     : `₦ ${formatNumberWithCommas(
-                        minimumInventoryBatchPrice
-                      )} - ${formatNumberWithCommas(
-                        maximumInventoryBatchPrice
-                      )}`;
+                      minimumInventoryBatchPrice
+                    )} - ${formatNumberWithCommas(
+                      maximumInventoryBatchPrice
+                    )}`;
 
                 return (
                   <CardComponent

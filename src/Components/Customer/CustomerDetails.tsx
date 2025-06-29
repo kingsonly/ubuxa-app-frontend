@@ -100,6 +100,7 @@ const CustomerDetails = ({
     }
   };
 
+
   const validateForm = () => {
     try {
       customerSchema.parse(formData)
@@ -157,6 +158,7 @@ const CustomerDetails = ({
       setLoading(false)
     }
   }
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col w-full gap-4">
       <div className="flex flex-col p-2.5 gap-2 bg-white border-[0.6px] border-strokeGreyThree rounded-[20px]">

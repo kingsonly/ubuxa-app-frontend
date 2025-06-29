@@ -15,6 +15,7 @@ import CreateNewProduct, {
 } from "../Components/Products/CreateNewProduct";
 import { useGetRequest } from "../utils/useApiCall";
 import AddCircleIcon from "@/Components/appIcons/add-circle.icon";
+import AllCategories, { CategoryDetailsType } from "@/Components/Category/AllCategories";
 
 const ProductsTable = lazy(
   () => import("../Components/Products/ProductsTable")
@@ -26,6 +27,8 @@ const Products = () => {
   const [formType, setFormType] = useState<ProductFormType>("newProduct");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [entriesPerPage, setEntriesPerPage] = useState<number>(20);
+  const [categoryType, setCategoryType] = useState<CategoryDetailsType>("Category");
+  const [isOpenCategory, setIsOpenCategory] = useState<boolean>(false);
   const [tableQueryParams, setTableQueryParams] = useState<Record<
     string,
     any
@@ -89,12 +92,16 @@ const Products = () => {
   }, [location.pathname]);
 
   const dropDownList = {
-    items: ["Create New Category"],
+    items: ["Create New Category", "All Categories"],
     onClickLink: (index: number) => {
       switch (index) {
         case 0:
           setFormType("newCategory");
           setIsOpen(true);
+          break;
+        case 1:
+          setCategoryType("Category");
+          setIsOpenCategory(true);
           break;
         default:
           break;
@@ -138,13 +145,13 @@ const Products = () => {
               bottomText="PRODUCTS"
               value={0}
             /> */}
-            <TitlePill
+            {/* <TitlePill
               icon={cancelled}
               iconBgColor="bg-[#FFDBDE]"
               topText="Cancelled"
               bottomText="PRODUCTS"
               value={0}
-            />
+            /> */}
           </div>
           <div className="flex w-full items-center justify-between gap-2 min-w-max sm:w-max sm:justify-end">
             <ActionButton
@@ -198,6 +205,12 @@ const Products = () => {
         setIsOpen={setIsOpen}
         refreshTable={allProductsRefresh}
         formType={formType}
+      />
+      <AllCategories
+        isOpen={isOpenCategory}
+        setIsOpen={setIsOpenCategory}
+        type={categoryType}
+        categoryFor="Product"
       />
     </>
   );

@@ -6,13 +6,18 @@ import ProductDetails from "./ProductDetails";
 import InventoryDetails from "./InventoryDetails";
 import StatsDetails from "./StatsDetails";
 import CustomerDetails from "./CustomerDetails";
-import { useGetRequest } from "../../utils/useApiCall";
+import { useApiCall, useGetRequest } from "../../utils/useApiCall";
 import { Modal } from "@/Components/ModalComponent/Modal";
 import { KeyedMutator } from "swr";
 import { DataStateWrapper } from "../Loaders/DataStateWrapper";
+import { DropDown } from "../DropDownComponent/DropDown";
+import EditSettingsIcon from "../appIcons/edit-settings.icon";
+import { toast } from "react-toastify";
 
 type ProductDetails = {
   id: string;
+  productCapacity?: any[];
+  eaasDetails?: any;
   name: string;
   description: string;
   image: string;
@@ -51,20 +56,28 @@ const ProductModal = ({
   productID: string;
   refreshTable: KeyedMutator<any>;
 }) => {
+  const { apiCall } = useApiCall();
   const fetchSingleProduct = useGetRequest(`/v1/products/${productID}`, false);
   const fetchProductInventories = useGetRequest(
     `/v1/products/${productID}/inventory`,
     false
   );
 
+  const [displayInput, setDisplayInput] = useState<boolean>(false);
+
   const generateProductEntries = (data: ProductDetails) => {
+    console.log("lets see what we have ", data?.categoryId);
     return {
+      productCapacity: data?.productCapacity,
+      categoryId: data?.categoryId,
+      eaasDetails: data?.eaasDetails,
       productId: data?.id,
       productImage: data?.image,
+      description: data?.description,
       productName: data?.name,
       productTag: data?.category?.name,
       productPrice: data?.priceRange,
-      paymentModes: data?.paymentModes?.split(", ").map((mode) => mode.trim()),
+      paymentModes: data?.paymentModes?.split(",").map((mode) => mode.trim()),
       datetime: data?.createdAt,
       name: data?.creatorDetails?.firstname
         ? `${data?.creatorDetails?.firstname} ${data?.creatorDetails?.lastname}`
@@ -95,24 +108,24 @@ const ProductModal = ({
   // const [displayInput, setDisplayInput] = useState<boolean>(false);
   const [tabContent, setTabContent] = useState<string>("productDetails");
 
-  // const handleCancelClick = () => {
-  //   setDisplayInput(false);
-  // };
+  const handleCancelClick = () => {
+    setDisplayInput(false);
+  };
 
-  // const dropDownList = {
-  //   items: ["Cancel Product"],
-  //   onClickLink: (index: number) => {
-  //     switch (index) {
-  //       case 0:
-  //         console.log("Cancel Product");
-  //         break;
-  //       default:
-  //         break;
-  //     }
-  //   },
-  //   defaultStyle: true,
-  //   showCustomButton: true,
-  // };
+  const dropDownList = {
+    items: ["Cancel Product"],
+    onClickLink: (index: number) => {
+      switch (index) {
+        case 0:
+          deleteProductById()
+          break;
+        default:
+          break;
+      }
+    },
+    defaultStyle: true,
+    showCustomButton: true,
+  };
 
   const tabNames = [
     { name: "Product Details", key: "productDetails", count: null },
@@ -120,6 +133,29 @@ const ProductModal = ({
     { name: "Stats", key: "stats", count: null },
     { name: "Customers", key: "customers", count: 0 },
   ];
+
+  const deleteProductById = async () => {
+    const confirmation = prompt(
+      `Are you sure you want to delete the product with the name "  ${fetchSingleProduct?.data?.name}" This action is irreversible! Enter "Yes" or "No".`,
+      "No"
+    );
+
+    if (confirmation?.trim()?.toLowerCase() === "yes") {
+      toast.info(`Deleting Product with the name "${fetchSingleProduct?.data?.name}" `);
+      await apiCall({
+        endpoint: `/v1/products/${productID}`,
+        method: "delete",
+        successMessage: "Product deleted successfully!",
+      })
+        .then(async () => {
+          await refreshTable();
+          setIsOpen(false);
+        })
+        .catch(() =>
+          toast.error(`Failed to delete ${fetchSingleProduct?.data?.name}`)
+        );
+    }
+  };
 
   return (
     <Modal
@@ -130,41 +166,40 @@ const ProductModal = ({
       onClose={() => {
         setIsOpen(false);
         setTabContent("productDetails");
-        // setDisplayInput(false);
+        setDisplayInput(false);
       }}
-      // rightHeaderComponents={
-      //   displayInput ? (
-      //     <p
-      //       className="text-xs text-textDarkGrey font-semibold cursor-pointer over"
-      //       onClick={handleCancelClick}
-      //       title="Cancel editing product details"
-      //     >
-      //       Cancel Edit
-      //     </p>
-      //   ) : (
-      //     <button
-      //       className="flex items-center justify-center w-[24px] h-[24px] bg-white border border-strokeGreyTwo rounded-full hover:bg-slate-100"
-      //       onClick={() => setDisplayInput(true)}
-      //     >
-      //       <img src={editInput} alt="Edit Button" width="15px" />
-      //     </button>
-      //   )
-      // }
+      rightHeaderComponents={
+        displayInput ? (
+          <p
+            className="text-xs text-textDarkGrey font-semibold cursor-pointer over"
+            onClick={handleCancelClick}
+            title="Cancel editing product details"
+          >
+            Cancel Edit
+          </p>
+        ) : (
+          <button
+            className="flex items-center justify-center w-[24px] h-[24px] bg-white border border-strokeGreyTwo rounded-full hover:bg-slate-100"
+            onClick={() => setDisplayInput(true)}
+          >
+            <EditSettingsIcon />
+          </button>
+        )
+      }
     >
       <div className="bg-white">
         <header
-          className={`flex items-center ${
-            productData?.productName ? "justify-between" : "justify-end"
-          } bg-paleGrayGradientLeft p-4 min-h-[64px] border-b-[0.6px] border-b-strokeGreyThree`}
+          className={`flex items-center ${productData?.productName ? "justify-between" : "justify-end"
+            } bg-paleGrayGradientLeft p-4 min-h-[64px] border-b-[0.6px] border-b-strokeGreyThree`}
         >
           {productData?.productName && (
             <p className="flex items-center justify-center bg-paleLightBlue w-max p-2 h-[24px] text-textBlack text-xs font-semibold rounded-full">
               {productData?.productName}
             </p>
           )}
-          {/* <div className="flex items-center justify-end gap-2">
+          <div className="flex items-center justify-end gap-2">
             <DropDown {...dropDownList} />
-          </div> */}
+          </div>
         </header>
         <div className="flex flex-col w-full gap-4 px-4 py-2">
           <TabComponent
@@ -185,7 +220,7 @@ const ProductModal = ({
             >
               <ProductDetails
                 {...productData}
-                displayInput={false}
+                displayInputState={displayInput}
                 refreshTable={refreshTable}
               />
             </DataStateWrapper>

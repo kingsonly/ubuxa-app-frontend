@@ -5,6 +5,7 @@ import {
   Input,
   SelectInput,
   SelectOption,
+  ToggleInput,
 } from "../InputComponent/Input";
 import ProceedButton from "../ProceedButtonComponent/ProceedButtonComponent";
 import { Modal } from "../ModalComponent/Modal";
@@ -30,7 +31,7 @@ const formSchema = z.object({
     .string()
     .trim()
     .min(1, "Inventory Class is required")
-    .regex(/^(REGULAR|RETURNED|REFURBISHED)$/, "Invalid Inventory Class")
+    .regex(/^(REGULAR|REFURBISHED)$/, "Invalid Inventory Class")
     .default(""),
   inventoryCategoryId: z
     .string()
@@ -52,6 +53,8 @@ const formSchema = z.object({
     .trim()
     .min(1, "Manufacturer Name is required")
     .max(50, "Manufacturer Name cannot exceed 50 characters"),
+  hasDevice: z
+    .boolean().optional(),
   dateOfManufacture: z
     .string()
     .trim()
@@ -125,6 +128,7 @@ const defaultInventoryFormData = {
   costOfItem: "",
   price: "",
   inventoryImage: null,
+  hasDevice: false,
 };
 
 const createCategoryDataSchema = z.object({
@@ -235,6 +239,12 @@ const CreateNewInventory: React.FC<CreatNewInventoryProps> = ({
     }
     resetFormErrors(name);
   };
+  const handleInputChangeHasDevice = (value: boolean) => {
+    setFormData((prev) => ({
+      ...prev,
+      hasDevice: value,
+    }));
+  }
 
   const handleSelectChange = (name: string, values: string) => {
     setFormData((prev) => ({
@@ -256,6 +266,7 @@ const CreateNewInventory: React.FC<CreatNewInventoryProps> = ({
           class: formData.class,
           inventoryCategoryId: formData.inventoryCategoryId,
           inventorySubCategoryId: formData.inventorySubCategoryId,
+          hasDevice: formData.hasDevice,
           ...formFields,
         });
         const submissionData = new FormData();
@@ -387,7 +398,6 @@ const CreateNewInventory: React.FC<CreatNewInventoryProps> = ({
                 label="Class"
                 options={[
                   { label: "Regular", value: "REGULAR" },
-                  { label: "Returned", value: "RETURNED" },
                   { label: "Refurbished", value: "REFURBISHED" },
                 ]}
                 value={formData.class}
@@ -562,6 +572,23 @@ const CreateNewInventory: React.FC<CreatNewInventoryProps> = ({
                 placeholder="Item Picture"
                 errorMessage={getFieldError("inventoryImage")}
               />
+              <div className="flex items-center justify-between gap-2 w-full">
+                <p className="text-sm text-textBlack font-semibold">
+                  Has Device
+                </p>
+                <div className="flex items-center">
+                  <ToggleInput
+                    defaultChecked={formData.hasDevice}
+                    onChange={(checked: boolean) => {
+                      handleInputChangeHasDevice(checked);
+                    }}
+                  />
+                  <span className="flex items-center justify-center gap-0.5 bg-[#F6F8FA] px-2 h-6 rounded-full text-xs font-medium capitalize border-[0.6px] border-strokeGreyTwo">
+                    {formData.hasDevice ? <span className='text-green-500'>YES</span> : <span className='text-errorTwo'>NO</span>}
+                  </span>
+                </div>
+
+              </div>
             </>
           ) : (
             <>

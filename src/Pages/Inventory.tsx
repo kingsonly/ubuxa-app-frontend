@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import PageLayout from "./PageLayout";
 import LoadingSpinner from "@/Components/Loaders/LoadingSpinner";
 import inventorybadge from "../assets/inventory/inventorybadge.png";
@@ -14,17 +14,21 @@ import CreateNewInventory, {
 } from "@/Components/Inventory/CreateNewInventory";
 import { useGetRequest } from "@/utils/useApiCall";
 import AddCircleIcon from "@/Components/appIcons/add-circle.icon";
+import AllCategories, { CategoryDetailsType } from "@/Components/Category/AllCategories";
 
 const InventoryTable = lazy(
   () => import("@/Components/Inventory/InventoryTable")
 );
 
-type InventoryClass = "REGULAR" | "RETURNED" | "REFURBISHED";
+type InventoryClass = "REGULAR" | "REFURBISHED";
 
 const Inventory = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isOpenCategory, setIsOpenCategory] = useState<boolean>(false);
   const [formType, setFormType] = useState<InventoryFormType>("newInventory");
+  const [categoryType, setCategoryType] = useState<CategoryDetailsType>("Category");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [entriesPerPage, setEntriesPerPage] = useState<number>(20);
   const [tableQueryParams, setTableQueryParams] = useState<Record<
@@ -39,7 +43,7 @@ const Inventory = () => {
   const {
     data: inventoryData,
     isLoading: inventoryLoading,
-    mutate: allInventoryRefresh,
+    mutate: handleAllInventoryRefresh,
     errorStates: allInventoryErrorStates,
   } = useGetRequest(
     `/v1/inventory?page=${currentPage}&limit=${entriesPerPage}${queryString && `&${queryString}`
@@ -47,6 +51,14 @@ const Inventory = () => {
     true,
     60000
   );
+
+  const allInventoryRefresh = async () => {
+    // Push navigation
+    const result = await handleAllInventoryRefresh();
+    navigate("/inventory/all");
+
+    return result;
+  };
 
   const fetchInventoryStats = useGetRequest("/v1/inventory/stats", true);
 
@@ -81,11 +93,6 @@ const Inventory = () => {
       count: getFilteredClassCount("REGULAR"),
     },
     {
-      title: "Returned",
-      link: "/inventory/returned",
-      count: getFilteredClassCount("RETURNED"),
-    },
-    {
       title: "Refurbished",
       link: "/inventory/refurbished",
       count: getFilteredClassCount("REFURBISHED"),
@@ -106,12 +113,6 @@ const Inventory = () => {
           class: "REGULAR",
         }));
         break;
-      case "/inventory/returned":
-        setTableQueryParams((prevParams) => ({
-          ...prevParams,
-          class: "RETURNED",
-        }));
-        break;
       case "/inventory/refurbished":
         setTableQueryParams((prevParams) => ({
           ...prevParams,
@@ -126,7 +127,8 @@ const Inventory = () => {
   }, [location.pathname]);
 
   const dropDownList = {
-    items: ["Create New Category", "Create New Sub-Category"],
+    items: ["Create New Category", "Create New Sub-Category", "All Categories",
+      "All Sub-Categories"],
     onClickLink: (index: number) => {
       switch (index) {
         case 0:
@@ -137,6 +139,14 @@ const Inventory = () => {
           setFormType("newSubCategory");
           setIsOpen(true);
           break;
+        case 2:
+          setCategoryType("Category");
+          setIsOpenCategory(true);
+          break;
+        case 3:
+          setCategoryType("SubCategory");
+          setIsOpenCategory(true);
+          break;
         default:
           break;
       }
@@ -144,7 +154,7 @@ const Inventory = () => {
     showCustomButton: true,
   };
 
-  const inventoryPaths = ["all", "regular", "returned", "refurbished"];
+  const inventoryPaths = ["all", "regular", "refurbished"];
 
   return (
     <>
@@ -165,13 +175,7 @@ const Inventory = () => {
               bottomText="INVENTORY"
               value={getFilteredClassCount("REGULAR")}
             />
-            <TitlePill
-              icon={inventorygradient}
-              iconBgColor="bg-[#FDEEC2]"
-              topText="Returned"
-              bottomText="INVENTORY"
-              value={getFilteredClassCount("RETURNED")}
-            />
+
             <TitlePill
               icon={cancelled}
               iconBgColor="bg-[#FFDBDE]"
@@ -231,6 +235,12 @@ const Inventory = () => {
         setIsOpen={setIsOpen}
         formType={formType}
         allInventoryRefresh={allInventoryRefresh}
+      />
+      <AllCategories
+        isOpen={isOpenCategory}
+        setIsOpen={setIsOpenCategory}
+        type={categoryType}
+        categoryFor="Inventory"
       />
     </>
   );
