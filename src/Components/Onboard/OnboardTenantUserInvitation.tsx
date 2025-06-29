@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { UserPlus, ArrowRight, Mail, CheckCircle } from "lucide-react"
+import { UserPlus, ArrowRight, CheckCircle } from "lucide-react"
 import { Button } from "../ui/button"
 import { useApiCall, useGetRequest } from "@/utils/useApiCall"
 import CreateNewUserModal from "../Settings/CreateNewUserModal"
@@ -12,19 +12,19 @@ const OnboardTenantUserInvitation = ({ updateTenantStatus }: { updateTenantStatu
     const { tenant } = useTokens()
     const [loading, setLoading] = useState(false)
     const [showUserCreation, setShowUserCreation] = useState(false)
-    const currentPage = 1;
-    const entriesPerPage = 20;
-    const tableQueryParams: Record<string, any> | null = {};
-    const queryString = Object.entries(tableQueryParams || {})
-        .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
-        .join("&");
+    // const currentPage = 1;
+    // const entriesPerPage = 20;
+    // const tableQueryParams: Record<string, any> | null = {};
+    // const queryString = Object.entries(tableQueryParams || {})
+    //     .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+    //     .join("&");
     const fetchAllRoles = useGetRequest("/v1/roles", true, 60000);
-    const fetchAllUsers = useGetRequest(
-        `/v1/users?page=${currentPage}&limit=${entriesPerPage}${queryString && `&${queryString}`
-        }`,
-        true,
-        60000
-    );
+    // const fetchAllUsers = useGetRequest(
+    //     `/v1/users?page=${currentPage}&limit=${entriesPerPage}${queryString && `&${queryString}`
+    //     }`,
+    //     true,
+    //     60000
+    // );
 
 
     const handleFinish = async () => {

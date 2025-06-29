@@ -1,4 +1,3 @@
-import { Category } from "../Products/CreateNewProduct";
 import inventoryIcon from "../../assets/inventory/inventoryIcon.svg";
 import { Tag } from "../Products/ProductDetails";
 import { formatDateTime } from "@/utils/helpers";

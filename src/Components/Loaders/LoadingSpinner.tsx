@@ -1,6 +1,5 @@
 const LoadingSpinner = ({
   parentClass,
-  loaderClass,
   text,
   textClass,
 }: {

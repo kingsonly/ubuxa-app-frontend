@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { KeyedMutator } from "swr";
 import { Tag } from "../Products/ProductDetails";
 import ProceedButton from "../ProceedButtonComponent/ProceedButtonComponent";
@@ -80,7 +80,7 @@ const CustomerDetails = ({
     landmark: data.landmark || "",
     image: null,
   })
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  //const [errors, setErrors] = useState<Record<string, string>>({})
   // const [unsavedChanges, setUnsavedChanges] = useState(false);
 
   const handleChange = (
@@ -104,7 +104,7 @@ const CustomerDetails = ({
   const validateForm = () => {
     try {
       customerSchema.parse(formData)
-      setErrors({})
+      //setErrors({})
       return true
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -114,7 +114,7 @@ const CustomerDetails = ({
             newErrors[err.path[0] as string] = err.message
           }
         })
-        setErrors(newErrors)
+        //setErrors(newErrors)
       }
       return false
     }

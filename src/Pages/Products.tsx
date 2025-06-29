@@ -6,7 +6,6 @@ import ActionButton from "../Components/ActionButtonComponent/ActionButton";
 import { DropDown } from "../Components/DropDownComponent/DropDown";
 import productgradient from "../assets/products/productgradient.svg";
 // import productgreen from "../assets/products/productgreen.svg";
-import cancelled from "../assets/cancelled.svg";
 import LoadingSpinner from "../Components/Loaders/LoadingSpinner";
 import { SideMenu } from "../Components/SideMenuComponent/SideMenu";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";

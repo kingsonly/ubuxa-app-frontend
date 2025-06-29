@@ -1,4 +1,4 @@
-import React, { Children, useState } from "react";
+import React from "react";
 import curvedlines from "@/assets/sales/curvedlines.png";
 import { MdCancel } from "react-icons/md";
 import { observer } from "mobx-react-lite";

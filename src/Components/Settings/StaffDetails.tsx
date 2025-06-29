@@ -270,7 +270,7 @@ const StaffDetails = ({
 
 export default StaffDetails;
 
-const DetailComponent = ({
+export const DetailComponent = ({
   label,
   value,
   parentClass,
