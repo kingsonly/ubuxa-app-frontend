@@ -11,6 +11,7 @@ import { KeyedMutator } from "swr";
 import { z } from "zod";
 import { useApiCall } from "@/utils/useApiCall";
 import { Category } from "../Products/CreateNewProduct";
+import { infoMessages } from "@/lib/infoMessages";
 type InventoryDetailsProps = {
   inventoryId: string | number;
   inventoryImage: string;
@@ -476,7 +477,7 @@ const InventoryDetails: React.FC<InventoryDetailsProps> = ({
         </div>
 
         <div className="flex items-center justify-between">
-          <Tag name="Has Device" />
+          <Tag name="Has Device" info={true} infoMessage={infoMessages.inventory.hasDevice} />
           {displayInput ? (
             <div className="flex items-center justify-between">
               <ToggleInput
