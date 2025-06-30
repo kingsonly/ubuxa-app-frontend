@@ -157,6 +157,11 @@ const ProductModal = ({
     }
   };
 
+  const updateCallback = () => {
+    setDisplayInput(false);
+    setIsOpen(false)
+  };
+
   return (
     <Modal
       layout="right"
@@ -222,6 +227,7 @@ const ProductModal = ({
                 {...productData}
                 displayInputState={displayInput}
                 refreshTable={refreshTable}
+                callback={updateCallback}
               />
             </DataStateWrapper>
           ) : tabContent === "inventoryDetails" ? (
