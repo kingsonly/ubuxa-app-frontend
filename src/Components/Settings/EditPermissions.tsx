@@ -7,7 +7,7 @@ import GroupDisplay from "../GroupComponent/GroupDisplay";
 import { GoDotFill } from "react-icons/go";
 import { KeyedMutator } from "swr";
 import { z } from "zod";
-import TabComponent from "../TabComponent/TabComponent";
+// import TabComponent from "../TabComponent/TabComponent";
 import { toast } from "react-toastify";
 import ApiErrorMessage from "../ApiErrorMessage";
 
@@ -69,7 +69,7 @@ const EditPermissions = ({
   const [apiError, setApiError] = useState<string | Record<string, string[]>>(
     ""
   );
-  const [tabContent, setTabContent] = useState<string>("newRole");
+  const [tabContent, _setTabContent] = useState<string>("newRole");
   const [permissionErrors, setPermissionErrors] = useState<any[]>([]);
   const [toggledPermissions, setToggledPermissions] = useState<{
     [key: string]: boolean;

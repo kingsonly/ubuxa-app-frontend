@@ -6,7 +6,7 @@ import ProceedButton from "../ProceedButtonComponent/ProceedButtonComponent";
 import { Modal } from "../ModalComponent/Modal";
 import { KeyedMutator } from "swr";
 import ApiErrorMessage from "../ApiErrorMessage";
-import { GooglePlacesInput } from "../InputComponent/GooglePlacesInput";
+// import { GooglePlacesInput } from "../InputComponent/GooglePlacesInput";
 
 const formSchema = z.object({
   email: z.string().trim().email("Invalid email address"),

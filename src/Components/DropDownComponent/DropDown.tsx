@@ -78,10 +78,10 @@ export const DropDown = (props: DropDownType) => {
           <span className="text-xs font-medium text-textGrey">
             {isDate && selectedDate
               ? selectedDate.toLocaleDateString("default", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })
               : name}
           </span>
           <img
@@ -115,13 +115,12 @@ export const DropDown = (props: DropDownType) => {
               <li
                 key={index}
                 className={`flex items-center justify-between h-max px-2 py-1 text-xs rounded-full border-[0.4px] border-transparent
-                ${
-                  disabled[index]
+                ${disabled[index]
                     ? "cursor-not-allowed text-gray-400 bg-gray-100"
                     : index === showIcon && !defaultStyle
-                    ? "cursor-pointer bg-paleLightBlue text-textBlack"
-                    : "cursor-pointer hover:bg-gray-100 text-textDarkGrey hover:border-strokeGreyTwo"
-                }`}
+                      ? "cursor-pointer bg-paleLightBlue text-textBlack"
+                      : "cursor-pointer hover:bg-gray-100 text-textDarkGrey hover:border-strokeGreyTwo"
+                  }`}
                 onClick={() => handleOptionClick(index, cardData)}
                 onMouseEnter={() => !disabled[index] && setShowIcon(index)}
                 onMouseLeave={() => setShowIcon(null)}

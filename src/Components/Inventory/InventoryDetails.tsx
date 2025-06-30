@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Tag } from "../Products/ProductDetails";
-import { SmallFileInput } from "../InputComponent/Input";
+import { SmallFileInput, ToggleInput } from "../InputComponent/Input";
 import { LuImagePlus } from "react-icons/lu";
 import ProceedButton from "../ProceedButtonComponent/ProceedButtonComponent";
 import inventoryIcon from "../../assets/inventory/inventoryIcon.svg";
@@ -8,33 +8,80 @@ import { GoDotFill } from "react-icons/go";
 import { formatDateTime, formatNumberWithCommas } from "@/utils/helpers";
 import { NairaSymbol } from "../CardComponents/CardComponent";
 import { KeyedMutator } from "swr";
-
+import { z } from "zod";
+import { useApiCall } from "@/utils/useApiCall";
+import { Category } from "../Products/CreateNewProduct";
 type InventoryDetailsProps = {
   inventoryId: string | number;
   inventoryImage: string;
   inventoryName: string;
   inventoryClass: string;
-  inventoryCategory: string;
+  inventoryCategory: any;
+  inventorySubCategory: any;
+  hasDevice?: boolean;
   sku: string;
   manufacturerName: string;
   dateOfManufacture: string | null;
-  numberOfStock: number;
-  remainingQuantity: number;
-  costPrice: number;
-  salePrice: number;
+  numberOfStock?: number;
+  remainingQuantity?: number;
+  costPrice?: number;
+  salePrice?: number;
   stockValue: string;
   displayInput?: boolean;
   tagStyle: (value: string) => string;
+  callback: () => void;
   refreshTable: KeyedMutator<any>;
 };
+
+const inventorySchema = z.object({
+  name: z.string().min(6, "Inventory Name is required"),
+  class: z.string().min(1, "Inventory Class is required"),
+  inventoryCategoryId: z.string().min(1, "Inventory Category is required"),
+  inventorySubCategoryId: z
+    .string()
+    .trim()
+    .min(1, "Inventory SubCategory is required"),
+  sku: z
+    .string()
+    .trim()
+    .optional(),
+  hasDevice: z
+    .boolean()
+    .optional(),
+
+  dateOfManufacture: z.string()
+    .trim()
+    .optional()
+    .refine(
+      (date) => !date || !isNaN(Date.parse(date)),
+      "Invalid Date of Manufacture"
+    )
+    .default(""),
+  manufacturerName: z.string().trim().min(1, "Address is required"),
+  inventoryImage: z
+    .instanceof(File)
+    .refine(
+      (file) =>
+        ["image/png", "image/jpeg", "image/jpg", "image/svg+xml"].includes(
+          file.type
+        ),
+      {
+        message: "Only PNG, JPEG, JPG, or SVG files are allowed.",
+      }
+    )
+    .nullable()
+    .default(null).optional(),
+});
 
 const InventoryDetails: React.FC<InventoryDetailsProps> = ({
   inventoryId = "",
   inventoryImage = "",
   inventoryName = "",
   inventoryClass = "",
-  inventoryCategory = "",
+  inventoryCategory = null,
+  inventorySubCategory = null,
   sku = "",
+  hasDevice = false,
   manufacturerName = "",
   dateOfManufacture = "",
   numberOfStock = 0,
@@ -45,52 +92,172 @@ const InventoryDetails: React.FC<InventoryDetailsProps> = ({
   displayInput = false,
   tagStyle,
   refreshTable,
+  callback,
 }) => {
   const [formData, setFormData] = useState({
-    inventoryId,
-    inventoryImage,
-    inventoryName,
-    inventoryClass,
-    inventoryCategory,
+    inventoryImage: null,
+    name: inventoryName,
+    class: inventoryClass,
+    inventoryCategoryId: inventoryCategory?.id,
+    inventorySubCategoryId: inventorySubCategory?.id,
     sku,
+    hasDevice: hasDevice,
     manufacturerName,
     dateOfManufacture,
-    numberOfStock,
-    costPrice,
-    salePrice,
   });
+  const { apiCall } = useApiCall();
   const [loading, setLoading] = useState<boolean>(false);
-  // const [unsavedChanges, setUnsavedChanges] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [inventoryCategories, setInventoryCategories] = useState<Category[]>(
+    []
+  );
+  useEffect(() => {
+    fetchInventoryCategories();
+    console.log("lets see what we have ", {
+      inventoryImage: null,
+      name: inventoryName,
+      class: inventoryClass,
+      inventoryCategoryId: inventoryCategory?.id,
+      inventorySubCategoryId: inventorySubCategory?.id,
+      sku,
+      hasDevice: hasDevice,
+      manufacturerName,
+      dateOfManufacture,
+    })
+  }, []);
+  const fetchInventoryCategories = useCallback(async () => {
+    try {
+      const response = await apiCall({
+        endpoint: "/v1/inventory/categories/all",
+        method: "get",
+        showToast: false,
+      });
+      setInventoryCategories(response.data || []);
+    } catch (error) {
+      console.error("Failed to fetch inventory categories:", error);
+      setInventoryCategories([]);
+    }
+  }, []);
+
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: any
   ) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
+    // Handle file input
+    if (type === "file" && name === "inventoryImage") {
+      const files = (e.target as HTMLInputElement).files;
+      if (files && files.length > 0) {
+
+        setFormData((prev) => ({
+          ...prev,
+          [name]: files[0],
+        }));
+      }
+
+      return;
+    }
+
+    // Handle checkbox input for boolean values
+    if (type === "checkbox") {
+      const checked = (e.target as HTMLInputElement).checked;
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: checked,
+      }));
+      return;
+    }
+
+    // Handle number inputs
+    if (type === "number" || ["numberOfStock", "costOfItem", "price"].includes(name)) {
+      const numericValue = value === "" ? "" : Number(value);
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: numericValue,
+      }));
+      return;
+    }
+
+    // Handle regular text inputs
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
-
-    // Check for unsaved changes by comparing the form data with the initial userData
-    // if (data[name] !== value) {
-    //   setUnsavedChanges(true);
-    // } else {
-    //   setUnsavedChanges(false);
-    // }
+    console.log("formData", name, value);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) {
+      console.log("Form validation failed", errors);
+      return
+    }
     setLoading(true);
     try {
-      console.log("Submitted Data:", formData);
-      refreshTable();
-    } catch (error) {
-      console.error(error);
+      const validatedData = inventorySchema.parse(formData)
+      const submissionData = new FormData()
+
+      Object.entries(validatedData).forEach(([key, value]) => {
+        if (value instanceof File) {
+          submissionData.append(key, value)
+        } else if (value !== null && value !== undefined && value !== "") {
+          submissionData.append(key, String(value))
+        }
+      })
+
+      await apiCall({
+        endpoint: `/v1/inventory/${inventoryId}`,
+        method: "put",
+        data: submissionData,
+        successMessage: "Inventory updated successfully!",
+      })
+
+      //Refresh the table after successful creation
+      if (refreshTable) {
+        refreshTable()
+        callback()
+      }
+    } catch (error: any) {
+      console.error("Error creating inventory:", error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
+
   };
+  const validateForm = () => {
+    try {
+      inventorySchema.parse(formData)
+      setErrors({})
+      return true
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const newErrors: Record<string, string> = {}
+        error.errors.forEach((err) => {
+          if (err.path.length > 0) {
+            newErrors[err.path[0] as string] = err.message
+          }
+        })
+        setErrors(newErrors)
+      }
+      return false
+    }
+  }
+
+  const handleSelectChange = (name: string, values: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: values,
+      ...(name === "inventoryCategoryId" && { inventorySubCategoryId: "" }),
+    }));
+    //resetFormErrors(name);
+  };
+
+  const handleInputChangeHasDevice = (value: boolean) => {
+    setFormData((prev) => ({
+      ...prev,
+      hasDevice: value,
+    }));
+  }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col w-full gap-4">
@@ -124,8 +291,8 @@ const InventoryDetails: React.FC<InventoryDetailsProps> = ({
           {displayInput ? (
             <input
               type="text"
-              name="inventoryName"
-              value={formData.inventoryName}
+              name="name"
+              value={formData.name}
               onChange={handleChange}
               required={true}
               placeholder="Enter Inventory Name"
@@ -141,14 +308,13 @@ const InventoryDetails: React.FC<InventoryDetailsProps> = ({
           <Tag name="Class" variant="ink" />
           {displayInput ? (
             <select
-              name="inventoryClass"
-              value={formData.inventoryClass}
+              name="class"
+              value={formData.class}
               onChange={handleChange}
               required={true}
               className="text-xs text-textDarkGrey px-2 py-1 w-full max-w-[160px] border-[0.6px] border-strokeGreyThree rounded-[10px]"
             >
               <option value="REGULAR">Regular</option>
-              <option value="RETURNED">Returned</option>
               <option value="REFURBISHED">Refurbished</option>
             </select>
           ) : (
@@ -165,26 +331,131 @@ const InventoryDetails: React.FC<InventoryDetailsProps> = ({
         <div className="flex items-center justify-between">
           <Tag name="Category" variant="ink" />
           {displayInput ? (
+            // <SelectInput
+            //   label="Category"
+            //   options={
+            //     inventoryCategories.length > 0
+            //       ? inventoryCategories.map((category: Category) => ({
+            //         label: category?.name,
+            //         value: category?.id,
+            //       }))
+            //       : [
+            //         {
+            //           label: "No Category Available",
+            //           value: "",
+            //         },
+            //       ]
+            //   }
+            //   value={formData.inventoryCategoryId}
+            //   onChange={(selectedValue) =>
+            //     handleSelectChange("inventoryCategoryId", selectedValue)
+            //   }
+            //   required={true}
+            //   placeholder="Choose Item Category"
+
+            // />
             <select
               name="inventoryCategory"
-              value={formData.inventoryCategory}
-              onChange={handleChange}
+              value={formData.inventoryCategoryId}
+              onChange={(e) => handleSelectChange("inventoryCategoryId", e.target.value)}
               required={true}
               className="text-xs text-textDarkGrey px-2 py-1 w-full max-w-[160px] border-[0.6px] border-strokeGreyThree rounded-[10px]"
             >
-              <option value="solarPanel">Solar Panel</option>
-              <option value="inverter">Inverter</option>
-              <option value="battery">Batttery</option>
+              {inventoryCategories.length > 0
+                ? <>
+                  <option value="">Select Category</option>
+                  {inventoryCategories.map((category: Category) => (
+                    <option value={category.id}>{category.name}</option>
+                  ))}
+                </>
+                : <option value="">Category Is Empty</option>
+              }
+
             </select>
           ) : inventoryCategory ? (
             <span className="flex items-center justify-center bg-[#FEF5DA] gap-0.5 w-max px-2 h-[24px] text-textDarkBrown text-xs uppercase rounded-full">
               <GoDotFill width={4} height={4} />
-              {inventoryCategory}
+              {inventoryCategory?.name}
             </span>
           ) : (
             <p className="text-xs font-bold text-textDarkGrey">N/A</p>
           )}
         </div>
+
+        <div className="flex items-center justify-between">
+          <Tag name="Subcategory" variant="ink" />
+          {displayInput ? (
+            <select
+              className="text-xs text-textDarkGrey px-2 py-1 w-full max-w-[160px] border-[0.6px] border-strokeGreyThree rounded-[10px]"
+              name="inventorySubCategoryId"
+              value={formData.inventorySubCategoryId}
+              onChange={(e) => handleSelectChange("inventorySubCategoryId", e.target.value)}
+              required={!!formData.inventoryCategoryId}
+            >
+              {(() => {
+                const selectedCategory = inventoryCategories.find(
+                  (category: Category) => category?.id === formData?.inventoryCategoryId
+                );
+
+                if (selectedCategory && selectedCategory.children?.length > 0) {
+                  return (
+                    <>
+                      <option value="">Select SubCategory</option>
+                      {selectedCategory.children.map((child: { name: string; id: string }) => (
+                        <option key={child.id} value={child.id}>
+                          {child.name}
+                        </option>
+                      ))}
+                    </>
+                  );
+                } else {
+                  return (
+                    <option value="">
+                      {inventorySubCategory?.name || "SubCategory Is Empty"}
+                    </option>
+                  );
+                }
+              })()}
+            </select>
+
+            // <select
+            //   className="text-xs text-textDarkGrey px-2 py-1 w-full max-w-[160px] border-[0.6px] border-strokeGreyThree rounded-[10px]"
+            //   name="inventorySubCategoryId"
+            //   value={formData.inventorySubCategoryId}
+            //   onChange={(e) => handleSelectChange("inventorySubCategoryId", e.target.value)}
+            //   required={!!formData.inventoryCategoryId}
+            // >
+
+            //   {
+
+            //   (
+            //     inventoryCategories
+            //       .find(
+            //         (category: Category) =>
+            //           category?.id === formData?.inventoryCategoryId
+            //       )
+            //       ?.children?.map((child: { name: string; id: string }) => (
+            //         <option key={child.id} value={child.id}>
+            //           {child.name}
+            //         </option>
+            //       )) || [
+            //       <option key="no-subcategory" value="">
+            //         {inventorySubCategory.name}
+            //       </option>,
+            //     ]
+            //   )
+            //   }
+            // </select>
+          ) : inventorySubCategory ? (
+            <span className="flex items-center justify-center bg-[#FEF5DA] gap-0.5 w-max px-2 h-[24px] text-textDarkBrown text-xs uppercase rounded-full">
+              <GoDotFill width={4} height={4} />
+              {inventorySubCategory.name}
+            </span>
+          ) : (
+            <p className="text-xs font-bold text-textDarkGrey">N/A</p>
+          )}
+        </div>
+
         <div className="flex items-center justify-between">
           <Tag name="SKU" />
           {displayInput ? (
@@ -200,6 +471,27 @@ const InventoryDetails: React.FC<InventoryDetailsProps> = ({
           ) : (
             <p className="text-xs font-bold text-textDarkGrey">
               {sku ? sku : "N/A"}
+            </p>
+          )}
+        </div>
+
+        <div className="flex items-center justify-between">
+          <Tag name="Has Device" />
+          {displayInput ? (
+            <div className="flex items-center justify-between">
+              <ToggleInput
+                defaultChecked={formData.hasDevice}
+                onChange={(checked: boolean) => {
+                  handleInputChangeHasDevice(checked);
+                }}
+              />
+              <span className="flex items-center justify-center gap-0.5 bg-[#F6F8FA] px-2 h-6 rounded-full text-xs font-medium capitalize border-[0.6px] border-strokeGreyTwo">
+                {formData.hasDevice ? <span className='text-green-500'>YES</span> : <span className='text-errorTwo'>NO</span>}
+              </span>
+            </div>
+          ) : (
+            <p className="text-xs font-bold text-textDarkGrey">
+              {hasDevice ? hasDevice === true ? "YES" : "NO" : "NO"}
             </p>
           )}
         </div>
@@ -248,81 +540,47 @@ const InventoryDetails: React.FC<InventoryDetailsProps> = ({
           )}
         </div>
       </div>
-      <div className="flex flex-col p-2.5 gap-2 bg-white border-[0.6px] border-strokeGreyThree rounded-[20px]">
-        <p className="flex gap-1 w-max text-textLightGrey text-xs font-medium pb-2">
-          <img src={inventoryIcon} alt="Inventory Icon" />
-          CURRENT BATCH STOCK DETAILS
-        </p>
-        <div className="flex items-center justify-between">
-          <Tag name="Total Quantity of Stock" />
-          {displayInput ? (
-            <input
-              type="number"
-              name="numberOfStock"
-              value={formData.numberOfStock}
-              onChange={handleChange}
-              placeholder="Enter Number of Stock"
-              required={true}
-              className="text-xs text-textDarkGrey px-2 py-1 w-full max-w-[160px] border-[0.6px] border-strokeGreyThree rounded-full"
-            />
-          ) : (
+
+      {displayInput ? null :
+        <div className="flex flex-col p-2.5 gap-2 bg-white border-[0.6px] border-strokeGreyThree rounded-[20px]">
+          <p className="flex gap-1 w-max text-textLightGrey text-xs font-medium pb-2">
+            <img src={inventoryIcon} alt="Inventory Icon" />
+            CURRENT BATCH STOCK DETAILS
+          </p>
+          <div className="flex items-center justify-between">
+            <Tag name="Total Quantity of Stock" />
             <p className="text-xs font-bold text-textDarkGrey">
               {formatNumberWithCommas(numberOfStock)}
             </p>
-          )}
-        </div>
-        <div className="flex items-center justify-between">
-          <Tag name="Remaining Quantity of Stock" />
-          <p className="text-xs font-bold text-textDarkGrey">
-            {formatNumberWithCommas(remainingQuantity)}
-          </p>
-        </div>
-        <div className="flex items-center justify-between">
-          <Tag name="Cost of Stock" />
-          {displayInput ? (
-            <input
-              type="number"
-              name="costPrice"
-              value={formData.costPrice}
-              onChange={handleChange}
-              placeholder="Enter Cost Price"
-              required={true}
-              className="text-xs text-textDarkGrey px-2 py-1 w-full max-w-[160px] border-[0.6px] border-strokeGreyThree rounded-full"
-            />
-          ) : (
+          </div>
+          <div className="flex items-center justify-between">
+            <Tag name="Remaining Quantity of Stock" />
+            <p className="text-xs font-bold text-textDarkGrey">
+              {formatNumberWithCommas(remainingQuantity)}
+            </p>
+          </div>
+          <div className="flex items-center justify-between">
+            <Tag name="Cost of Stock" />
             <p className="flex items-center justify-end gap-1 w-max text-xs font-bold text-textDarkGrey">
               <NairaSymbol color="#828DA9" />
               {formatNumberWithCommas(costPrice)}
             </p>
-          )}
-        </div>
-        <div className="flex items-center justify-between">
-          <Tag name="Price of Stock" />
-          {displayInput ? (
-            <input
-              type="number"
-              name="salePrice"
-              value={formData.salePrice}
-              onChange={handleChange}
-              placeholder="Enter Selling Price"
-              required={true}
-              className="text-xs text-textDarkGrey px-2 py-1 w-full max-w-[160px] border-[0.6px] border-strokeGreyThree rounded-full"
-            />
-          ) : (
+          </div>
+          <div className="flex items-center justify-between">
+            <Tag name="Price of Stock" />
             <p className="flex items-center justify-end gap-1 w-max text-xs font-bold text-textDarkGrey">
               <NairaSymbol color="#828DA9" />
               {formatNumberWithCommas(salePrice)}
             </p>
-          )}
-        </div>
-        <div className="flex items-center justify-between">
-          <Tag name="Stock Value" />
-          <p className="flex items-center justify-end gap-1 w-max text-xs font-bold text-textDarkGrey">
-            <NairaSymbol color="#828DA9" />
-            {formatNumberWithCommas(stockValue)}
-          </p>
-        </div>
-      </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <Tag name="Stock Value" />
+            <p className="flex items-center justify-end gap-1 w-max text-xs font-bold text-textDarkGrey">
+              <NairaSymbol color="#828DA9" />
+              {formatNumberWithCommas(stockValue)}
+            </p>
+          </div>
+        </div>}
 
       {displayInput && (
         <div className="flex items-center justify-center w-full pt-5 pb-5">

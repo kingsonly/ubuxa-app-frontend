@@ -2,7 +2,6 @@ import { useState } from "react";
 import { KeyedMutator } from "swr";
 import { PaginationType, Table } from "../TableComponent/Table";
 import { GoDotFill } from "react-icons/go";
-import clock from "../../assets/table/clock.svg";
 import CustomerModal from "./CustomerModal";
 import { ApiErrorStatesType } from "@/utils/useApiCall";
 import { ErrorComponent } from "@/Pages/ErrorPage";
