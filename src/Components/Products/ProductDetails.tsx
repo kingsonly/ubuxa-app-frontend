@@ -13,8 +13,9 @@ import { useApiCall } from "@/utils/useApiCall"
 import type { Category } from "./CreateNewProduct"
 import { ProductCapacityForm } from "./ProductCapacityForm"
 import { EAASDetailsForm } from "./EAASDetailsForm"
-// import { set } from "mobx"
-//import { Button } from "@/components/ui/button"
+import { z } from "zod"
+import ApiErrorMessage from "../ApiErrorMessage"
+
 
 interface ProductDetailsProps {
   productId: string
@@ -34,6 +35,7 @@ interface ProductDetailsProps {
   description?: string
   productCapacity?: ProductCapacity[]
   eaasDetails?: EAASDetails
+  callback?: () => void
 }
 
 interface ProductCapacity {
@@ -49,6 +51,37 @@ interface EAASDetails {
   maximumIdleDaysSequence: "MONTHLY" | "YEARLY" | "LIFETIME"
 }
 
+const updateFormSchema = z.object({
+  productId: z.string().min(1, "Product ID is required"),
+  productName: z.string().trim().min(1, "Product Name is required"),
+  categoryId: z.string().trim().min(1, "Product Category is required"),
+  description: z.string().optional(),
+
+  productCapacity: z
+    .array(
+      z.object({
+        facility: z.string().min(1, "Facility is required"),
+        value: z.number().min(1, "Value must be at least 1"),
+      }),
+    )
+    .min(1, "At least one capacity entry is required"),
+})
+
+const paymentModesUpdateSchema = z.array(z.string()).min(1, "Please select at least 1 payment mode")
+
+const eaasDetailsUpdateSchema = z.object({
+  costOfPowerDaily: z.number().min(1, "Daily cost must be positive"),
+  costOfOneTimeInstallation: z.number().min(1, "Installation cost must be positive"),
+  numberOfDaysPowerAfterInstallation: z.number().min(1, "Free days must be positive"),
+  maximumIdleDays: z.number().min(1, "Maximum idle days must be at least 1"),
+  maximumIdleDaysSequence: z.enum(["MONTHLY", "YEARLY", "LIFETIME"]),
+})
+
+const mainUpdateSchema = updateFormSchema.extend({
+  paymentModes: paymentModesUpdateSchema,
+  eaasDetails: eaasDetailsUpdateSchema.optional(),
+})
+
 export const Tag = ({ name, variant }: { name: string; variant?: string }) => {
   return (
     <p
@@ -59,6 +92,8 @@ export const Tag = ({ name, variant }: { name: string; variant?: string }) => {
     </p>
   )
 }
+
+
 
 const ProductDetails: React.FC<ProductDetailsProps> = ({
   productId = "",
@@ -75,6 +110,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
   categoryId = "",
   displayInputState = false,
   refreshTable,
+  callback,
   description = "",
   productCapacity = [],
   eaasDetails = null,
@@ -101,11 +137,14 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
   const [displayInput, setDisplayInput] = useState<boolean>(displayInputState)
   const [productCategories, setProductCategories] = useState<Category[]>([])
   const [showEAASFields, setShowEAASFields] = useState(false)
+  const [formErrors, setFormErrors] = useState<z.ZodIssue[]>([])
+  const [apiError, setApiError] = useState<string | Record<string, string[]>>("")
 
   useEffect(() => {
     fetchProductCategories()
     console.log("Payment Modes:", paymentModes)
   }, [])
+
   useEffect(() => {
     setDisplayInput(displayInputState)
   }, [displayInputState])
@@ -115,6 +154,15 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
     const hasEAAS = formData.paymentModes.includes("EAAS")
     setShowEAASFields(hasEAAS)
   }, [formData.paymentModes])
+
+  const resetFormErrors = (name: string) => {
+    setFormErrors((prev) => prev.filter((error) => error.path[0] !== name))
+    setApiError("")
+  }
+
+  const getFieldError = (fieldName: string) => {
+    return formErrors.find((error) => error.path[0] === fieldName)?.message
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target
@@ -134,6 +182,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
         [name]: type === "number" ? Number(value) : value,
       }))
     }
+    resetFormErrors(name.startsWith("eaas.") ? "eaasDetails" : name)
   }
 
   const handleDescriptionChange = (description: string) => {
@@ -141,7 +190,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
       ...prev,
       description: description,
     }))
-    // resetFormErrors("description")
+    resetFormErrors("description")
   }
 
   const handleCapacityChange = (capacity: ProductCapacity[]) => {
@@ -149,18 +198,23 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
       ...prev,
       productCapacity: capacity,
     }))
-    //resetFormErrors("productCapacity")
+    resetFormErrors("productCapacity")
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
 
     e.preventDefault()
-    // console.log("Submitted Data real:", formData.paymentModes);
-    // return 
     setLoading(true)
 
     try {
       // Create FormData for file upload
+      const validationData = {
+        ...formData,
+        eaasDetails: showEAASFields ? formData.eaasDetails : undefined,
+      }
+
+      //const validatedData = mainUpdateSchema.parse(validationData)
+      mainUpdateSchema.parse(validationData)
       const submitData = new FormData()
 
       // Add basic product data
@@ -192,9 +246,18 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
       if (response) {
         refreshTable()
         displayInput && setDisplayInput(false)
+        setFormErrors([])
+        setApiError("")
+        callback && callback()
 
       }
-    } catch (error) {
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        setFormErrors(error.issues)
+      } else {
+        const message = error?.response?.data?.message || "Product Update Failed: Internal Server Error"
+        setApiError(message)
+      }
       console.error("Error updating product:", error)
     } finally {
       setLoading(false)
@@ -222,8 +285,23 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
       ...prev,
       eaasDetails,
     }))
-    //resetFormErrors("eaasDetails")
+    resetFormErrors("eaasDetails")
   }
+
+  const isFormFilled = () => {
+    try {
+      const validationData = {
+        ...formData,
+        eaasDetails: showEAASFields ? formData.eaasDetails : undefined,
+      }
+
+      const result = mainUpdateSchema.safeParse(validationData)
+      return result.success
+    } catch (error) {
+      return false
+    }
+  }
+
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col w-full gap-4">
@@ -231,12 +309,18 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
       <div className="flex items-center justify-between p-2.5 gap-2 bg-white border-[0.6px] border-strokeGreyThree rounded-[20px]">
         <Tag name="Product Picture" variant="ink" />
         {displayInput ? (
-          <SmallFileInput
-            name="productImage"
-            onChange={handleChange}
-            placeholder="Upload Image"
-            iconRight={<LuImagePlus />}
-          />
+          <div>
+            <SmallFileInput
+              name="productImage"
+              onChange={handleChange}
+              placeholder="Upload Image"
+              iconRight={<LuImagePlus />}
+            />
+            {getFieldError("productImage") && (
+              <span className="text-red-500 text-xs mt-1">{getFieldError("productImage")}</span>
+            )}
+          </div>
+
         ) : (
           <div className="flex items-center justify-center w-full p-2 max-w-[100px] h-[100px] gap-2 border-[0.6px] border-strokeCream rounded-full overflow-clip">
             <img
@@ -257,25 +341,32 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
         <div className="flex items-center justify-between">
           <Tag name="Category" />
           {displayInput ? (
-            <select
-              name="productTag"
-              value={formData.categoryId}
-              onChange={handleChange}
-              className="text-xs text-textDarkGrey px-2 py-1 w-full max-w-[160px] border-[0.6px] border-strokeGreyThree rounded-full"
-            >
-              {productCategories.length > 0 ? (
-                <>
-                  <option value="">Select Category</option>
-                  {productCategories.map((category: Category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </>
-              ) : (
-                <option value="">Category Is Empty</option>
+            // <div className="flex flex-col w-full max-w-[160px]">
+            //   </div>
+            <div className="flex flex-col w-full max-w-[160px]">
+              <select
+                name="productTag"
+                value={formData.categoryId}
+                onChange={handleChange}
+                className="text-xs text-textDarkGrey px-2 py-1 w-full max-w-[160px] border-[0.6px] border-strokeGreyThree rounded-full"
+              >
+                {productCategories.length > 0 ? (
+                  <>
+                    <option value="">Select Category</option>
+                    {productCategories.map((category: Category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </>
+                ) : (
+                  <option value="">Category Is Empty</option>
+                )}
+              </select>
+              {getFieldError("categoryId") && (
+                <span className="text-red-500 text-xs mt-1">{getFieldError("categoryId")}</span>
               )}
-            </select>
+            </div>
           ) : (
             <ProductTag productTag={productTag} />
           )}
@@ -284,14 +375,20 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
         <div className="flex items-center justify-between">
           <Tag name="Name" />
           {displayInput ? (
-            <input
-              type="text"
-              name="productName"
-              value={formData.productName}
-              onChange={handleChange}
-              placeholder="Enter Product Name"
-              className="text-xs text-textDarkGrey px-2 py-1 w-full max-w-[160px] border-[0.6px] border-strokeGreyThree rounded-full"
-            />
+            <div className="flex flex-col w-full max-w-[160px]">
+              <input
+                type="text"
+                name="productName"
+                value={formData.productName}
+                onChange={handleChange}
+                placeholder="Enter Product Name"
+                className="text-xs text-textDarkGrey px-2 py-1 w-full max-w-[160px] border-[0.6px] border-strokeGreyThree rounded-full"
+              />
+              {getFieldError("productName") && (
+                <span className="text-red-500 text-xs mt-1">{getFieldError("productName")}</span>
+              )}
+            </div>
+
           ) : (
             <p className="text-xs font-bold text-textDarkGrey">{productName}</p>
           )}
@@ -304,7 +401,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
             <ProductDescriptionInput
               value={formData.description}
               onChange={handleDescriptionChange}
-            // errorMessage={getFieldError("productDescription")}
+              errorMessage={getFieldError("description")}
             />
           ) : (
             <p className="text-xs text-textDarkGrey px-2">{description || "No description available"}</p>
@@ -321,7 +418,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
               <ProductCapacityForm
                 value={formData.productCapacity}
                 onChange={handleCapacityChange}
-              //errorMessage={getFieldError("productCapacity")}
+                errorMessage={getFieldError("productCapacity")}
               />
 
             </div>
@@ -373,7 +470,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
                 placeholder="Select Payment Modes"
                 required={true}
                 plainBorder={true}
-              // errorMessage={getFieldError("paymentModes")}
+                errorMessage={getFieldError("paymentModes")}
               />
             </div>
           ) : (
@@ -399,7 +496,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
             <EAASDetailsForm
               value={formData.eaasDetails}
               onChange={handleEAASChange}
-            //errorMessage={getFieldError("eaasDetails")}
+              errorMessage={getFieldError("eaasDetails")}
             />
           </div>
         )}
@@ -433,10 +530,15 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
           </div>
         )}
       </div>
-
+      {displayInput && <ApiErrorMessage apiError={apiError} />}
       {displayInput ? (
         <div className="flex items-center justify-center w-full pt-5 pb-5">
-          <ProceedButton type="submit" loading={loading} variant={"gray"} disabled={false} />
+          <ProceedButton
+            type="submit"
+            loading={loading}
+            variant={isFormFilled() ? "gradient" : "gray"}
+            disabled={false}
+          />
         </div>
       ) : (
         <div className="flex flex-col p-2.5 gap-2 bg-white border-[0.6px] border-strokeGreyThree rounded-[20px]">

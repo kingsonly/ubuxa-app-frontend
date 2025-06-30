@@ -63,9 +63,9 @@ const paymentModesSchema = z
   .transform((arr) => arr.join(", "))
 
 const eaasDetailsSchema = z.object({
-  costOfPowerDaily: z.number().min(0, "Daily cost must be positive"),
-  costOfOneTimeInstallation: z.number().min(0, "Installation cost must be positive"),
-  numberOfDaysPowerAfterInstallation: z.number().min(0, "Free days must be positive"),
+  costOfPowerDaily: z.number().min(1, "Daily cost must be positive"),
+  costOfOneTimeInstallation: z.number().min(1, "Installation cost must be positive"),
+  numberOfDaysPowerAfterInstallation: z.number().min(1, "Free days must be positive"),
   maximumIdleDays: z.number().min(1, "Maximum idle days must be at least 1"),
   maximumIdleDaysSequence: z.enum(["MONTHLY", "YEARLY", "LIFETIME"]),
 })
