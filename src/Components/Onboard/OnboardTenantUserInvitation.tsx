@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { UserPlus, ArrowRight, CheckCircle } from "lucide-react"
+import { UserPlus, CheckCircle } from "lucide-react"
 import { Button } from "../ui/button"
 import { useApiCall, useGetRequest } from "@/utils/useApiCall"
 import CreateNewUserModal from "../Settings/CreateNewUserModal"
