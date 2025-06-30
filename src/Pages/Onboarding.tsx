@@ -11,6 +11,7 @@ import OnboardTenantRoleCreation from "@/Components/Onboard/OnboardTenantRoleCre
 import OnboardTenantUserInvitation from "@/Components/Onboard/OnboardTenantUserInvitation"
 import useTokens from "@/hooks/useTokens"
 import { useTenant } from "@/Context/tenantsContext"
+import OnboardStoreType from "@/Components/Onboard/OnboardStoreType"
 //import { useTenantCustomization } from "@/hooks/useTenantCustomization"
 
 const OnboardingPage = () => {
@@ -59,6 +60,8 @@ const OnboardingPage = () => {
         return 3
       case "ONBOARD_TEAMMATE":
         return 4
+      case "ONBOARD_STORE_TYPE":
+        return 5
       default:
         return 1
     }
@@ -74,6 +77,8 @@ const OnboardingPage = () => {
         return "Create Roles & Permissions"
       case "ONBOARD_TEAMMATE":
         return "Invite Team Members"
+      case "ONBOARD_STORE_TYPE":
+        return "Store Type"
       default:
         return "Getting Started"
     }
@@ -89,6 +94,8 @@ const OnboardingPage = () => {
         return "Set up user roles and permissions to control access to different features."
       case "ONBOARD_TEAMMATE":
         return "Invite your team members and assign them appropriate roles."
+      case "ONBOARD_STORE_TYPE":
+        return "Choose your store type."
       default:
         return "Let's set up your workspace step by step."
     }
@@ -104,6 +111,8 @@ const OnboardingPage = () => {
         return <OnboardTenantRoleCreation updateTenantStatus={updateTenantStatus} />
       case "ONBOARD_TEAMMATE":
         return <OnboardTenantUserInvitation updateTenantStatus={updateTenantStatus} />
+      case "ONBOARD_STORE_TYPE":
+        return <OnboardStoreType updateTenantStatus={updateTenantStatus} />
       default:
         return <OnboardPaymentGateway updateTenantStatus={updateTenantStatus} />
     }
@@ -128,14 +137,14 @@ const OnboardingPage = () => {
             {/* Progress Steps */}
             <div className="w-full max-w-md space-y-4">
               <div className="flex items-center justify-between mb-6">
-                <span className="text-sm font-medium">Step {getStepNumber()} of 4</span>
-                <span className="text-sm">{Math.round(((getStepNumber() - 1) / 4) * 100)}% Complete</span>
+                <span className="text-sm font-medium">Step {getStepNumber()} of 5</span>
+                <span className="text-sm">{Math.round(((getStepNumber() - 1) / 5) * 100)}% Complete</span>
               </div>
 
               <div className="w-full bg-white/20 rounded-full h-2 mb-8">
                 <div
                   className="bg-white h-2 rounded-full transition-all duration-500 ease-out"
-                  style={{ width: `${((getStepNumber() - 1) / 4) * 100}%` }}
+                  style={{ width: `${((getStepNumber() - 1) / 5) * 100}%` }}
                 ></div>
               </div>
 
@@ -145,6 +154,7 @@ const OnboardingPage = () => {
                   { step: 2, title: "Customization", status: "ONBOARD_CUSTOMIZATION" },
                   { step: 3, title: "Roles & Permissions", status: "ONBOARD_ROLE" },
                   { step: 4, title: "Team Invitation", status: "ONBOARD_TEAMMATE" },
+                  { step: 5, title: "Store Type", status: "ONBOARD_STORE_TYPE" },
                 ].map((item) => {
                   const isActive = tenant?.status === item.status
                   const isCompleted = getStepNumber() > item.step

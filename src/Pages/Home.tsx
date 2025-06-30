@@ -73,6 +73,11 @@ const Home = () => {
     //   location: "/communication",
     // },
     { sectionName: "Settings", sectionImage: <SettingsIcon />, location: "/settings" },
+    {
+      sectionName: "Store / Warehouse",
+      sectionImage: <InventoryIcon />,
+      location: "/store",
+    },
   ];
 
   const newHomeData: SectionData[] = homeData.map((data: SectionData) => ({
