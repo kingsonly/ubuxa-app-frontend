@@ -15,6 +15,7 @@ import { ProductCapacityForm } from "./ProductCapacityForm"
 import { EAASDetailsForm } from "./EAASDetailsForm"
 import { z } from "zod"
 import ApiErrorMessage from "../ApiErrorMessage"
+import InfoTooltip from "../Info/InfoTooltip"
 
 
 interface ProductDetailsProps {
@@ -82,13 +83,15 @@ const mainUpdateSchema = updateFormSchema.extend({
   eaasDetails: eaasDetailsUpdateSchema.optional(),
 })
 
-export const Tag = ({ name, variant }: { name: string; variant?: string }) => {
+export const Tag = ({ name, variant, infoMessage = "", info = false }: { name: string; variant?: string, infoMessage?: string, info?: boolean }) => {
   return (
     <p
-      className={`flex items-center justify-center h-[24px] text-xs p-2 rounded-full ${variant === "ink" ? "text-inkBlueTwo bg-paleLightBlue" : "text-textBlack bg-[#F6F8FA]"
+      className={`flex ${info && "gap-2"} gap-1 items-center justify-center h-[24px] text-xs p-2 rounded-full ${variant === "ink" ? "text-inkBlueTwo bg-paleLightBlue" : "text-textBlack bg-[#F6F8FA]"
         }`}
     >
-      {name}
+      <span>{name}</span>
+      {info && <span><InfoTooltip message={infoMessage} size={14} variant={variant} /></span>}
+
     </p>
   )
 }
