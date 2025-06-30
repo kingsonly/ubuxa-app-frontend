@@ -127,12 +127,12 @@ const NextOfKinForm = ({ handleClose }: { handleClose: () => void }) => {
         placeholder="Search for a location"
         required={true}
         errorMessage={getFieldError("homeAddress")}
-        onChange={(value, _place, coordinates) => {
+        onChange={(value) => {
           setFormData((prev) => ({
             ...prev,
-            homeAddress: value,
-            longitude: coordinates?.lng || "",
-            latitude: coordinates?.lat || "",
+            homeAddress: value.address,
+            longitude: value.coordinates?.lng || "",
+            latitude: value.coordinates?.lat || "",
           }));
         }}
       />

@@ -237,12 +237,13 @@ const CreateNewCustomer = ({
             placeholder="Search for a location"
             required={true}
             errorMessage={getFieldError("location")}
-            onChange={(value, _place, coordinates) => {
+            onChange={(value) => {
+              console.log("make i see value", value);
               setFormData((prev) => ({
                 ...prev,
-                location: value,
-                longitude: coordinates?.lng || "",
-                latitude: coordinates?.lat || "",
+                location: value.address,
+                longitude: value.coordinates?.lng || "",
+                latitude: value.coordinates?.lat || "",
               }));
             }}
           />
