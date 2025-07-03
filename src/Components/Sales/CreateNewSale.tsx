@@ -30,8 +30,7 @@ import { FlutterwaveConfig } from "flutterwave-react-v3/dist/types";
 import { toJS } from "mobx";
 
 const public_key =
-  import.meta.env.VITE_FLW_PUBLIC_KEY ||
-  "FLWPUBK_TEST-720d3bd8434091e9b28a01452ebdd2e0-X";
+  import.meta.env.VITE_FLW_PUBLIC_KEY
 const base_url = import.meta.env.VITE_API_BASE_URL;
 
 type CreateSalesType = {
