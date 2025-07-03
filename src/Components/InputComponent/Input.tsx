@@ -63,6 +63,7 @@ export type InputType = {
   description?: string;
   descriptionClass?: string;
   max?: number;
+  min?: number;
 };
 
 export const Input = forwardRef<HTMLInputElement, InputType>(
@@ -90,6 +91,7 @@ export const Input = forwardRef<HTMLInputElement, InputType>(
       description,
       descriptionClass,
       max,
+      min = 0
     },
     ref
   ) => {
@@ -144,7 +146,7 @@ export const Input = forwardRef<HTMLInputElement, InputType>(
               required={required}
               checked={checked}
               readOnly={readOnly}
-              min={0}
+              min={min}
               className={`w-full text-sm font-semibold ${value ? "text-textBlack" : "text-textGrey"
                 } placeholder:text-textGrey placeholder:font-normal placeholder:italic`}
               maxLength={maxLength}
@@ -991,10 +993,6 @@ export const ToggleInput = ({
     </div>
   );
 };
-
-"use client"
-
-
 
 interface ProductDescriptionInputProps {
   value: string
