@@ -31,6 +31,11 @@ type ProductInventoryType = {
 type InventoryModalProps = {
   isInventoryOpen: boolean;
   setIsInventoryOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  customize?: boolean;
+  addItem?: (item: any) => void;
+  removeItem?: (item: any) => void;
+  itemList?: any;
+
 };
 
 type InventoryItem = {
@@ -75,7 +80,7 @@ type InventoryItem = {
 };
 
 const SelectInventoryModal = observer(
-  ({ isInventoryOpen, setIsInventoryOpen }: InventoryModalProps) => {
+  ({ isInventoryOpen, setIsInventoryOpen, customize = false, addItem, removeItem, itemList }: InventoryModalProps) => {
     const [queryValue, setQueryValue] = useState<string>("");
     const [inventoryCategoryId, setInventoryCategoryId] = useState<string>("");
     const [dynamicListData, setDynamicListData] = useState<
@@ -112,8 +117,7 @@ const SelectInventoryModal = observer(
     }, [fetchAllInventoryCategories.data]);
 
     const fetchInventoryCategoryById = useGetRequest(
-      `/v1/inventory?page=${currentPage}&limit=${entriesPerPage}&inventoryCategoryId=${_categoryId}${
-        queryValue && `&search=${queryValue}`
+      `/v1/inventory?page=${currentPage}&limit=${entriesPerPage}&inventoryCategoryId=${_categoryId}${queryValue && `&search=${queryValue}`
       }`
     );
 
@@ -136,15 +140,15 @@ const SelectInventoryModal = observer(
         productName: inventory?.name,
         productPrice:
           inventory?.salePrice?.minimumInventoryBatchPrice ===
-          inventory?.salePrice?.maximumInventoryBatchPrice
+            inventory?.salePrice?.maximumInventoryBatchPrice
             ? `₦ ${formatNumberWithCommas(
-                inventory?.salePrice?.maximumInventoryBatchPrice
-              )}`
+              inventory?.salePrice?.maximumInventoryBatchPrice
+            )}`
             : `₦ ${formatNumberWithCommas(
-                inventory?.salePrice?.minimumInventoryBatchPrice
-              )} - ${formatNumberWithCommas(
-                inventory?.salePrice?.maximumInventoryBatchPrice
-              )}`,
+              inventory?.salePrice?.minimumInventoryBatchPrice
+            )} - ${formatNumberWithCommas(
+              inventory?.salePrice?.maximumInventoryBatchPrice
+            )}`,
         totalRemainingQuantities: inventory?.totalRemainingQuantities || 0,
       }));
     };
@@ -187,7 +191,7 @@ const SelectInventoryModal = observer(
 
     const handlePageChange = (page: number) => setCurrentPage(page);
 
-    const itemsSelected = ProductStore.products.length;
+    const itemsSelected = customize?itemList.length:ProductStore.products.length;
 
     const handleTabSelect = useCallback(
       (key: string) => {
@@ -257,11 +261,10 @@ const SelectInventoryModal = observer(
                 <button
                   disabled={itemsSelected === 0}
                   onClick={() => setIsInventoryOpen(false)}
-                  className={`text-sm  ${
-                    itemsSelected > 0
-                      ? "bg-primaryGradient text-white"
-                      : "bg-[#F6F8FA] text-textDarkGrey cursor-not-allowed"
-                  } h-[24px] px-4 border-[0.6px] border-strokeGreyTwo rounded-full`}
+                  className={`text-sm  ${itemsSelected > 0
+                    ? "bg-primaryGradient text-white"
+                    : "bg-[#F6F8FA] text-textDarkGrey cursor-not-allowed"
+                    } h-[24px] px-4 border-[0.6px] border-strokeGreyTwo rounded-full`}
                 >
                   Done
                 </button>
@@ -293,11 +296,10 @@ const SelectInventoryModal = observer(
               errorMessage={`Failed to fetch inventory list for "${activeTabName}".`}
             >
               <div
-                className={`flex flex-wrap ${
-                  fetchInventoryCategoryById?.error
-                    ? "justify-center"
-                    : "justify-start"
-                } items-center h-full gap-4`}
+                className={`flex flex-wrap ${fetchInventoryCategoryById?.error
+                  ? "justify-center"
+                  : "justify-start"
+                  } items-center h-full gap-4`}
               >
                 {paginatedData?.length > 0 ? (
                   paginatedData?.map((data, index) => {
@@ -315,14 +317,29 @@ const SelectInventoryModal = observer(
                         )}
                         totalRemainingQuantities={data.totalRemainingQuantities}
                         onSelectProduct={(productInfo) => {
-                          if (productInfo) ProductStore.addProduct(productInfo);
+
+                          if (customize === true) {
+                            if (productInfo && addItem) addItem(productInfo);
+                          } else {
+                            if (productInfo) ProductStore.addProduct(productInfo);
+                          }
+
                         }}
-                        onRemoveProduct={(productId) =>
-                          ProductStore.removeProduct(productId)
+
+                        onRemoveProduct={(productId) => {
+                          if (customize === true) {
+                            if (productId && removeItem) removeItem(productId);
+                          } else {
+                            if (productId) ProductStore.removeProduct(productId)
+                          }
                         }
-                        isProductSelected={ProductStore.products.some(
-                          (p) => p.productId === data.productId
-                        )}
+
+                        }
+                        isProductSelected={
+                          customize && itemList ? itemList.some((p:any) => p.productId === data.productId) : ProductStore.products.some(
+                            (p) => p.productId === data.productId
+                          )
+                        }
                       />
                     );
                   })

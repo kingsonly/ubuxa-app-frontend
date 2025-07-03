@@ -29,6 +29,8 @@ import ApiErrorMessage from "../ApiErrorMessage";
 import { FlutterwaveConfig } from "flutterwave-react-v3/dist/types";
 import { toJS } from "mobx";
 import SelectInventoryModal from "../Products/SelectInventoryModal";
+import { InventoryStore } from "@/stores/InventoryStore";
+import { CardComponent } from "../CardComponents/CardComponent";
 
 const public_key =
   import.meta.env.VITE_FLW_PUBLIC_KEY ||
@@ -68,14 +70,14 @@ const CreateNewSale = observer(
     const [apiError, setApiError] = useState<string | Record<string, string[]>>(
       ""
     );
-     const [isInventoryOpen, setIsInventoryOpen] = useState<boolean>(false);
+    const [isInventoryOpen, setIsInventoryOpen] = useState<boolean>(false);
     const [extraInfoModal, setExtraInfoModal] = useState<ExtraInfoType>("");
     const [currentProductId, setCurrentProductId] = useState<string>("");
     const [summaryState, setSummaryState] = useState<boolean>(false);
 
     const selectedCustomer = SaleStore.customer;
     const selectedProducts = SaleStore.products;
-    const selectedInventories = SaleStore.inventories;
+    const selectedInventories = InventoryStore.inventories;
 
     const resetFormErrors = (name: string) => {
       setFormErrors((prev) => prev.filter((error) => error.path[0] !== name));
@@ -310,19 +312,45 @@ const CreateNewSale = observer(
                         : getFieldError("customerId")
                     }
                   />
-                   {formData.category === "INVENTORY" && (
+                  {formData.category === "INVENTORY" && (
                     <ModalInput
                       type="button"
-                      name="inventory"
+                      name="inventories"
                       label="INVENTORY"
-                      onClick={() => {
-                        setIsInventoryOpen(true);
-                        setModalType("inventory");
-                      }}
+                      onClick={() => setIsInventoryOpen(true)}
                       placeholder="Select Inventory"
-                      required
+                      required={true}
                       isItemsSelected={selectedInventories.length > 0}
-                      itemsSelected={<div>{selectedInventories.length} inventory selected</div>}
+                      itemsSelected={
+                        <div className="flex flex-wrap items-center w-full gap-4">
+                          {selectedInventories?.map((data, index) => {
+                            return (
+                              <CardComponent
+                                key={`${data.productId}-${index}`}
+                                variant={"inventoryTwo"}
+                                productId={data.productId}
+                                productImage={data.productImage}
+                                productTag={data.productTag}
+                                productName={data.productName}
+                                productPrice={data.productPrice}
+                                productUnits={InventoryStore.currentInventoryUnits(
+                                  data.productId
+                                )}
+                                onSelectProduct={(productInfo) => {
+                                  console.log("I am selectedProductInfo",productInfo)
+                                 // if (productInfo) InventoryStore.addInventory(productInfo);
+
+                                }}
+                                readOnly={false}
+                                onRemoveProduct={(productId) =>
+                                  InventoryStore.removeInventory(productId)
+                                }
+                              />
+                            );
+                          })}
+                        </div>
+                      }
+                      errorMessage={getFieldError("inventories")}
                     />
                   )}
                   {
@@ -507,6 +535,10 @@ const CreateNewSale = observer(
         <SelectInventoryModal
           isInventoryOpen={isInventoryOpen}
           setIsInventoryOpen={setIsInventoryOpen}
+          customize={true}
+          addItem={InventoryStore.addInventory}
+          removeItem={InventoryStore.removeInventory}
+          itemList={selectedInventories}
         />
         <SelectCustomerProductModal
           isModalOpen={isCustomerProductModalOpen}

@@ -12,6 +12,9 @@ import { observer } from "mobx-react-lite";
 import SaleRecipientForm from "./SaleRecipientForm";
 import SalesBoltIcon from "../appIcons/sales-bolt.icon";
 
+
+
+
 const SetExtraInfoModal = observer(
   ({
     extraInfoModal,
