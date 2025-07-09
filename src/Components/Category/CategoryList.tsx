@@ -107,7 +107,6 @@ const CategoryList = ({
               onClick={() => {
                 // setHistoryID(rowData.id);
                 showSmallModal({ ...rowData, reason: "View" });
-                console.log(value, rowData);
               }}
             >
 

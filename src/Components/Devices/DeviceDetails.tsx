@@ -4,10 +4,16 @@ import { KeyedMutator } from "swr";
 import { z } from "zod";
 import { useApiCall } from "@/utils/useApiCall";
 import { DetailComponent } from "../Settings/ViewRolePermissions";
-import { SmallInput } from "../InputComponent/Input";
+import { ModalInput, SmallInput } from "../InputComponent/Input";
 import ApiErrorMessage from "../ApiErrorMessage";
 import ProceedButton from "../ProceedButtonComponent/ProceedButtonComponent";
 import inventoryIcon from "../../assets/inventory/inventoryIcon.svg";
+import { CardComponent } from "../CardComponents/CardComponent";
+import { useNavigate } from "react-router-dom";
+import SelectDeviceInventoryModal from "./SelectDeviceInventoryModal";
+import { DeviceStore } from "@/stores/DeviceStore";
+import { RiDeleteBin5Fill } from "react-icons/ri";
+import roletwo from "../../assets/table/roletwo.svg";
 
 const DeviceFormSchema = z.object({
   serialNumber: z.string().trim(),
@@ -28,6 +34,7 @@ const DeviceFormSchema = z.object({
   restrictedDigitMode: z.boolean(),
   hardwareModel: z.string().trim(),
   firmwareVersion: z.string().trim(),
+  inventoryId: z.string().trim(),
 });
 
 type DeviceFormData = z.infer<typeof DeviceFormSchema>;
@@ -46,6 +53,8 @@ const DeviceDetails = ({
   refreshListView: KeyedMutator<any>;
 }) => {
   const { apiCall } = useApiCall();
+  const navigate = useNavigate();
+  const selectedInventory = DeviceStore.selectedInventory;
 
   const defaultFormData = useMemo(() => {
     return {
@@ -57,12 +66,28 @@ const DeviceDetails = ({
       restrictedDigitMode: deviceData?.restrictedDigitMode,
       hardwareModel: deviceData?.hardwareModel,
       firmwareVersion: deviceData?.firmwareVersion,
+      inventoryId: deviceData?.inventory.id,
     };
   }, [deviceData]);
 
   useEffect(() => {
-    if (!displayInput) setFormData(defaultFormData);
+    if (!displayInput) {
+      setFormData(defaultFormData);
+    }
   }, [defaultFormData, displayInput]);
+  useEffect(() => {
+    DeviceStore.setInventory(
+      {
+        productId: deviceData.inventory?.id,
+        productImage: deviceData.inventory?.image,
+        productTag: "",
+        productName: deviceData.inventory?.name,
+        productPrice: "",
+        productUnits: 0,
+      }
+    );
+
+  }, [displayInput]);
 
   const [formData, setFormData] = useState<DeviceFormData>(defaultFormData);
   const [loading, setLoading] = useState<boolean>(false);
@@ -70,6 +95,22 @@ const DeviceDetails = ({
   const [apiError, setApiError] = useState<string | Record<string, string[]>>(
     ""
   );
+  const [isCustomerProductModalOpen, setIsCustomerProductModalOpen] = useState<boolean>(false);
+  useEffect(() => {
+    updateInventoryId()
+
+  }, [DeviceStore.selectedInventory])
+
+  const updateInventoryId = () => {
+    console.log("i really waht to know what we have ", DeviceStore.selectedInventory?.productId)
+    const updatedFormData = { ...formData, inventoryId: DeviceStore.selectedInventory && DeviceStore.selectedInventory.productId ? DeviceStore.selectedInventory.productId : "" }
+    DeviceFormSchema.safeParse({
+      updatedFormData
+    });
+
+    setFormData(updatedFormData)
+
+  }
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -162,6 +203,7 @@ const DeviceDetails = ({
       onSubmit={handleSubmit}
       className="flex flex-col items-center justify-center w-full gap-4"
     >
+
       <div className="flex flex-col w-full p-2.5 gap-2 bg-white border-[0.6px] border-strokeGreyThree rounded-[20px]">
         <p className="flex gap-1 w-max text-textLightGrey text-xs font-medium pb-2">
           <img src={inventoryIcon} alt="Device Icon" /> DEVICE DETAILS
@@ -323,6 +365,71 @@ const DeviceDetails = ({
             )
           }
         />
+
+
+      </div>
+      <div className="flex flex-col w-full p-2.5 gap-2 bg-white border-[0.6px] border-strokeGreyThree rounded-[20px]">
+        <p className="flex gap-1 w-max text-textLightGrey text-xs font-medium pb-2">
+          <img src={inventoryIcon} alt="Device Icon" /> DEVICE INVENTORY
+        </p>
+        <div>
+          {!displayInput ?
+            <div>
+              <CardComponent
+
+                variant="inventoryOne"
+                dropDownList={{
+                  items: ["View Inventory"],
+                  onClickLink: () => {
+                    navigate(`/inventory/all?inventoryId=${deviceData.inventory?.id}`);
+                  },
+                  defaultStyle: true,
+                  showCustomButton: true,
+                }}
+                productImage={deviceData.inventory.image}
+                productName={deviceData.inventory.name}
+
+              />
+            </div>
+            :
+            <div>
+              <ModalInput
+                type="button"
+                name="inventoryId"
+                label="Inventory"
+                onClick={() => {
+                  setIsCustomerProductModalOpen(true);
+                }}
+                placeholder="Select Inventory"
+                required={true}
+                isItemsSelected={Boolean(selectedInventory?.productId)}
+                itemsSelected={
+                  <div className="w-full">
+                    {selectedInventory?.productId && (
+                      <CardComponent
+                        variant="deviceInventory"
+                        productImage={selectedInventory.productImage}
+                        productName={selectedInventory.productName}
+
+                      />
+                    )}
+                  </div>
+                }
+                errorMessage={
+                  getFieldError("inventoryId")
+                }
+              />
+              <SelectDeviceInventoryModal
+                isModalOpen={isCustomerProductModalOpen}
+                setModalOpen={setIsCustomerProductModalOpen}
+              />
+            </div>
+
+          }
+
+
+
+        </div>
       </div>
       <ApiErrorMessage apiError={apiError} />
 

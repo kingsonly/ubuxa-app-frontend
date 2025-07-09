@@ -242,6 +242,7 @@ const SelectDeviceInventoryModal = observer(
                                 </span>
                             </div>
                             < button
+                                type="button"
                                 disabled={itemsSelected === 0}
                                 onClick={() => {
                                     setModalOpen(false);
@@ -303,6 +304,7 @@ const SelectDeviceInventoryModal = observer(
                                             productName={data.productName}
                                             productPrice={data.productPrice}
                                             onSelectProduct={(inventoryInfo: any) => {
+                                                DeviceStore.setInventory(null)
                                                 if (inventoryInfo) DeviceStore.setInventory(inventoryInfo);
                                             }}
                                             onRemoveProduct={() => {

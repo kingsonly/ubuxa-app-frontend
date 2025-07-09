@@ -448,7 +448,7 @@ const CreateNewSale = observer(
                     type="button"
                     loading={false}
                     variant={getIsFormFilled() ? "gradient" : "gray"}
-                    disabled={!getIsFormFilled()}
+                    disabled={false}
                     onClick={() => setSummaryState(true)}
                   />
                 </>
