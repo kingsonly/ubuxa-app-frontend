@@ -72,12 +72,12 @@ const Home = () => {
     //   sectionImage: communication,
     //   location: "/communication",
     // },
-    { sectionName: "Settings", sectionImage: <SettingsIcon />, location: "/settings" },
     {
       sectionName: "Store / Warehouse",
       sectionImage: <InventoryIcon />,
       location: "/store",
     },
+    { sectionName: "Settings", sectionImage: <SettingsIcon />, location: "/settings" },
   ];
 
   const newHomeData: SectionData[] = homeData.map((data: SectionData) => ({

@@ -21,6 +21,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import ErrorPage from "./Pages/ErrorPage";
 import Onboarding from "./Pages/Onboarding";
 import Deactivated from "./Pages/Deactivated";
+import Store from "./Pages/Store";
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
             <Route path="/inventory/*" element={<Inventory />} />
             <Route path="/devices/*" element={<Devices />} />
             <Route path="/contracts/*" element={<Contracts />} />
+            <Route path="/store/*" element={<Store />} />
             <Route path="/settings/*" element={<Settings />} />
             {/* Other protected routes */}
           </Route>
