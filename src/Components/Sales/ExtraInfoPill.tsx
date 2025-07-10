@@ -30,14 +30,15 @@ const ExtraInfoPill: React.FC<ExtraInfoPillProps> = ({
     error,
     filled = false,
 }) => {
-    const baseClasses = 'flex items-center text-sm font-medium px-3 py-1 w-max rounded-full cursor-pointer transition-all';
+    const baseClasses = 'border flex items-center text-sm font-medium px-3 py-1 w-max rounded-full cursor-pointer transition-all';
     const selectedClasses = 'bg-primaryGradient text-white border-transparent';
-    const unselectedClasses = 'bg-white text-textDarkGrey border-[0.6px] border-strokeGreyTwo';
-    const errorClasses = error ? 'border-red-500' : '';
+    // const unselectedClasses = 'bg-white text-textDarkGrey border-[0.6px] border-strokeGreyTwo';
+    const unselectedClasses = `bg-white text-textDarkGrey ${!error ? "border-[0.6px] border-strokeGreyTwo" : ""}`;
+    const errorClasses = error ? 'border-1 border-red-500' : '';
 
     return (
         <div
-            className={`${baseClasses} ${filled ? selectedClasses : unselectedClasses} ${errorClasses}`}
+            className={`  ${baseClasses} ${filled ? selectedClasses : unselectedClasses} ${errorClasses} `}
             onClick={() => onClick(type)}
         >
             {/* Optional asterisk for required */}
@@ -65,7 +66,7 @@ const ExtraInfoPill: React.FC<ExtraInfoPillProps> = ({
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <span className="ml-1 text-red-500">!</span>
+                            <span className="flex items-center justify-center bg-red-500  rounded-full p-0.5 ml-1 text-white block w-4 h-4">!</span>
                         </TooltipTrigger>
                         <TooltipContent className="max-w-xs text-xs font-light p-2 border border-red-500 rounded-md shadow-lg bg-white text-red-500">
                             {error}

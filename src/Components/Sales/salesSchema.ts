@@ -1,12 +1,180 @@
 import { z } from "zod";
 
-export const saleRecipientSchema = z.object({
-  firstname: z.string().trim().min(2, "Firstname is required"),
-  lastname: z.string().trim().min(2, "Lastname is required"),
-  address: z.string().trim().min(1, "Address is required"),
-  phone: z.string().trim().min(10, "Phone number is required"),
-  email: z.string().trim().email("Invalid email"),
-});
+const DiscountType = z.enum(["FIXED", "PERCENTAGE"]);
+const PriceType = z.enum(["FIXED", "PERCENTAGE"]);
+
+// export const saleRecipientSchema = z.object({
+//   firstname: z.string().trim().min(2, "Firstname is required"),
+//   lastname: z.string().trim().min(2, "Lastname is required"),
+//   address: z.string().trim().min(1, "Address is required"),
+//   phone: z.string().trim().min(10, "Phone number is required"),
+//   email: z.string().trim().email("Invalid email"),
+// })
+//   .superRefine((data, ctx) => {
+//     // if you still want a top‐level “Recipient is required” when all sub-fields are empty:
+//     const r = data;
+//     if (
+//       !r.firstname &&
+//       !r.lastname &&
+//       !r.address &&
+//       !r.phone &&
+//       !r.email
+//     ) {
+//       ctx.addIssue({
+//         code: z.ZodIssueCode.custom,
+//         path: ["firstname"],
+//         message: "Recipient is required",
+//       });
+//     }
+//     // … any other cross-field checks …
+//   });
+
+
+
+// export const saleRecipientSchema = z
+//   .object({
+//     firstname: z
+//       .string()
+//       .trim()
+//       .optional()                          // <-- make optional
+//       .refine(
+//         (v) => v === undefined || v.length === 0 || v.length >= 2,
+//         { message: "Firstname is required" }
+//       ),
+//     lastname: z
+//       .string()
+//       .trim()
+//       .optional()
+//       .refine(
+//         (v) => v === undefined || v.length === 0 || v.length >= 2,
+//         { message: "Lastname is required" }
+//       ),
+//     address: z
+//       .string()
+//       .trim()
+//       .optional()
+//       .refine(
+//         (v) => v === undefined || v.length === 0 || v.length >= 1,
+//         { message: "Address is required" }
+//       ),
+//     phone: z
+//       .string()
+//       .trim()
+//       .optional()
+//       .refine(
+//         (v) => v === undefined || v.length === 0 || v.length >= 10,
+//         { message: "Phone number is required" }
+//       ),
+//     email: z
+//       .string()
+//       .trim()
+//       .optional()
+//       .refine(
+//         (v) => v === undefined || v.length === 0 || /^[^@]+@[^@]+\.[^@]+$/.test(v),
+//         { message: "Invalid email" }
+//       ),
+//   })
+//   .superRefine((data, ctx) => {
+//     const { firstname, lastname, address, phone, email } = data;
+//     const allEmpty =
+//       [firstname, lastname, address, phone, email].every(
+//         (v) => v === undefined || v === ""
+//       );
+
+
+
+//     if (allEmpty) {
+//       // emit exactly one “recipient is required” on firstname (or use path: [] for form-level)
+//       ctx.addIssue({
+//         code: z.ZodIssueCode.custom,
+//         path: ["firstname"],
+//         message: "Recipient is required",
+//       });
+//     }
+//   });
+
+export const saleRecipientSchema = z
+  .object({
+    firstname: z.string().trim().optional(),
+    lastname: z.string().trim().optional(),
+    address: z.string().trim().optional(),
+    phone: z.string().trim().optional(),
+    email: z.string().trim().optional(),
+  })
+  // if *every* field is blank, emit one top-level error on saleRecipient
+  .refine((r) => {
+    return [r.firstname, r.lastname, r.address, r.phone, r.email].some(
+      (v) => v !== undefined && v !== ""
+    );
+  }, {
+    path: ["saleRecipient"],
+    message: "Recipient is required",
+  })
+  // but if user has typed into individual fields, still enforce per-field rules:
+  .superRefine((r, ctx) => {
+    if (r.firstname != null && r.firstname.trim().length < 2) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["saleRecipient", "firstname"],
+        message: "Firstname is required",
+      });
+    }
+    if (r.lastname != null && r.lastname.trim().length < 2) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["saleRecipient", "lastname"],
+        message: "Lastname is required",
+      });
+    }
+
+    if (r.address != null && r.address.trim().length < 10) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["saleRecipient", "address"],
+        message: "Address is required",
+      });
+    }
+
+    // PHONE: if non-empty, must be at least 10 digits and only digits
+    if (r.phone != null && r.phone.trim() !== "" && r.phone.trim().length < 11) {
+      const digits = r.phone.replace(/\D/g, "");
+      if (digits.length < 11) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["saleRecipient", "phone"],
+          message: "Phone number must be at least 10 digits",
+        });
+      } else if (!/^\d+$/.test(r.phone)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["saleRecipient", "phone"],
+          message: "Phone number can only contain digits",
+        });
+      }
+    } else if (r.phone == null || r.phone.trim() === "" || r.phone === undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["saleRecipient", "phone"],
+        message: "Cant be empty",
+      });
+    }
+
+
+    if (r.email != null && r.email.trim() !== "") {
+      const email = r.email.trim();
+      // simple RFC-ish regex
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["saleRecipient", "email"],
+          message: "Invalid email address",
+        });
+      }
+    }
+
+  });
+
 
 export const identificationDetailsSchema = z
   .object({
@@ -90,33 +258,144 @@ export const guarantorDetailsSchema = z.object({
   identificationDetails: identificationDetailsSchema,
 });
 
+// const parametersSchema = z
+//   .object({
+//     paymentMode: z.enum(["ONE_OFF", "INSTALLMENT"], {
+//       message: "Payment mode is required",
+//     }),
+//     discount: z.number().min(0, "Discount must be non-negative").optional(),
+//     discountType: DiscountType,
+//     // These two only matter when paymentMode === INSTALLMENT:
+//     installmentDuration: z.number().optional(),
+//     installmentStartingPrice: z.number().optional(),
+//     installmentStartingPriceType: PriceType.optional(),
+//   })
+//   .refine((p) => {
+//     // if they never touched ANY of the above, we want one single error
+//     return (
+//       p.paymentMode !== undefined ||
+//       p.discountType !== undefined ||
+//       p.discount !== undefined
+//     );
+//   }, {
+//     message: "Parameters are required",
+//     path: ["paymentMode"],        // or just `["parameters"]` in your superRefine
+//   })
+//   .superRefine((params, ctx) => {
+//     if (params.paymentMode === "INSTALLMENT") {
+//       if (params.installmentDuration == null) {
+//         ctx.addIssue({
+//           code: z.ZodIssueCode.custom,
+//           message: "Installment duration is required for installment plans",
+//           path: ["installmentDuration"],
+//         });
+//       }
+//       if (params.installmentStartingPrice == null) {
+//         ctx.addIssue({
+//           code: z.ZodIssueCode.custom,
+//           message:
+//             "Installment starting price is required for installment plans",
+//           path: ["installmentStartingPrice"],
+//         });
+//       }
+//       if (!params.installmentStartingPriceType) {
+//         ctx.addIssue({
+//           code: z.ZodIssueCode.custom,
+//           message: "You must pick a price type for installment starting price",
+//           path: ["installmentStartingPriceType"],
+//         });
+//       }
+//     }
+//   });
+
+const parametersSchema = z
+  .object({
+    paymentMode: z.enum(["ONE_OFF", "INSTALLMENT"], {
+      required_error: "Payment mode is required",
+    }).optional(),              // make optional so refine can catch "all empty"
+    discount: z.number().min(0, "Discount must be non-negative").optional(),
+    discountType: z.enum(["FIXED", "PERCENTAGE"]).optional(),
+    installmentDuration: z.number().optional(),
+    installmentStartingPrice: z.number().optional(),
+    installmentStartingPriceType: z.enum(["FIXED", "PERCENTAGE"]).optional(),
+  })
+  // if *every* field is undefined/null, fire one top-level error
+  .refine((p) => {
+    return Object.values(p).some((v) => v !== undefined && v !== null);
+  }, {
+    path: ["parameters"],
+    message: "Parameters are required",
+  })
+  .superRefine((p, ctx) => {
+    if (p.paymentMode === "INSTALLMENT") {
+      if (p.installmentDuration == null) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["parameters", "installmentDuration"],
+          message: "Installment duration is required for installment plans",
+        });
+      }
+      if (p.installmentStartingPrice == null) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["parameters", "installmentStartingPrice"],
+          message:
+            "Installment starting price is required for installment plans",
+        });
+      }
+      if (!p.installmentStartingPriceType) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["parameters", "installmentStartingPriceType"],
+          message:
+            "You must pick a price type for installment starting price",
+        });
+      }
+    }
+  });
+
 export const saleItemSchema = z
   .object({
     productId: z.string().trim().min(10, "Product ID is required"),
     quantity: z.number().min(1, "Quantity must be at least 1"),
-    paymentMode: z.enum(["ONE_OFF", "INSTALLMENT"], {
-      message: "Payment Mode is required",
-    }),
-    discount: z.number().optional(),
-    installmentDuration: z.number().optional(),
-    installmentStartingPrice: z.number().optional(),
+    // paymentMode: z.enum(["ONE_OFF", "INSTALLMENT"], {
+    //   message: "Payment Mode is required",
+    // }),
+    // discount: z.number().optional(),
+    // installmentDuration: z.number().optional(),
+    // installmentStartingPrice: z.number().optional(),
     devices: z.array(z.string()).min(1, "At least one device is required"),
     miscellaneousPrices: z
       .record(z.string(), z.number().min(0, "Price must be a positive number"))
       .optional(),
     saleRecipient: saleRecipientSchema,
+    parameters: parametersSchema
   })
   .superRefine((data, ctx) => {
+    const r = data.saleRecipient;
+    if (
+      !r.firstname ||
+      !r.lastname ||
+      !r.address ||
+      !r.phone ||
+      !r.email
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["saleRecipient"],
+        message: "Recipient is required",
+      });
+    }
     // Conditional validation: If payment mode is INSTALLMENT, ensure related fields are filled
-    if (data.paymentMode === "INSTALLMENT") {
-      if (!data.installmentDuration) {
+    if (data.parameters.paymentMode === "INSTALLMENT") {
+      if (!data.parameters.installmentDuration) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Installment duration is required for installment payments",
           path: ["installmentDuration"],
         });
       }
-      if (!data.installmentStartingPrice) {
+      if (!data.parameters.installmentStartingPrice) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message:
@@ -149,7 +428,7 @@ export const formSchema = z
   .superRefine((data, ctx) => {
     // Check if any sale item has paymentMode as "INSTALLMENT"
     const hasInstallment = data.saleItems.some(
-      (item) => item.paymentMode === "INSTALLMENT"
+      (item) => item.parameters.paymentMode === "INSTALLMENT"
     );
 
     // If any sale item has paymentMode as "INSTALLMENT", enforce identificationDetails, nextOfKinDetails and guarantorDetails

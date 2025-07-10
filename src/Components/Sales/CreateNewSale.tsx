@@ -159,6 +159,26 @@ const CreateNewSale = observer(
       }
     };
 
+    const validateSummaryState = () => {
+      // Build the current payload
+      const payload = getPayload();
+
+      // Run Zod validation (safeParse gives you errors instead of throwing)
+      const result = formSchema.safeParse(payload);
+
+      if (!result.success) {
+        // collect all field errors
+        setFormErrors(result.error.issues);
+        // stay on the form
+        setSummaryState(false);
+        return;
+      }
+
+      // no issues, clear any old errors and advance
+      setFormErrors([]);
+      setSummaryState(true);
+    };
+
     const resetSaleModalState = () => {
       setIsOpen(false);
       SaleStore.purgeStore();
@@ -449,7 +469,7 @@ const CreateNewSale = observer(
                     loading={false}
                     variant={getIsFormFilled() ? "gradient" : "gray"}
                     disabled={false}
-                    onClick={() => setSummaryState(true)}
+                    onClick={validateSummaryState}
                   />
                 </>
               ) : (
