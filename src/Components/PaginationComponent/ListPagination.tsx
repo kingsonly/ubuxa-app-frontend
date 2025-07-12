@@ -35,11 +35,11 @@ const ListPagination: React.FC<PaginationProps> = ({
   return (
     <div className="flex items-center w-max h-[24px] space-x-2">
       <button
+        type="button"
         onClick={handlePrevious}
         disabled={currentPage === 1}
-        className={`flex items-center justify-center w-[20px] h-[20px] rounded-[4px] ${
-          currentPage === 1 ? "bg-disabled cursor-not-allowed" : "bg-purpleBlue"
-        }`}
+        className={`flex items-center justify-center w-[20px] h-[20px] rounded-[4px] ${currentPage === 1 ? "bg-disabled cursor-not-allowed" : "bg-purpleBlue"
+          }`}
       >
         <CgChevronLeft color="white" />
       </button>
@@ -54,12 +54,12 @@ const ListPagination: React.FC<PaginationProps> = ({
 
       <button
         onClick={handleNext}
+        type="button"
         disabled={currentPage === totalPages}
-        className={`flex items-center justify-center w-[20px] h-[20px] rounded-[4px] ${
-          currentPage === totalPages
-            ? "bg-disabled cursor-not-allowed"
-            : "bg-purpleBlue"
-        }`}
+        className={`flex items-center justify-center w-[20px] h-[20px] rounded-[4px] ${currentPage === totalPages
+          ? "bg-disabled cursor-not-allowed"
+          : "bg-purpleBlue"
+          }`}
       >
         <CgChevronRight color="white" />
       </button>

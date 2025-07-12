@@ -11,12 +11,14 @@ import { SideMenu } from "@/Components/SideMenuComponent/SideMenu";
 import { useGetRequest } from "@/utils/useApiCall";
 import CreateNewDevice from "@/Components/Devices/CreateNewDevice";
 import AddCircleIcon from "@/Components/appIcons/add-circle.icon";
+import CsvTemplateModal from "@/Components/Devices/CsvTemplateModal";
 
 const DevicesTable = lazy(() => import("@/Components/Devices/DevicesTable"));
 
 const Devices = () => {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isTemplateOpen, setIsTemplateOpen] = useState<boolean>(false);
   const [formType, setFormType] = useState<"singleUpload" | "batchUpload">(
     "singleUpload"
   );
@@ -78,7 +80,7 @@ const Devices = () => {
   }, [location.pathname]);
 
   const dropDownList = {
-    items: ["Create New Devices (Batch)"],
+    items: ["Create New Devices (Batch)", "Download CSV Template"],
     onClickLink: (index: number) => {
       switch (index) {
         case 0:
@@ -86,7 +88,7 @@ const Devices = () => {
           setIsOpen(true);
           break;
         case 1:
-          console.log("Exporting list...");
+          setIsTemplateOpenHandler(true);
           break;
         default:
           break;
@@ -96,7 +98,9 @@ const Devices = () => {
   };
 
   const devicesPaths = ["all"];
-
+  const setIsTemplateOpenHandler = (value: boolean) => {
+    setIsTemplateOpen(value);
+  }
   return (
     <>
       <PageLayout pageName="Devices" badge={inventorybadge}>
@@ -162,6 +166,7 @@ const Devices = () => {
         allDevicesRefresh={allDeviceRefresh}
         formType={formType}
       />
+      <CsvTemplateModal open={isTemplateOpen} setOpen={setIsTemplateOpenHandler} />
     </>
   );
 };

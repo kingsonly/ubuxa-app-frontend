@@ -78,7 +78,7 @@ export const Modal = ({
   // Conditional layout styles
   const layoutClasses = clsx(
     layout === "right" &&
-      "h-[100vh] mt-2 mr-1.5 bg-white shadow-lg transition-transform transform rounded-md",
+    "h-[100vh] mt-2 mr-1.5 bg-white shadow-lg transition-transform transform rounded-md",
     sizeClasses[size],
     {
       "animate-slide-out-right": isClosing,
@@ -97,9 +97,8 @@ export const Modal = ({
   return (
     <div className={wrapperClasses}>
       <div
-        className={`fixed inset-0 ${
-          layout === "default" ? "z-40 rounded-md" : ""
-        } transition-opacity bg-black opacity-50`}
+        className={`fixed inset-0 ${layout === "default" ? "z-40 rounded-md" : ""
+          } transition-opacity bg-black opacity-50`}
         onClick={handleClose}
         aria-hidden="true"
       ></div>
@@ -107,29 +106,27 @@ export const Modal = ({
       {layout === "right" ? (
         <div className={layoutClasses} role="dialog" aria-modal="true">
           <header
-            className={`flex items-center p-2 h-[40px] border-b-[0.6px] border-b-strokeGreyThree ${
-              leftHeaderComponents ? "justify-between" : "justify-end"
-            } ${headerClass}`}
+            className={`flex items-center p-2 h-[40px] border-b-[0.6px] border-b-strokeGreyThree ${leftHeaderComponents ? "justify-between" : "justify-end"
+              } ${headerClass}`}
           >
             <div
-              className={`flex ${
-                leftHeaderContainerClass
+              className={`flex ${leftHeaderContainerClass
                   ? leftHeaderContainerClass
                   : "items-center gap-1"
-              }`}
+                }`}
             >
               {leftHeaderComponents}
             </div>
             <div
-              className={`flex ${
-                rightHeaderContainerClass
+              className={`flex ${rightHeaderContainerClass
                   ? rightHeaderContainerClass
                   : "items-center gap-1 "
-              }`}
+                }`}
             >
               {rightHeaderComponents}
               <button
                 onClick={handleClose}
+                type="button"
                 className="flex items-center justify-center w-[24px] h-[24px] bg-white border border-strokeGreyTwo rounded-full top-4 right-4 hover:bg-slate-100"
                 aria-label="Close modal"
                 title="Close modal"

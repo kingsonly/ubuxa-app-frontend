@@ -119,7 +119,7 @@ const SalesSummary = ({
                   value={item.productName}
                 />
                 <ProductDetailRow
-                  label="Product Units"
+                  label="Product Quantity"
                   value={item.productUnits}
                 />
                 <ProductDetailRow

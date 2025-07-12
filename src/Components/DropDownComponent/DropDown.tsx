@@ -72,6 +72,7 @@ export const DropDown = (props: DropDownType) => {
         </div>
       ) : (
         <button
+          type="button"
           className="flex items-center justify-between w-max gap-2 pl-2 pr-1 py-1 bg-[#F9F9F9] border-[0.6px] border-strokeGreyThree rounded-full"
           onClick={handleClick}
         >

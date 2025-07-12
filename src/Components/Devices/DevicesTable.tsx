@@ -20,6 +20,7 @@ export type DeviceEntries = {
   saleItemIDs?: string[];
   createdAt?: string;
   updatedAt?: string;
+  inventory: any;
 };
 
 // Helper function to map the API data to the desired format
@@ -89,6 +90,14 @@ const DevicesTable = ({
     { title: "Key", key: "key" },
     { title: "Hardware Model", key: "hardwareModel" },
     { title: "Count", key: "count" },
+    {
+      title: "Status",
+      key: "isUsed",
+      valueIsAComponent: true,
+      customValue: (value: boolean) => {
+        return <>{value ? <span className="text-green-500">Allocated</span> : <span className="text-red-500">Unallocated</span>}</>;
+      },
+    },
     {
       title: "Is Tokenable",
       key: "isTokenable",
