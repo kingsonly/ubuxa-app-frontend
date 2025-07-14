@@ -124,10 +124,10 @@ const InventoryTable = ({
   const filterList = [
     {
       name: "Class",
-      items: ["Regular", "Returned", "Refurbished"],
+      items: ["Regular", "Refurbished"],
       onClickLink: async (index: number) => {
         setIsSearchQuery(false);
-        const selectedClass = ["REGULAR", "RETURNED", "REFURBISHED"][index];
+        const selectedClass = ["REGULAR", "REFURBISHED"][index];
         setQueryValue(selectedClass);
         setIsSearchQuery(true);
         setTableQueryParams((prevParams) => ({
@@ -197,8 +197,6 @@ const InventoryTable = ({
         let style: string = "";
         if (value?.toLocaleLowerCase() === "regular") {
           style = "bg-[#EAEEF2] text-textDarkGrey";
-        } else if (value?.toLocaleLowerCase() === "returned") {
-          style = "bg-[#FFEBEC] text-errorTwo";
         } else {
           style = "bg-[#FEF5DA] text-textDarkBrown";
         }
@@ -236,7 +234,7 @@ const InventoryTable = ({
           </div>
         );
       },
-      rightIcon: <NairaSymbol color="#828DA9" />,
+      leftIcon: <NairaSymbol color="#828DA9" />,
     },
     {
       title: "INVENTORY VALUE",
@@ -252,7 +250,7 @@ const InventoryTable = ({
           </div>
         );
       },
-      rightIcon: <NairaSymbol color="#828DA9" />,
+      leftIcon: <NairaSymbol color="#828DA9" />,
     },
     {
       title: "STOCK LEVEL",
@@ -303,7 +301,7 @@ const InventoryTable = ({
           </div>
         );
       },
-      rightIcon: (
+      leftIcon: (
         <svg
           width="16"
           height="16"
@@ -327,7 +325,7 @@ const InventoryTable = ({
       customValue: (_value: any, rowData: { id: string }) => {
         return (
           <span
-            className="px-2 py-1 text-[10px] text-textBlack hover:text-buttonText font-medium bg-[#F6F8FA] border-[0.2px] border-strokeGreyTwo rounded-full shadow-innerCustom cursor-pointer transition-all hover:bg-primary"
+            className="px-2 py-1 text-[10px] text-textBlack hover:text-customButtonText font-medium bg-[#F6F8FA] border-[0.2px] border-strokeGreyTwo rounded-full shadow-innerCustom cursor-pointer transition-all hover:bg-customPrimary"
             onClick={() => {
               setInventoryID(rowData.id);
               setIsOpen(true);

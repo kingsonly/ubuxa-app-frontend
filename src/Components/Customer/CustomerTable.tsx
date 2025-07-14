@@ -2,7 +2,6 @@ import { useState } from "react";
 import { KeyedMutator } from "swr";
 import { PaginationType, Table } from "../TableComponent/Table";
 import { GoDotFill } from "react-icons/go";
-import clock from "../../assets/table/clock.svg";
 import CustomerModal from "./CustomerModal";
 import { ApiErrorStatesType } from "@/utils/useApiCall";
 import { ErrorComponent } from "@/Pages/ErrorPage";
@@ -63,6 +62,8 @@ export type CustomerType = {
   isBlocked: boolean;
   status: string;
   roleId: string;
+  image?: string | null;
+  landmark?: string | null;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -223,7 +224,7 @@ const CustomerTable = ({
           </span>
         );
       },
-      rightIcon: <img src={clock} alt="clock icon" className="ml-auto" />,
+      //rightIcon: <img src={clock} alt="clock icon" className="ml-auto" />,
     },
     {
       title: "ACTIONS",
@@ -232,7 +233,7 @@ const CustomerTable = ({
       customValue: (_value: any, rowData: { id: string }) => {
         return (
           <span
-            className="px-2 py-1 text-[10px] text-textBlack hover:text-buttonText font-medium bg-[#F6F8FA] border-[0.2px] border-strokeGreyTwo rounded-full shadow-innerCustom cursor-pointer transition-all hover:bg-primary"
+            className="px-2 py-1 text-[10px] text-textBlack hover:text-customButtonText font-medium bg-[#F6F8FA] border-[0.2px] border-strokeGreyTwo rounded-full shadow-innerCustom cursor-pointer transition-all hover:bg-customPrimary"
             onClick={() => {
               setCustomerID(rowData.id);
               setIsOpen(true);

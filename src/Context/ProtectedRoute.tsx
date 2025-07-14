@@ -4,7 +4,7 @@ import useTokens from "../hooks/useTokens";
 import { toast } from "react-toastify";
 
 const ProtectedRouteWrapper: React.FC = () => {
-  const { token } = useTokens();
+  const { token, tenant } = useTokens();
   const location = useLocation();
   const unprotectedRoutes = useMemo(
     () => [
@@ -15,7 +15,18 @@ const ProtectedRouteWrapper: React.FC = () => {
     ],
     []
   );
-
+  const checkTenantStatus = () => {
+    if (tenant && tenant?.status !== "ACTIVE") {
+      const selfHandledRoutes = ["/onboarding", "/deactivated"];
+      if (selfHandledRoutes.includes(location.pathname)) return null;
+      switch (tenant?.status) {
+        case "DEACTIVATED":
+          return <Navigate to={"/deactivated"} replace />
+        default:
+          return <Navigate to={"/onboarding"} replace />
+      }
+    }
+  }
   useEffect(() => {
     if (
       !token &&
@@ -39,6 +50,10 @@ const ProtectedRouteWrapper: React.FC = () => {
     );
   }
 
+
+  // check tenant status first 
+  const tenantRedirect = checkTenantStatus();
+  if (tenantRedirect) return tenantRedirect;
   // If authenticated but trying to access login page, redirect to home or saved redirect
   if (
     token &&

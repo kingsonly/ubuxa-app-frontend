@@ -69,14 +69,14 @@ export default function ErrorPage({
               {!networkError && (
                 <Link
                   to={"/home"}
-                  className="inline-flex items-center px-5 py-2 text-base font-medium rounded-md text-white bg-errorGradient hover:bg-inversedErrorGradient transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                  className="inline-flex items-center px-5 py-2 text-base font-medium rounded-md text-white bg-errorGradient hover:bg-inversedErrorGradient transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-customPrimary"
                   onClick={resetErrorBoundary}
                 >
                   Go back home
                 </Link>
               )}
               <div
-                className="inline-flex items-center px-5 py-2 text-base font-medium rounded-md text-white bg-errorGradient hover:bg-inversedErrorGradient transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary cursor-pointer"
+                className="inline-flex items-center px-5 py-2 text-base font-medium rounded-md text-white bg-errorGradient hover:bg-inversedErrorGradient transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-customPrimary cursor-pointer"
                 onClick={() => {
                   resetErrorBoundary();
                   window.location.reload();
@@ -91,7 +91,7 @@ export default function ErrorPage({
                 sending an email to{" "}
                 <a
                   href="mailto:support@ubuxa.ng"
-                  className="text-primary hover:underline"
+                  className="text-customPrimary hover:underline"
                 >
                   support@ubuxa.ng
                 </a>
@@ -166,9 +166,9 @@ export const ErrorComponent = ({
     <div
       className={`flex flex-col items-center justify-center w-full h-full py-12 px-4 bg-gray-100 ${className}`}
     >
-      <TbAlertTriangleFilled className="mx-auto h-16 w-16 text-primary" />
+      <TbAlertTriangleFilled className="mx-auto h-16 w-16 text-customPrimary" />
 
-      <p className="mt-2 text-base sm:text-lg text-primary text-center font-semibold sm:max-w-[65%]">
+      <p className="mt-2 text-base sm:text-lg text-customPrimary text-center font-semibold sm:max-w-[65%]">
         {getMainMessage()}
       </p>
 

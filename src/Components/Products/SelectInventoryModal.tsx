@@ -21,6 +21,8 @@ export type ListDataType = {
   productPrice: string;
   totalRemainingQuantities: number;
   productInventoryQuantity: number;
+  minimumProductPrice: number, // Quantity selected
+  maximumProductPrice: number, // Quantity selected
 };
 
 type ProductInventoryType = {
@@ -138,6 +140,8 @@ const SelectInventoryModal = observer(
         productImage: inventory?.image || "",
         productTag: inventory?.inventoryCategory?.name,
         productName: inventory?.name,
+        minimumProductPrice: inventory?.salePrice?.minimumInventoryBatchPrice,
+        maximumProductPrice: inventory?.salePrice?.maximumInventoryBatchPrice,
         productPrice:
           inventory?.salePrice?.minimumInventoryBatchPrice ===
             inventory?.salePrice?.maximumInventoryBatchPrice
@@ -191,7 +195,7 @@ const SelectInventoryModal = observer(
 
     const handlePageChange = (page: number) => setCurrentPage(page);
 
-    const itemsSelected = customize?itemList.length:ProductStore.products.length;
+    const itemsSelected = customize ? itemList.length : ProductStore.products.length;
 
     const handleTabSelect = useCallback(
       (key: string) => {
@@ -312,6 +316,8 @@ const SelectInventoryModal = observer(
                         productTag={data.productTag}
                         productName={data.productName}
                         productPrice={data.productPrice}
+                        minimumProductPrice={data.minimumProductPrice}
+                        maximumProductPrice={data.maximumProductPrice}
                         productUnits={ProductStore.currentProductUnits(
                           data.productId
                         )}
@@ -336,7 +342,7 @@ const SelectInventoryModal = observer(
 
                         }
                         isProductSelected={
-                          customize && itemList ? itemList.some((p:any) => p.productId === data.productId) : ProductStore.products.some(
+                          customize && itemList ? itemList.some((p: any) => p.productId === data.productId) : ProductStore.products.some(
                             (p) => p.productId === data.productId
                           )
                         }

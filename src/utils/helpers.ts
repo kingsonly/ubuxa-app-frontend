@@ -67,15 +67,28 @@ export function formatNumberWithCommas(number: number | string): string {
 }
 
 export function useIsLoggedIn(route: string) {
-  const { token } = useTokens();
+  const { token, tenant } = useTokens();
   const navigate = useNavigate();
   const sessionRedirect = sessionStorage.getItem("redirect");
 
   useEffect(() => {
     if (token) {
-      const redirectTo = sessionRedirect || route;
-      sessionStorage.removeItem("redirect");
-      navigate(redirectTo);
+      if (tenant && tenant?.status !== "ACTIVE") {
+        switch (tenant?.status) {
+          case "DEACTIVATED":
+            navigate("/deactivated");
+            break;
+          default:
+            navigate("/onboarding")
+            break;
+        }
+      } else {
+        const redirectTo = sessionRedirect || route;
+        sessionStorage.removeItem("redirect");
+        navigate(redirectTo);
+      }
+
+
     }
   }, [token, navigate, route, sessionRedirect]);
 }

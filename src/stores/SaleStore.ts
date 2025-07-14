@@ -296,7 +296,7 @@ const saleStore = types
       // Ensure devices is a plain array of strings
       const devices = toJS(
         self.devices.find((d) => d.currentProductId === productId)?.devices ||
-          []
+        []
       );
 
       // Convert `miscellaneousPrices` into a plain object, filtering based on the current productId
@@ -329,12 +329,12 @@ const saleStore = types
       const saleRecipient = recipient
         ? { ...recipient.recipient } // Create a shallow copy of the recipient
         : {
-            firstname: "",
-            lastname: "",
-            address: "",
-            phone: "",
-            email: "",
-          };
+          firstname: "",
+          lastname: "",
+          address: "",
+          phone: "",
+          email: "",
+        };
 
       // Check if saleItem with the same productId exists
       const existingSaleItem = self.saleItems.find(

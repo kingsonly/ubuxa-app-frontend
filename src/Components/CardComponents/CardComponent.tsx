@@ -16,17 +16,20 @@ import {
   truncateTextByWord,
 } from "../../utils/helpers";
 import useBreakpoint from "../../hooks/useBreakpoint";
+import { DeviceStore } from "@/stores/DeviceStore";
 
 export type CardComponentProps = {
   variant:
-    | "agent"
-    | "customer"
-    | "transactions"
-    | "sales"
-    | "product-no-image"
-    | "inventoryOne"
-    | "inventoryTwo"
-    | "salesTransactions";
+  | "agent"
+  | "customer"
+  | "transactions"
+  | "sales"
+  | "product-no-image"
+  | "inventoryOne"
+  | "inventoryTwo"
+  | "inventorySales"
+  | "deviceInventory"
+  | "salesTransactions";
   handleCallClick?: () => void;
   handleWhatsAppClick?: () => void;
   dropDownList?: {
@@ -57,6 +60,8 @@ export type CardComponentProps = {
   productImage?: string;
   productName?: string;
   productUnits?: number;
+  minimumProductPrice?: number | undefined;
+  maximumProductPrice?: number | undefined;
   totalRemainingQuantities?: number;
   productPaymentModes?: string;
   onSelectProduct?: (productInfo: {
@@ -66,6 +71,8 @@ export type CardComponentProps = {
     productImage: string | undefined;
     productTag: string | undefined;
     productName: string | undefined;
+    minimumProductPrice: number | undefined;
+    maximumProductPrice: number | undefined;
   }) => void;
   onRemoveProduct?: (productId?: string) => void;
   isProductSelected?: boolean;
@@ -83,13 +90,12 @@ export const ProductTag = ({
 }) => {
   return (
     <span
-      className={`flex items-center justify-center ${
-        productTag === "EAAS"
-          ? "bg-purpleBlue"
-          : productTag === "SHS"
+      className={`flex items-center justify-center ${productTag === "EAAS"
+        ? "bg-purpleBlue"
+        : productTag === "SHS"
           ? "bg-pink"
           : "bg-paleYellow"
-      } w-max text-textBlack text-[12px] font-normal px-1 border-[0.4px] border-strokeGreyTwo rounded-[40px]`}
+        } w-max text-textBlack text-[12px] font-normal px-1 border-[0.4px] border-strokeGreyTwo rounded-[40px]`}
     >
       {productTag}
     </span>
@@ -112,9 +118,8 @@ const ProductTypeWithTag = ({
     : "text-errorTwo";
   return (
     <div
-      className={`flex items-center justify-between ${
-        paymentStatus ? "gap-0.5" : "gap-1"
-      } bg-[#F6F8FA] w-max px-1.5 py-1 border-[0.4px] border-strokeGreyTwo rounded-full`}
+      className={`flex items-center justify-between ${paymentStatus ? "gap-0.5" : "gap-1"
+        } bg-[#F6F8FA] w-max px-1.5 py-1 border-[0.4px] border-strokeGreyTwo rounded-full`}
     >
       {!paymentStatus ? (
         <>
@@ -202,9 +207,8 @@ export const NameTag = ({
     <div className="flex items-center gap-0.5">
       <img src={smile} alt="Smile Icon" />
       <p
-        className={`flex items-center bg-paleLightBlue text-xs px-2 text-textBlack font-semibold rounded-full h-[24px] ${
-          className ? className : "justify-center"
-        }`}
+        className={`flex items-center bg-paleLightBlue text-xs px-2 text-textBlack font-semibold rounded-full h-[24px] ${className ? className : "justify-center"
+          }`}
       >
         {name}
       </p>
@@ -369,6 +373,8 @@ export const CardComponent = ({
   productUnits,
   totalRemainingQuantities,
   productPaymentModes,
+  minimumProductPrice,
+  maximumProductPrice,
   onSelectProduct,
   onRemoveProduct,
   isProductSelected,
@@ -387,6 +393,7 @@ export const CardComponent = ({
   );
   const [isHovered, setIsHovered] = useState<boolean>(false);
 
+
   const productInfo = {
     productId,
     productImage,
@@ -394,6 +401,9 @@ export const CardComponent = ({
     productName,
     productPrice,
     productPaymentModes,
+    minimumProductPrice,
+    maximumProductPrice,
+
   };
 
   useEffect(() => {
@@ -408,54 +418,68 @@ export const CardComponent = ({
   };
 
   const handleSelectProduct = () => {
-    // if (totalRemainingQuantities === 0 && isSale) return;
-    if (totalRemainingQuantities === 0) return;
-    if (!_selected) {
-      if (updatedProductInfo) {
-        // Check if onSelectProduct is defined before calling it
-        if (updatedProductInfo && onSelectProduct)
+    if (variant === "deviceInventory") {
+      if (onSelectProduct) {
+        if (DeviceStore.selectedInventory?.productId === productId) {
+
+          onRemoveProduct?.(productId);
+        } else {
           onSelectProduct(updatedProductInfo);
-        setSelected(true);
+
+        }
+
       }
+
     } else {
-      setSelected(false);
-      setProductUnits(1);
-      // Ensure onRemoveProduct is called only if defined
-      onRemoveProduct?.(productId);
+      if (totalRemainingQuantities === 0) return;
+      if (!_selected) {
+        if (updatedProductInfo) {
+          // Check if onSelectProduct is defined before calling it
+          if (updatedProductInfo && onSelectProduct)
+            onSelectProduct(updatedProductInfo);
+          setSelected(true);
+        }
+      } else {
+        setSelected(false);
+        setProductUnits(1);
+        // Ensure onRemoveProduct is called only if defined
+        onRemoveProduct?.(productId);
+      }
     }
+
+    // if (totalRemainingQuantities === 0 && isSale) return;
+
   };
 
   const handleCardClick = () => {
     if (!readOnly && !noAction) {
-      if (variant === "inventoryTwo") handleSelectProduct();
+      if (variant === "inventoryTwo" || variant === "deviceInventory" || variant === "inventorySales") handleSelectProduct();
     }
   };
 
   return (
     <div
-      className={`relative flex flex-col ${
-        variant === "inventoryOne" ||
+      className={`relative flex flex-col ${variant === "inventoryOne" ||
         variant === "inventoryTwo" ||
+        variant === "deviceInventory" ||
         variant === "salesTransactions"
-          ? `${inventoryMobile ? "w-full" : "w-[47%] md:w-[48%]"} ${
-              readOnly ? "md:w-[47%]" : "md:w-[31%]"
-            }`
-          : "w-[32%] min-w-[204px]"
-      } bg-white border-[0.6px] rounded-[20px] ${
-        _selected || readOnly ? "border-success" : "border-strokeGreyThree"
-      } ${
-        (variant === "inventoryOne" || variant === "inventoryTwo") &&
-        isSale &&
-        totalRemainingQuantities &&
-        totalRemainingQuantities > 0
+        || variant === "inventorySales"
+        ? `${inventoryMobile ? "w-full" : "w-[47%] md:w-[48%]"} ${readOnly ? "md:w-[47%]" : "md:w-[31%]"
+        }`
+        : "w-[32%] min-w-[204px]"
+        } bg-white border-[0.6px] rounded-[20px] ${_selected || readOnly || productId === DeviceStore.selectedInventory?.productId ? "border-success" : "border-strokeGreyThree"
+        } ${(variant === "deviceInventory" || variant === "inventoryOne" || variant === "inventoryTwo" || variant === "inventorySales") &&
+          isSale &&
+          totalRemainingQuantities &&
+          totalRemainingQuantities > 0
           ? "cursor-pointer"
           : ""
-      }`}
+        }`}
       onClick={handleCardClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {readOnly && isHovered && (
+      {variant !== "inventorySales" && readOnly && isHovered && (
         <div className="absolute z-50 inset-0 bg-black bg-opacity-40 rounded-[20px] flex items-start justify-end p-2">
           <div
             className="flex items-center justify-center mr-1 mt-1 text-red-700 bg-gray-100 w-6 h-6 rounded-full cursor-pointer"
@@ -492,9 +516,8 @@ export const CardComponent = ({
       )}
       {/* HEADER */}
       <div
-        className={`flex items-center justify-between p-2 rounded-t-[20px] ${
-          variant === "sales" ? "bg-paleLightBlue" : "bg-white"
-        }`}
+        className={`flex items-center justify-between p-2 rounded-t-[20px] ${variant === "sales" ? "bg-paleLightBlue" : "bg-white"
+          }`}
       >
         {variant === "transactions" ? (
           <p className="flex items-center justify-center bg-paleLightBlue w-max p-2 h-[20px] text-xs font-bold rounded-full">
@@ -515,7 +538,7 @@ export const CardComponent = ({
               />
             </div>
           </div>
-        ) : variant === "inventoryOne" || variant === "inventoryTwo" ? (
+        ) : variant === "deviceInventory" || variant === "inventoryOne" || variant === "inventoryTwo" || variant === "inventorySales" ? (
           <div className="flex items-center justify-center w-full h-[120px]">
             <div className="relative w-full h-full">
               <img
@@ -542,10 +565,9 @@ export const CardComponent = ({
                     : "#FC4C5D"
                 }
                 containerClass={`bg-[#F6F8FA]  px-2 py-1 border-[0.4px] border-strokeGreyTwo rounded-full
-                  ${
-                    transactionStatus?.toLocaleLowerCase() === "completed"
-                      ? "text-success"
-                      : "text-errorTwo"
+                  ${transactionStatus?.toLocaleLowerCase() === "completed"
+                    ? "text-success"
+                    : "text-errorTwo"
                   }`}
               />
             </div>
@@ -589,13 +611,12 @@ export const CardComponent = ({
 
         {variant === "agent" ? (
           <span
-            className={`flex items-center text-xs justify-center gap-0.5 bg-[#F6F8FA] px-2 py-1 border-[0.4px] border-strokeGreyTwo h-[24px] rounded-full ${
-              status === "active"
-                ? "text-success"
-                : status === "barred"
+            className={`flex items-center text-xs justify-center gap-0.5 bg-[#F6F8FA] px-2 py-1 border-[0.4px] border-strokeGreyTwo h-[24px] rounded-full ${status === "active"
+              ? "text-success"
+              : status === "barred"
                 ? "text-errorTwo"
                 : "text-brightBlue"
-            }`}
+              }`}
           >
             <GoDotFill /> {status?.toUpperCase()}
           </span>
@@ -724,9 +745,9 @@ export const CardComponent = ({
               </p>
               <ProductTag productTag={productTag} />
             </div>
-          ) : variant === "inventoryOne" || variant === "inventoryTwo" ? (
+          ) : variant === "deviceInventory" || variant === "inventoryOne" || variant === "inventoryTwo" || variant === "inventorySales" ? (
             <div className="flex flex-col gap-2">
-              {variant === "inventoryTwo" && (
+              {variant === "deviceInventory" || variant === "inventoryTwo" || variant === "inventorySales" && (
                 <p className="flex items-center justify-center bg-paleLightBlue text-inkBlueTwo w-max p-1 h-[14px] text-[8px] font-medium rounded-full uppercase">
                   {productTag}
                 </p>
@@ -760,25 +781,22 @@ export const CardComponent = ({
       )}
       {/* BOTTOM */}
       <div
-        className={`flex items-center ${
-          variant === "transactions" ||
+        className={`flex items-center ${variant === "transactions" ||
           variant === "salesTransactions" ||
           variant === "inventoryOne" ||
           variant === "agent"
-            ? "justify-end"
-            : "justify-between"
-        } ${
-          variant === "sales"
+          ? "justify-end"
+          : "justify-between"
+          } ${variant === "sales"
             ? "bg-white"
             : _selected || readOnly
-            ? "bg-successTwo"
-            : "bg-[#F6F8FA]"
-        } p-2 h-[40px] border-t-[0.6px]
-        ${
-          _selected || readOnly
+              ? "bg-successTwo"
+              : "bg-[#F6F8FA]"
+          } p-2 h-[40px] border-t-[0.6px]
+        ${_selected || readOnly
             ? "border-t-success"
             : "border-t-strokeGreyThree"
-        }  rounded-b-[20px]`}
+          }  rounded-b-[20px]`}
       >
         {
           variant === "transactions" ? null : variant === "sales" ? (
@@ -793,7 +811,7 @@ export const CardComponent = ({
               showIcon={false}
               containerClass="bg-successTwo text-textDarkGrey font-bold px-2 py-1 border border-successThree rounded-full"
             />
-          ) : variant === "inventoryOne" ? (
+          ) : variant === "deviceInventory" || variant === "inventoryOne" ? (
             productPrice ? (
               <SimpleTag
                 text={productPrice}
@@ -801,7 +819,7 @@ export const CardComponent = ({
                 containerClass="text-textBlack font-medium px-1 py-0.5 bg-[#eceef1] border-[0.4px] border-strokeGreyTwo rounded-full"
               />
             ) : null
-          ) : variant === "inventoryTwo" ? (
+          ) : variant === "inventoryTwo" || variant === "inventorySales" ? (
             <SimpleTag
               text={productPrice}
               showIcon={false}
@@ -810,10 +828,11 @@ export const CardComponent = ({
           ) : variant === "salesTransactions" ? null : null // </div> //   /> //     handleClick={handleWhatsAppClick} //     iconText="Message" //     icon={message} //   <Icon //   <Icon icon={call} iconText="Call" handleClick={handleCallClick} /> // <div className="flex items-center gap-2">
         }
 
-        {variant === "inventoryTwo" ? (
+        {variant === "inventoryTwo" || variant === "inventorySales" ? (
           <QuantitySelector
             // totalRemainingQuantities={totalRemainingQuantities}
             onValueChange={(value) => {
+              console.log('na me oh',productInfo)
               setProductUnits(value);
               const updatedProductInfo = {
                 ...productInfo,
@@ -826,7 +845,8 @@ export const CardComponent = ({
             initialQuantity={_productUnits}
             isSale={isSale}
           />
-        ) : !showDropdown ? null : (
+        ) : variant === "deviceInventory" || !showDropdown ? null : (
+
           <DropDown {...dropDownList} cardData={productInfo} />
         )}
       </div>

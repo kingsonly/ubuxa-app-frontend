@@ -35,6 +35,7 @@ export type TableType = {
     customValue?: (value?: any, rowData?: any) => JSX.Element;
     styles?: string;
     rightIcon?: React.ReactNode;
+    leftIcon?: React.ReactNode;
   }[];
   tableClassname?: string;
   tableData: Record<string, any>[];
@@ -84,7 +85,8 @@ export const Table = (props: TableType) => {
     return tableData || [];
   }, [tableData]);
 
-  useEffect(() => {}, [tableData]);
+  useEffect(() => {
+  }, [tableData]);
 
   const SkeletonLoader = () => {
     return (
@@ -160,7 +162,7 @@ export const Table = (props: TableType) => {
       ) : (
         <>
           <div className="flex flex-col w-full gap-2 overflow-x-auto max-w-full">
-            <div className="flex flex-col gap-2 min-w-[975px]">
+            <div className="flex flex-col gap-2 w-full">
               {showHeader ? (
                 <header className="flex items-center justify-between gap-2 p-[8px_8px_8px_16px] bg-paleGrayGradient border-[0.6px] border-strokeGreyThree rounded-full">
                   <div className="flex items-center gap-2">
@@ -205,7 +207,7 @@ export const Table = (props: TableType) => {
                 </header>
               ) : null}
               <section
-                className={`${tableClassname} w-full p-[16px_16px_0px_16px] border-[0.6px] border-strokeGreyThree rounded-[20px]`}
+                className={`${tableClassname} w-full p-[16px_16px_0px_16px] border-[0.6px] border-strokeGreyThree rounded-[20px] overflow-x-auto`}
               >
                 {tableType === "default" ? (
                   <table>
@@ -214,11 +216,11 @@ export const Table = (props: TableType) => {
                         {columnList?.map((column, index) => (
                           <th
                             key={index}
-                            className={`${column.styles} p-2 text-xs font-light text-left text-textDarkGrey border-b-[0.2px] border-[#E0E0E0]`}
+                            className={`${column.styles}  p-2 text-xs font-light text-left text-textDarkGrey border-b-[0.2px] border-[#E0E0E0]`}
                           >
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1">
                               <div className="flex items-center gap-1">
-                                <span className="w-1.5 h-1.5 bg-strokeGreyTwo rounded-full"></span>
+                                {column.leftIcon ? column.leftIcon : <span className="w-1.5 h-1.5 bg-strokeGreyTwo rounded-full"></span>}
                                 <span>{column.title}</span>
                               </div>
                               {column.rightIcon}
@@ -233,6 +235,7 @@ export const Table = (props: TableType) => {
                           key={rowIndex}
                           className="h-[40px] hover:opacity-80"
                         >
+
                           {columnList?.map((column, colIndex) => {
                             const cellValue = row[column.key];
 
@@ -246,13 +249,13 @@ export const Table = (props: TableType) => {
                                 onMouseLeave={() => setHoveredCell(null)}
                               >
                                 {column.valueIsAComponent &&
-                                column.customValue ? (
+                                  column.customValue ? (
                                   column.customValue(cellValue, row)
                                 ) : (
                                   <div className="flex items-center justify-between">
                                     <span>{cellValue || "-"}</span>
                                     {colIndex === 0 ||
-                                    colIndex ===
+                                      colIndex ===
                                       columnList?.length - 1 ? null : (
                                       <span
                                         className="flex items-center justify-center w-5 h-5 rounded-full cursor-pointer"
@@ -261,7 +264,7 @@ export const Table = (props: TableType) => {
                                         }
                                       >
                                         {hoveredCell?.rowIndex === rowIndex &&
-                                        hoveredCell?.colIndex === colIndex ? (
+                                          hoveredCell?.colIndex === colIndex ? (
                                           <PiCopySimple />
                                         ) : null}
                                       </span>

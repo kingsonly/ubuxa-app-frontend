@@ -43,15 +43,15 @@ const generateListDataEntries = (data: any): ListDataType[] => {
     productName: product?.name,
     productPrice:
       product?.priceRange?.minimumInventoryBatchPrice ===
-      product?.priceRange?.maximumInventoryBatchPrice
+        product?.priceRange?.maximumInventoryBatchPrice
         ? `₦ ${formatNumberWithCommas(
-            product?.priceRange?.maximumInventoryBatchPrice
-          )}`
+          product?.priceRange?.maximumInventoryBatchPrice
+        )}`
         : `₦ ${formatNumberWithCommas(
-            product?.priceRange?.minimumInventoryBatchPrice
-          )} - ${formatNumberWithCommas(
-            product?.priceRange?.maximumInventoryBatchPrice
-          )}`,
+          product?.priceRange?.minimumInventoryBatchPrice
+        )} - ${formatNumberWithCommas(
+          product?.priceRange?.maximumInventoryBatchPrice
+        )}`,
     totalRemainingQuantities: product?.inventories[0]?.totalRemainingQuantities,
     productPaymentModes: product?.paymentModes,
   }));
@@ -79,6 +79,7 @@ const SelectCustomerProductModal = observer(
     isModalOpen: boolean;
     setModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
     modalType: "customer" | "product" | 'inventory'; 
+    modalType: "customer" | "product" | "inventory";
   }) => {
     const [queryValue, setQueryValue] = useState<string>("");
     const [productCategoryId, setProductCategoryId] = useState<string>("");
@@ -89,8 +90,7 @@ const SelectCustomerProductModal = observer(
     const [_filterValue, setFilterValue] = useState<string>("");
 
     const fetchAllCustomers = useGetRequest(
-      `/v1/customers?page=${currentPage}&limit=${entriesPerPage}${
-        queryValue && `&search=${queryValue}`
+      `/v1/customers?page=${currentPage}&limit=${entriesPerPage}${queryValue && `&search=${queryValue}`
       }`,
       false
     );
@@ -99,8 +99,7 @@ const SelectCustomerProductModal = observer(
       false
     );
     const fetchProductCategoryById = useGetRequest(
-      `/v1/products?page=${currentPage}&limit=${entriesPerPage}&categoryId=${_filterValue}${
-        queryValue && `&search=${queryValue}`
+      `/v1/products?page=${currentPage}&limit=${entriesPerPage}&categoryId=${_filterValue}${queryValue && `&search=${queryValue}`
       }`,
       false
     );
@@ -288,11 +287,10 @@ const SelectCustomerProductModal = observer(
                 onClick={() => {
                   setModalOpen(false);
                 }}
-                className={`text-sm  ${
-                  itemsSelected > 0
+                className={`text-sm  ${itemsSelected > 0
                     ? "bg-primaryGradient text-white"
                     : "bg-[#F6F8FA] text-textDarkGrey cursor-not-allowed"
-                } h-[24px] px-4 border-[0.6px] border-strokeGreyTwo rounded-full`}
+                  } h-[24px] px-4 border-[0.6px] border-strokeGreyTwo rounded-full`}
               >
                 Done
               </button>
@@ -326,11 +324,10 @@ const SelectCustomerProductModal = observer(
               errorMessage={`Failed to fetch products list for "${activeTabName}".`}
             >
               <div
-                className={`flex flex-wrap ${
-                  fetchProductCategoryById?.error
+                className={`flex flex-wrap ${fetchProductCategoryById?.error
                     ? "justify-center"
                     : "justify-start"
-                } items-center h-full gap-4`}
+                  } items-center h-full gap-4`}
               >
                 {fetchedData?.data?.total > 0 ? (
                   paginatedData?.map((data: any, index: number) => {
@@ -385,9 +382,8 @@ const SelectCustomerProductModal = observer(
               error={fetchAllCustomers?.error}
               errorStates={fetchAllCustomers?.errorStates}
               refreshData={fetchAllCustomers?.mutate}
-              errorMessage={`Failed to fetch ${
-                modalType === "customer" ? "customers" : "product categories"
-              }`}
+              errorMessage={`Failed to fetch ${modalType === "customer" ? "customers" : "product categories"
+                }`}
             >
               <CustomerSalesTable
                 customerData={paginatedCustomerData}

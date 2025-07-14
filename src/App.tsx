@@ -19,6 +19,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorPage from "./Pages/ErrorPage";
+import Onboarding from "./Pages/Onboarding";
+import Deactivated from "./Pages/Deactivated";
 
 function App() {
   return (
@@ -33,6 +35,8 @@ function App() {
           {/* Protected Routes */}
           <Route element={<ProtectedRouteWrapper />}>
             <Route path="/home" element={<Home />} />
+            <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/deactivated" element={<Deactivated />} />
             {/* <Route path="/dashboard" element={<Dashboard />} /> */}
             <Route path="/sales/*" element={<Sales />} />
             {/* <Route path="/transactions/*" element={<Transactions />} /> */}

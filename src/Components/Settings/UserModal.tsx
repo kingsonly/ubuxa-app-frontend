@@ -62,7 +62,7 @@ const UserModal = ({
 
   const dropDownList = {
     items: [
-      "Edit Staff Details",
+      // "Edit Staff Details",
       `${data?.isBlocked ? "Unblock" : "Block"} Staff`,
       "Delete Staff",
     ],
@@ -226,7 +226,7 @@ export const Icon = ({
 }) => {
   return (
     <button
-      className="flex items-center justify-center gap-1 w-max px-2 h-[32px] bg-white border-[0.2px] border-strokeGreyTwo rounded-full shadow-innerCustom transition-all hover:bg-primary"
+      className="flex items-center justify-center gap-1 w-max px-2 h-[32px] bg-white border-[0.2px] border-strokeGreyTwo rounded-full shadow-innerCustom transition-all hover:bg-customPrimary"
       onClick={handleClick}
     >
       <img src={icon} alt={iconText} className="w-[16px] cursor-pointer" />

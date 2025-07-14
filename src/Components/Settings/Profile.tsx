@@ -191,11 +191,11 @@ const Profile = () => {
         )}
       </div>
       <div className="z-10 flex flex-col gap-4 mt-[60px] md:mt-[80px]">
-        <DetailComponent
+        {/* <DetailComponent
           label="User ID"
           value={userData.id}
           parentClass="h-[44px] p-2.5 border-[0.6px] border-strokeGreyThree"
-        />
+        /> */}
         <div className="flex flex-col gap-2 p-2.5 w-full border-[0.6px] border-strokeGreyThree rounded-[20px]">
           <p className="flex gap-1 w-max text-xs text-textLightGrey font-medium pb-2">
             <img src={role} alt="Role Icon" width="16px" />
@@ -232,7 +232,7 @@ const Profile = () => {
           ))}
         </div>
         <DetailComponent
-          label="Designation"
+          label="Role"
           value={userData.role.role}
           parentClass="z-10 p-2.5 h-[44px] border-[0.6px] border-strokeGreyThree"
           valueClass="flex items-center justify-center bg-paleLightBlue text-textBlack font-semibold p-2 h-[24px] rounded-full capitalize"

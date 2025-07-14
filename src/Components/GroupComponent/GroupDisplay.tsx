@@ -22,9 +22,8 @@ const GroupItemComponent: React.FC<
         border-y-[0.6px] border-strokeGreyThree`}
       >
         <span
-          className={`text-lg font-semibold ${
-            hasToggled ? "text-textBlack" : "text-textDarkGrey"
-          }`}
+          className={`text-lg font-semibold ${hasToggled ? "text-textBlack" : "text-textDarkGrey"
+            }`}
         >
           {title}
         </span>
@@ -39,7 +38,7 @@ const GroupItemComponent: React.FC<
 const GroupDisplay: React.FC<GroupDisplayProps> = ({ items }) => {
   return (
     <div className="w-full mx-auto rounded-[20px] overflow-hidden">
-      {items.map((item, index) => (
+      {items?.map((item, index) => (
         <GroupItemComponent
           key={index}
           title={item.title}

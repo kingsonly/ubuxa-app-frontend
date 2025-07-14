@@ -48,7 +48,7 @@ const PageNotFound = () => {
             </h2>
             <p className="mt-4 text-lg text-center text-gray-500">
               The page{" "}
-              <span className="text-primary font-medium">
+              <span className="text-customPrimary font-medium">
                 {window.location.href}
               </span>{" "}
               could not be found.
@@ -56,7 +56,7 @@ const PageNotFound = () => {
             <div className="mt-6">
               <Link
                 to={"/home"}
-                className="inline-flex items-center px-4 py-2 text-base font-medium rounded-md text-white bg-errorGradient hover:bg-inversedErrorGradient transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                className="inline-flex items-center px-4 py-2 text-base font-medium rounded-md text-white bg-errorGradient hover:bg-inversedErrorGradient transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-customPrimary"
               >
                 Go back Home
               </Link>

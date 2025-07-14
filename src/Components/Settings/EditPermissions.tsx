@@ -7,7 +7,7 @@ import GroupDisplay from "../GroupComponent/GroupDisplay";
 import { GoDotFill } from "react-icons/go";
 import { KeyedMutator } from "swr";
 import { z } from "zod";
-import TabComponent from "../TabComponent/TabComponent";
+// import TabComponent from "../TabComponent/TabComponent";
 import { toast } from "react-toastify";
 import ApiErrorMessage from "../ApiErrorMessage";
 
@@ -51,9 +51,14 @@ const validActions = ["manage", "read", "write", "delete"];
 const EditPermissions = ({
   setIsOpen,
   allRolesRefresh,
+  onboarding = false,
+  callback = () => { },
 }: {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  allRolesRefresh: KeyedMutator<any>;
+  allRolesRefresh?: KeyedMutator<any>;
+  onboarding?: boolean,
+  callback?: () => void
+
 }) => {
   const { apiCall } = useApiCall();
   const [selectedRole, setSelectedRole] = useState<string>("");
@@ -64,7 +69,7 @@ const EditPermissions = ({
   const [apiError, setApiError] = useState<string | Record<string, string[]>>(
     ""
   );
-  const [tabContent, setTabContent] = useState<string>("newRole");
+  const [tabContent, _setTabContent] = useState<string>("newRole");
   const [permissionErrors, setPermissionErrors] = useState<any[]>([]);
   const [toggledPermissions, setToggledPermissions] = useState<{
     [key: string]: boolean;
@@ -112,18 +117,43 @@ const EditPermissions = ({
         active: roleActive,
         permissionIds,
       });
+      {
 
-      await apiCall({
-        endpoint: "/v1/roles",
-        method: "post",
-        data: {
-          role: validatedData.role,
-          active: validatedData.active,
-          permissionIds: validatedData.permissionIds,
-        },
-        successMessage: "Role created successfully!",
-      });
-      await allRolesRefresh();
+        if (!onboarding) {
+          await apiCall({
+            endpoint: "/v1/roles",
+            method: "post",
+            data: {
+              role: validatedData.role,
+              active: validatedData.active,
+              permissionIds: validatedData.permissionIds,
+
+            },
+            successMessage: "Role created successfully!",
+          });
+        } else {
+          await apiCall({
+            endpoint: "/v1/roles",
+            method: "post",
+            data: {
+              role: validatedData.role,
+              active: validatedData.active,
+              permissionIds: validatedData.permissionIds,
+              onboarding: true
+            },
+            successMessage: "Role created successfully!",
+          });
+
+        }
+      }
+
+      if (allRolesRefresh) {
+        await allRolesRefresh();
+      } else {
+        callback()
+
+      }
+
       setLoading(false);
       setSelectedRole("");
       setPermissionIds([]);
@@ -284,10 +314,10 @@ const EditPermissions = ({
                       {permissionErrors.find(
                         (error) => error.fieldId === fieldId
                       ) && (
-                        <p className="text-xs text-errorTwo font-semibold w-full">
-                          {`Failed to update "${fieldId}" permission.`}
-                        </p>
-                      )}
+                          <p className="text-xs text-errorTwo font-semibold w-full">
+                            {`Failed to update "${fieldId}" permission.`}
+                          </p>
+                        )}
                     </div>
                   );
                 })}
@@ -313,7 +343,7 @@ const EditPermissions = ({
   const AllPermissions = () => {
     return (
       <div className="flex flex-col w-full gap-4 border-[0.6px] border-strokeGreyThree rounded-[20px]">
-        <GroupWrapper variant="allPermissions" />
+        {GroupWrapper({ variant: "allPermissions" })}
       </div>
     );
   };
@@ -328,10 +358,10 @@ const EditPermissions = ({
     return formErrors.find((error) => error.path[0] === fieldName)?.message;
   };
 
-  const tabNames = [
-    { name: "New Role", key: "newRole", count: null },
-    { name: "Manage Permissions", key: "managePermissions", count: null },
-  ];
+  // const tabNames = [
+  //   { name: "New Role", key: "newRole", count: null },
+  //   { name: "Manage Permissions", key: "managePermissions", count: null },
+  // ];
 
   return (
     <DataStateWrapper
@@ -340,39 +370,43 @@ const EditPermissions = ({
       errorStates={allPermissionsErrorStates}
       refreshData={allPermissionsRefresh}
       errorMessage="Failed to fetch permissions."
+      disableLoaderStyle={onboarding}
     >
       <form
         className="flex flex-col bg-white pb-8"
         onSubmit={handleSubmitRoleCreation}
         noValidate
       >
-        <div
-          className={`flex items-center justify-center px-4 min-h-[64px] border-b-[0.6px] border-strokeGreyThree ${
-            isFormFilled
+        {!onboarding && (
+          <div
+            className={`flex items-center justify-center px-4 min-h-[64px] border-b-[0.6px] border-strokeGreyThree ${isFormFilled
               ? "bg-paleCreamGradientLeft"
               : "bg-paleGrayGradientLeft"
-          }`}
-        >
-          <h2
-            style={{ textShadow: "1px 1px grey" }}
-            className="text-xl text-textBlack font-semibold font-secondary"
+              }`}
           >
-            {tabContent === "newRole"
-              ? "New Role & Permissions"
-              : "Manage Permissions"}
-          </h2>
-        </div>
-        <div className="flex items-center px-4 py-4 w-full">
-          <TabComponent
-            tabs={tabNames.map(({ name, key, count }) => ({
-              name,
-              key,
-              count,
-            }))}
-            onTabSelect={(key) => setTabContent(key)}
-            tabsContainerClass="p-2 rounded-[20px]"
-          />
-        </div>
+            <h2
+              style={{ textShadow: "1px 1px grey" }}
+              className="text-xl text-textBlack font-semibold font-secondary"
+            >
+              {tabContent === "newRole"
+                ? "New Role & Permissions"
+                : "Manage Permissions"}
+            </h2>
+          </div>
+        )}
+        {/* {!onboarding && (
+          <div className="flex items-center px-4 py-4 w-full">
+            <TabComponent
+              tabs={tabNames.map(({ name, key, count }) => ({
+                name,
+                key,
+                count,
+              }))}
+              onTabSelect={(key) => setTabContent(key)}
+              tabsContainerClass="p-2 rounded-[20px]"
+            />
+          </div>
+        )} */}
         <div className="flex flex-col items-center justify-center gap-6 px-4 py-2">
           {tabContent === "newRole" ? (
             <>
@@ -390,52 +424,52 @@ const EditPermissions = ({
                 errorMessage={getFieldError("role")}
               />
               <div className="flex flex-col w-full gap-2">
-                <div
-                  className={`relative flex items-center justify-between bg-white px-[1.1em] py-[1em] border-[0.6px] ${
-                    roleActive !== null
+                {!onboarding && (
+                  <div
+                    className={`relative flex items-center justify-between bg-white px-[1.1em] py-[1em] border-[0.6px] ${roleActive !== null
                       ? "border-strokeCream"
                       : "border-strokeGrey"
-                  } w-full transition-all rounded-[20px]`}
-                >
-                  <span
-                    className={`absolute flex -top-2 items-center justify-center text-[10px] text-textGrey font-semibold px-2 py-0.5 max-w-max h-4 bg-white border-[0.6px] border-strokeCream rounded-[200px] transition-opacity duration-500 ease-in-out
-                  ${roleActive !== null ? "opacity-100" : "opacity-0"}`}
+                      } w-full transition-all rounded-[20px]`}
                   >
-                    Role Active Status
-                  </span>
-                  <p
-                    className={`w-full text-sm ${
-                      roleActive !== null
+                    <span
+                      className={`absolute flex -top-2 items-center justify-center text-[10px] text-textGrey font-semibold px-2 py-0.5 max-w-max h-4 bg-white border-[0.6px] border-strokeCream rounded-[200px] transition-opacity duration-500 ease-in-out
+                  ${roleActive !== null ? "opacity-100" : "opacity-0"}`}
+                    >
+                      Role Active Status
+                    </span>
+                    <p
+                      className={`w-full text-sm ${roleActive !== null
                         ? "text-textBlack font-semibold"
                         : "text-textGrey italic"
-                    }`}
-                  >
-                    Role Active Status
-                  </p>
-                  <RadioInput
-                    name="active"
-                    value={
-                      roleActive === null || roleActive === true
-                        ? "true"
-                        : "false"
-                    }
-                    onChange={(e) => {
-                      setRoleActive(e.target.value === "true" ? true : false);
-                      resetErrors(e.target.name);
-                    }}
-                    required={false}
-                    radioOptions={[
-                      {
-                        label: "True",
-                        value: "true",
-                      },
-                      {
-                        label: "False",
-                        value: "false",
-                      },
-                    ]}
-                  />
-                </div>
+                        }`}
+                    >
+                      Role Active Status
+                    </p>
+                    <RadioInput
+                      name="active"
+                      value={
+                        roleActive === null || roleActive === true
+                          ? "true"
+                          : "false"
+                      }
+                      onChange={(e) => {
+                        setRoleActive(e.target.value === "true" ? true : false);
+                        resetErrors(e.target.name);
+                      }}
+                      required={false}
+                      radioOptions={[
+                        {
+                          label: "True",
+                          value: "true",
+                        },
+                        {
+                          label: "False",
+                          value: "false",
+                        },
+                      ]}
+                    />
+                  </div>
+                )}
                 {getFieldError("active") && (
                   <p className="px-2 text-[11px] text-errorTwo font-semibold w-full">
                     {getFieldError("active")}
@@ -444,16 +478,14 @@ const EditPermissions = ({
               </div>
               <div className="flex flex-col w-full gap-2">
                 <div
-                  className={`relative flex flex-col w-full gap-0.5 border-[0.6px] ${
-                    permissionIds.length > 0
-                      ? "border-strokeCream"
-                      : "border-strokeGrey"
-                  } rounded-[20px] transition-all`}
+                  className={`relative flex flex-col w-full gap-0.5 border-[0.6px] ${permissionIds.length > 0
+                    ? "border-strokeCream"
+                    : "border-strokeGrey"
+                    } rounded-[20px] transition-all`}
                 >
                   <span
-                    className={`absolute z-10 flex -top-2 ml-5 items-center justify-center text-[10px] text-textGrey font-semibold px-2 py-0.5 max-w-max h-4 bg-white border-[0.6px] border-strokeGreyTwo rounded-[200px] transition-opacity duration-500 ease-in-out ${
-                      permissionIds.length > 0 ? "opacity-100" : "opacity-0"
-                    }`}
+                    className={`absolute z-10 flex -top-2 ml-5 items-center justify-center text-[10px] text-textGrey font-semibold px-2 py-0.5 max-w-max h-4 bg-white border-[0.6px] border-strokeGreyTwo rounded-[200px] transition-opacity duration-500 ease-in-out ${permissionIds.length > 0 ? "opacity-100" : "opacity-0"
+                      }`}
                   >
                     PERMISSIONS
                   </span>
@@ -520,13 +552,17 @@ export const PermissionComponent = ({
         <GoDotFill color="#050505" />
         {permission.action}
       </p>
+      <div className="flex items-center justify-center gap-0.5  px-2  ">
+        <ToggleInput
+          defaultChecked={isChecked}
+          onChange={(checked: boolean) => {
+            handlePermissionChange(checked, permission.id);
+          }}
+        />
+        <span className="flex items-center justify-center gap-0.5 bg-[#F6F8FA] px-2 h-6 rounded-full text-xs font-medium capitalize border-[0.6px] border-strokeGreyTwo">
+          {isChecked ? <span className='text-green-500'>ON</span> : <span className='text-errorTwo'>OFF</span>}</span>
+      </div>
 
-      <ToggleInput
-        defaultChecked={isChecked}
-        onChange={(checked: boolean) => {
-          handlePermissionChange(checked, permission.id);
-        }}
-      />
     </div>
   );
 };

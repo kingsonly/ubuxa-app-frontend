@@ -31,10 +31,10 @@ import { toJS } from "mobx";
 import SelectInventoryModal from "../Products/SelectInventoryModal";
 import { InventoryStore } from "@/stores/InventoryStore";
 import { CardComponent } from "../CardComponents/CardComponent";
+import SmallModal from "../ModalComponent/SmallModal";
+import InventorySaleParametersForm from "./InventorySaleParametersForm";
 
-const public_key =
-  import.meta.env.VITE_FLW_PUBLIC_KEY ||
-  "FLWPUBK_TEST-720d3bd8434091e9b28a01452ebdd2e0-X";
+const public_key = import.meta.env.VITE_FLW_PUBLIC_KEY;
 const base_url = import.meta.env.VITE_API_BASE_URL;
 
 type CreateSalesType = {
@@ -63,9 +63,9 @@ const CreateNewSale = observer(
     const [isCustomerProductModalOpen, setIsCustomerProductModalOpen] =
       useState<boolean>(false);
     // const [iscustomerInventoryModalOpen, setIsCustomerInventoryModalOpen] = useState<boolean>(false);
-    const [modalType, setModalType] = useState<"customer" | "product" | "inventory">(
-      "customer"
-    );
+    const [modalType, setModalType] = useState<
+      "customer" | "product" | "inventory"
+    >("customer");
     const [formErrors, setFormErrors] = useState<z.ZodIssue[]>([]);
     const [apiError, setApiError] = useState<string | Record<string, string[]>>(
       ""
@@ -74,6 +74,8 @@ const CreateNewSale = observer(
     const [extraInfoModal, setExtraInfoModal] = useState<ExtraInfoType>("");
     const [currentProductId, setCurrentProductId] = useState<string>("");
     const [summaryState, setSummaryState] = useState<boolean>(false);
+    const [isSales, setIsSales] = useState<boolean>(true);
+    const [parameter, setParameter] = useState<boolean>(false);
 
     const selectedCustomer = SaleStore.customer;
     const selectedProducts = SaleStore.products;
@@ -171,6 +173,9 @@ const CreateNewSale = observer(
       SaleStore.purgeStore();
       setSummaryState(false);
     };
+    const handleCloseParamsModal = () => {
+      setParameter(false);
+    };
 
     useEffect(() => {
       if (loading && apiError) setApiError("");
@@ -229,10 +234,11 @@ const CreateNewSale = observer(
             noValidate
           >
             <div
-              className={`flex items-center justify-center px-4 w-full min-h-[64px] border-b-[0.6px] border-strokeGreyThree ${getIsFormFilled()
-                ? "bg-paleCreamGradientLeft"
-                : "bg-paleGrayGradientLeft"
-                }`}
+              className={`flex items-center justify-center px-4 w-full min-h-[64px] border-b-[0.6px] border-strokeGreyThree ${
+                getIsFormFilled()
+                  ? "bg-paleCreamGradientLeft"
+                  : "bg-paleGrayGradientLeft"
+              }`}
             >
               <h2
                 style={{ textShadow: "1px 1px grey" }}
@@ -241,24 +247,25 @@ const CreateNewSale = observer(
                 {!summaryState
                   ? "New Sale"
                   : !SaleStore.paymentDetails.tx_ref
-                    ? "Sale Summary"
-                    : "Proceed to Payment"}
+                  ? "Sale Summary"
+                  : "Proceed to Payment"}
               </h2>
             </div>
             <div className="flex flex-col items-center justify-center w-full px-[2.5em] gap-4 py-8">
               {!summaryState ? (
                 <>
-
                   <SelectInput
                     label="Sale Category"
                     options={[
                       { label: "Product", value: "PRODUCT" },
-                      { label: "Inventory", value: "INVENTORY" }
+                      { label: "Inventory", value: "INVENTORY" },
                     ]}
                     value={formData.category}
                     onChange={(selectedValue) => {
                       handleSelectChange("category", selectedValue);
-                      SaleStore.addUpdateCategory(selectedValue as "PRODUCT" | "INVENTORY");
+                      SaleStore.addUpdateCategory(
+                        selectedValue as "PRODUCT" | "INVENTORY"
+                      );
                     }}
                     required={true}
                     placeholder="Select Sale Category"
@@ -313,48 +320,99 @@ const CreateNewSale = observer(
                     }
                   />
                   {formData.category === "INVENTORY" && (
-                    <ModalInput
-                      type="button"
-                      name="inventories"
-                      label="INVENTORY"
-                      onClick={() => setIsInventoryOpen(true)}
-                      placeholder="Select Inventory"
-                      required={true}
-                      isItemsSelected={selectedInventories.length > 0}
-                      itemsSelected={
-                        <div className="flex flex-wrap items-center w-full gap-4">
-                          {selectedInventories?.map((data, index) => {
-                            return (
-                              <CardComponent
-                                key={`${data.productId}-${index}`}
-                                variant={"inventoryTwo"}
-                                productId={data.productId}
-                                productImage={data.productImage}
-                                productTag={data.productTag}
-                                productName={data.productName}
-                                productPrice={data.productPrice}
-                                productUnits={InventoryStore.currentInventoryUnits(
-                                  data.productId
-                                )}
-                                onSelectProduct={(productInfo) => {
-                                  console.log("I am selectedProductInfo",productInfo)
-                                 // if (productInfo) InventoryStore.addInventory(productInfo);
+                    <>
+                      <ModalInput
+                        type="button"
+                        name="inventories"
+                        label="INVENTORY"
+                        onClick={() => setIsInventoryOpen(true)}
+                        placeholder="Select Inventory"
+                        required={true}
+                        isItemsSelected={selectedInventories.length > 0}
+                        itemsSelected={
+                          <div className="flex flex-wrap items-center w-full gap-4">
+                            {selectedInventories?.map((data, index) => {
+                              return (
+                                <CardComponent
+                                  key={`${data.productId}-${index}`}
+                                  variant={"inventorySales"}
+                                  productId={data.productId}
+                                  productImage={data.productImage}
+                                  productTag={data.productTag}
+                                  productName={data.productName}
+                                  productPrice={data.productPrice}
+                                  maximumProductPrice={data.maximumProductPrice}
+                                  minimumProductPrice={data.minimumProductPrice}
+                                  productUnits={InventoryStore.currentInventoryUnits(
+                                    data.productId
+                                  )}
+                                  onSelectProduct={(productInfo) => {
+                                    if (productInfo)
+                                      InventoryStore.addInventory(productInfo);
+                                  }}
+                                  isProductSelected={InventoryStore.inventories.some(
+                                    (p) => p.productId === data.productId
+                                  )}
+                                  isSale={false}
+                                  readOnly={false}
+                                  onRemoveProduct={(productId) =>
+                                    InventoryStore.removeInventory(productId)
+                                  }
+                                />
+                              );
+                            })}
+                          </div>
+                        }
+                        errorMessage={getFieldError("inventories")}
+                      />
 
-                                }}
-                                readOnly={false}
-                                onRemoveProduct={(productId) =>
-                                  InventoryStore.removeInventory(productId)
-                                }
-                              />
-                            );
-                          })}
-                        </div>
-                      }
-                      errorMessage={getFieldError("inventories")}
-                    />
+                      {/* ✅ Display total inventory amount */}
+                      <ModalInput
+                        type="button"
+                        name="parameters"
+                        label="PARAMETERS"
+                        onClick={() => {
+                          setParameter(true);
+                        }}
+                        placeholder="Set Parameters"
+                        required={true}
+                        isItemsSelected={Boolean(InventoryStore.modeOfPayment)}
+                        itemsSelected={
+                          <div className="w-full">
+                            <p>Parameters Selected</p>
+                          </div>
+                        }
+                        // errorMessage={
+                        //   !SaleStore.doesCustomerExist
+                        //     ? "Failed to fetch customers"
+                        //     : getFieldError("customerId")
+                        // }
+                      />
+
+                      <Input
+                        type="text"
+                        name="totalInventoryAmount"
+                        label="TOTAL AMOUNT"
+                        value={`₦${InventoryStore.totalInventoryAmount.toLocaleString(
+                          undefined,
+                          {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          }
+                        )}`}
+                        // value={`₦${InventoryStore.totalInventoryAmount.toLocaleString(undefined, {
+                        //   minimumFractionDigits: 2,
+                        //   maximumFractionDigits: 2,
+                        // })}`}
+                        placeholder="₦0.00"
+                        readOnly
+                        required={false}
+                      />
+                    </>
                   )}
-                  {
-                    formData.category === 'PRODUCT' && <ModalInput
+
+                  {formData.category === "PRODUCT" && (
+                    <ModalInput
                       type="button"
                       name="products"
                       label="PRODUCTS"
@@ -392,7 +450,7 @@ const CreateNewSale = observer(
                           : getFieldError("products")
                       }
                     />
-                  }
+                  )}
 
                   {SaleStore.doesSaleItemHaveInstallment() && (
                     <>
@@ -531,6 +589,11 @@ const CreateNewSale = observer(
             </div>
           </form>
         </Modal>
+        {parameter && (
+          <SmallModal description="set param" onClose={handleCloseParamsModal}>
+            <InventorySaleParametersForm handleClose={handleCloseParamsModal} />
+          </SmallModal>
+        )}
 
         <SelectInventoryModal
           isInventoryOpen={isInventoryOpen}

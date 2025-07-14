@@ -18,7 +18,7 @@ const updateColors = (colors: any) => {
   Object.keys(colors).forEach((color) => {
     const value = colors[color];
     if (value !== undefined && value !== null && value !== '') {
-      document.documentElement.style.setProperty(`--${color}`, value);
+      document.documentElement.style.setProperty(`--custom-${color}`, value);
     }
   });
 };
@@ -89,7 +89,7 @@ export const TenantProvider = ({ children }: { children: ReactNode }) => {
     }
 
     fetchColors()
-
+    console.log("i am tenant main and main", tenant)
     // Cleanup function
     return () => {
       isMounted = false
@@ -97,6 +97,7 @@ export const TenantProvider = ({ children }: { children: ReactNode }) => {
   }, [tenant])
 
   const login = (tenantData: any) => {
+    console.log("Tenant Data must know:", tenantData)
     setTenant(tenantData)
   }
 

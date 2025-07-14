@@ -164,12 +164,12 @@ const CreateNewAgents = ({
           placeholder="Search for a location"
           required={true}
           errorMessage={getFieldError("location")}
-          onChange={(value, _place, coordinates) => {
+          onChange={(value) => {
             setFormData((prev) => ({
               ...prev,
-              location: value,
-              longitude: coordinates?.lng || "",
-              latitude: coordinates?.lat || "",
+              location: value.address,
+              longitude: value.coordinates?.lng || "",
+              latitude: value.coordinates?.lat || "",
             }));
           }}
         />
@@ -206,11 +206,10 @@ const CreateNewAgents = ({
         noValidate
       >
         <div
-          className={`flex items-center justify-center px-4 w-full min-h-[64px] border-b-[0.6px] border-strokeGreyThree ${
-            isFormFilled
+          className={`flex items-center justify-center px-4 w-full min-h-[64px] border-b-[0.6px] border-strokeGreyThree ${isFormFilled
               ? "bg-paleCreamGradientLeft"
               : "bg-paleGrayGradientLeft"
-          }`}
+            }`}
         >
           <h2
             style={{ textShadow: "1px 1px grey" }}

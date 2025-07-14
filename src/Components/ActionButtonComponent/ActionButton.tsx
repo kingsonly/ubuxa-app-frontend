@@ -19,12 +19,12 @@ const ActionButton: React.FC<ActionButtonProps> = ({
 }) => {
   return (
     <button
-      className={`${buttonClass} flex items-center bg-secondary px-2 py-1 h-[32px] gap-1 border-[0.2px] border-strokeGreyTwo rounded-[32px] shadow-innerCustom transition-all hover:bg-primary`}
+      className={`${buttonClass} flex items-center bg-customSecondary px-2 py-1 h-[32px] gap-1 border-[0.2px] border-strokeGreyTwo rounded-[32px] shadow-innerCustom transition-all hover:bg-customPrimary`}
       disabled={disabled}
       onClick={onClick}
     >
       {icon ? icon : null}
-      <span className={`${labelClass} text-buttonText text-[10px] font-medium`}>
+      <span className={`${labelClass} text-customButtonText text-[10px] font-medium`}>
         {label}
       </span>
     </button>
