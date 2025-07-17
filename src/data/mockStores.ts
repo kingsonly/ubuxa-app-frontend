@@ -4,37 +4,43 @@ export const mockStores: Store[] = [
   {
     name: "Lagos Central Hub",
     type: "MAIN",
-    image: "/src/assets/inventory/inventorybadge.png",
-    capacity: "10,000 units"
+    image: "https://images.unsplash.com/photo-1622030411594-c282a63aa1bc?auto=format&fit=crop&w=800",
+    capacity: "10,000 units",
+    value: 40000000
   },
   {
     name: "Abuja Regional Center",
     type: "REGIONAL",
-    image: "/src/assets/inventory/inventorybadge.png",
-    capacity: "5,000 units"
+    image: "https://images.unsplash.com/photo-1723642622358-fd75432f0cf8?auto=format&fit=crop&w=800",
+    capacity: "5,000 units",
+    value: 25000000
   },
   {
     name: "Port Harcourt Branch",
     type: "SUB REGIONAL",
-    image: "/src/assets/inventory/inventorybadge.png",
-    capacity: "2,500 units"
+    image: "https://images.unsplash.com/photo-1724709162875-fe100dd0e04b?auto=format&fit=crop&w=800",
+    capacity: "2,500 units",
+    value: 15000000
   },
   {
     name: "Kano Regional Center",
     type: "REGIONAL",
-    image: "/src/assets/inventory/inventorybadge.png",
-    capacity: "4,800 units"
+    image: "https://images.unsplash.com/photo-1710535973514-7dcc39d0c205?auto=format&fit=crop&w=800",
+    capacity: "4,800 units",
+    value: 22000000
   },
   {
     name: "Ikeja Sub Branch",
     type: "SUB REGIONAL",
-    image: "/src/assets/inventory/inventorybadge.png",
-    capacity: "3,200 units"
+    image: "https://images.unsplash.com/photo-1586528116022-aeda1613c63d?auto=format&fit=crop&w=800",
+    capacity: "3,200 units",
+    value: 18000000
   },
   {
     name: "Victoria Island Branch",
     type: "SUB REGIONAL",
-    image: "/src/assets/inventory/inventorybadge.png",
-    capacity: "2,800 units"
+    image: "https://images.unsplash.com/photo-1511485977113-f34c92461ad9?auto=format&fit=crop&w=800",
+    capacity: "2,800 units",
+    value: 16000000
   }
 ];
