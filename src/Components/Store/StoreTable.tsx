@@ -2,12 +2,16 @@ import React, { useState } from 'react';
 import { Table, PaginationType } from '../TableComponent/Table';
 import { Store } from '../../types/store';
 import { mockStores } from '../../data/mockStores';
+import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
+import { DropDown } from '../DropDownComponent/DropDown';
 
 interface StoreTableProps {
   onStoreSelect?: (store: Store) => void;
 }
 
 export const StoreTable: React.FC<StoreTableProps> = ({ onStoreSelect }) => {
+  const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(6);
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
@@ -25,40 +29,56 @@ export const StoreTable: React.FC<StoreTableProps> = ({ onStoreSelect }) => {
     setEntriesPerPage,
   });
 
+  const dropDownList = {
+    items: ["View Store", "View Inventory log", "De-activate warehouse"],
+    onClickLink: (index: number) => {
+      console.log("INDEX:", index);
+      switch (index) {
+        case 0:
+          navigate("/settings/profile");
+          break;
+        case 1:
+          navigate("/inventory");
+          break;
+        case 2:
+          navigate("/inventory");
+          break;
+        default:
+          break;
+      }
+    },
+    showCustomButton: true,
+  };
+
   const StoreCard = (data: Store[]) => {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
         {data.map((store, index) => (
-          <div
-            key={index}
-            className={`border rounded-lg p-4 cursor-pointer transition-all hover:shadow-md ${
-              selectedStore?.name === store.name
-                ? 'border-blue-500 bg-blue-50 shadow-md'
-                : 'border-gray-200 hover:border-gray-300'
-            }`}
-            onClick={() => handleStoreClick(store)}
-          >
-            <div className="flex flex-col items-center text-center">
-              <img 
-                src={store.image} 
-                alt={store.name}
-                className="w-16 h-16 object-cover rounded-full mb-3"
-              />
-              <h3 className="font-semibold text-gray-900 mb-2">{store.name}</h3>
-              <div className="space-y-2">
-                <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                  store.type === 'MAIN' ? 'bg-green-100 text-green-800' :
-                  store.type === 'REGIONAL' ? 'bg-blue-100 text-blue-800' :
-                  'bg-purple-100 text-purple-800'
-                }`}>
-                  {store.type}
-                </span>
-                <p className="text-sm text-gray-600">
-                  Capacity: <span className="font-medium">{store.capacity}</span>
-                </p>
-              </div>
-            </div>
-          </div>
+           <div
+           key={index}
+           className="relative bg-white rounded-[28px] border-4 border-white shadow-md flex flex-col items-stretch w-full max-w-[440px]"
+           style={{ boxShadow: "0 4px 24px 0 rgba(0,0,0,0.06)" }}
+          //  onClick={() => handleStoreClick(store)}
+         >
+           <div className="absolute top-4 right-4 z-10">
+             <span className="px-3 py-1 bg-blue-500 text-white rounded-full text-sm font-medium shadow-lg">
+               {store.type}
+             </span>
+           </div>
+           <img
+             src={store.image}
+             alt={store.name}
+             className="w-full aspect-[16/7] object-cover rounded-[20px] mt-2"
+           />
+           <div className="flex items-center justify-between gap-2 px-4 py-3">
+             <div className="flex items-center gap-3 min-w-0">
+               <span className="px-4 py-1 bg-purpleBlue border border-blue-300 text-dark-500 rounded-full text-base font-medium truncate max-w-[260px]" title={store.name}>
+                 {store.name}
+               </span>
+             </div>
+             <DropDown {...dropDownList} />
+           </div>
+         </div>
         ))}
       </div>
     );
@@ -81,7 +101,7 @@ export const StoreTable: React.FC<StoreTableProps> = ({ onStoreSelect }) => {
           // Clear filters logic if needed
         }}
       />
-      {selectedStore && (
+      {/* {selectedStore && (
         <div className="mt-4 p-4 bg-gray-50 rounded-lg">
           <h4 className="font-medium text-gray-900 mb-2">Selected Store</h4>
           <div className="text-sm text-gray-700 space-y-1">
@@ -90,7 +110,7 @@ export const StoreTable: React.FC<StoreTableProps> = ({ onStoreSelect }) => {
             <p><strong>Capacity:</strong> {selectedStore.capacity}</p>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };
