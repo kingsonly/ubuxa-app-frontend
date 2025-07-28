@@ -5,6 +5,7 @@ import { LuImagePlus } from "react-icons/lu";
 import useBreakpoint from "@/hooks/useBreakpoint";
 import { IoIosSwap } from "react-icons/io";
 import { Tag } from "../Products/ProductDetails";
+import InfoTooltip from "../Info/InfoTooltip";
 
 export const Asterik = () => {
   return (
@@ -1032,4 +1033,210 @@ export const ProductDescriptionInput: React.FC<ProductDescriptionInputProps> = (
     </div>
   )
 }
+
+
+
+interface FixedPercentageInputProps {
+  name: string
+  label: string
+  value: string | number
+  switchValue: boolean // true for percentage, false for fixed
+  onChange: (value: string | number) => void
+  onSwitchChange: (isPercentage: boolean) => void
+  placeholder?: string
+  disabled?: boolean
+  required?: boolean
+  errorMessage?: string
+  description?: string
+  className?: string
+  infoMessage?: string
+  min?: number
+  max?: number
+  currency?: string
+}
+
+export const FixedPercentageInput = forwardRef<HTMLInputElement, FixedPercentageInputProps>(
+  (
+    {
+      name,
+      label,
+      value,
+      switchValue,
+      onChange,
+      onSwitchChange,
+      placeholder,
+      disabled = false,
+      required = false,
+      errorMessage,
+      description,
+      className = "",
+      infoMessage = "Toggle between fixed amount and percentage. When percentage is selected, maximum value is 100.",
+      min = 0,
+      max,
+      currency
+    },
+    ref,
+  ) => {
+    const [inputValue, setInputValue] = useState<string>(value?.toString() || "")
+
+    // Update local state when prop value changes
+    useEffect(() => {
+      setInputValue(value?.toString() || "")
+    }, [value])
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      let newValue = e.target.value
+
+      // If percentage mode, enforce max of 100
+      if (switchValue && newValue) {
+        const numValue = Number.parseFloat(newValue)
+        if (numValue > 100) {
+          newValue = "100"
+        }
+      }
+
+      // If there's a custom max, enforce it
+      if (max && newValue) {
+        const numValue = Number.parseFloat(newValue)
+        if (numValue > max) {
+          newValue = max.toString()
+        }
+      }
+
+      setInputValue(newValue)
+      onChange(newValue)
+    }
+
+    const handleSwitchToggle = () => {
+      if (!disabled) {
+        const newSwitchValue = !switchValue
+        onSwitchChange(newSwitchValue)
+
+        // If switching to percentage and current value > 100, reset to 100
+        if (newSwitchValue && Number.parseFloat(inputValue) > 100) {
+          setInputValue("100")
+          onChange("100")
+        }
+      }
+    }
+
+    const getMaxValue = () => {
+      if (switchValue) return 100 // Percentage mode
+      return max // Fixed mode with custom max or undefined
+    }
+
+    const getInputPlaceholder = () => {
+      if (placeholder) return placeholder
+      return switchValue ? "Enter percentage (0-100)" : "Enter fixed amount"
+    }
+
+    return (
+      <div className={`w-full ${className}`}>
+        {/* Main Container with Pill Design */}
+        <div className="relative">
+          {/* Label Badge */}
+          <div className="absolute -top-3 left-6 z-10">
+            <div className={`flex items-center gap-2 bg-white px-3 py-1 rounded-full border-[0.6px] text-[10px] text-textGrey font-semibold  px-2 py-0.5 max-w-max h-6 bg-white border-[0.6px] border-strokeCream rounded-[200px] transition-opacity duration-500 ease-in-out
+            ${value ? "opacity-100" : "opacity-0"} `}>
+              <label className=" uppercase tracking-wide">{label}</label>
+              {infoMessage && <InfoTooltip message={infoMessage} size={16} />}
+            </div>
+          </div>
+
+          {/* Unified Input Container - Pill Shape */}
+          <div
+            className={`relative autofill-parent flex max-w-full ${disabled ? "bg-gray-200 cursor-not-allowed" : "bg-white"
+              }
+        ${value ? "border-strokeCream" : "border-strokeGrey"}
+          items-center w-full  px-[1.1em] py-[1.25em] gap-1 rounded-3xl h-[52px] border-[0.6px]
+          transition-all focus:outline-none focus:ring-2 focus:ring-customPrimary focus:border-transparent`}
+          // className={`flex items-center w-full border-4 rounded-full shadow-sm overflow-hidden transition-all duration-200 ${errorMessage
+          //   ? "border-red-400 focus-within:ring-4 focus-within:ring-red-100 focus-within:border-red-500"
+          //   : "border-pink-400 focus-within:ring-4 focus-within:ring-pink-100 focus-within:border-pink-500"
+          //   } ${disabled ? "bg-gray-50 cursor-not-allowed opacity-60" : "bg-white hover:border-pink-500"} min-h-[60px]`}
+          >
+            {/* Required Asterisk and Toggle Switch Section */}
+            <div className="flex items-center px-6 py-4 min-w-fit">
+              {required && <span className="text-red-500 text-lg font-bold mr-3">*</span>}
+              <div className="flex items-center gap-3">
+
+                <span className="text-sm text-gray-600 font-medium whitespace-nowrap">{switchValue ? "%" : currency ? currency : "₦"}</span>
+                <div
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${disabled
+                    ? "cursor-not-allowed opacity-50"
+                    : "cursor-pointer " + (switchValue ? "bg-customSecondary border-customAscent"
+                      : "bg-customPrimary border-customAscent")
+                    }`}
+                  onClick={handleSwitchToggle}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-md ${switchValue ? "translate-x-6 bg-customPrimary" : "translate-x-1 bg-customSecondary"
+                      }`}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Input Field Section */}
+            <div className="grid grid-cols-3 gap-4 items-center w-full">
+              <div className="col-span-2">
+                <input
+                  ref={ref}
+                  type="number"
+                  name={name}
+                  value={inputValue}
+                  onChange={handleInputChange}
+                  placeholder={getInputPlaceholder()}
+                  disabled={disabled}
+                  min={min}
+                  max={getMaxValue()}
+                  step={switchValue ? "0.1" : "any"}
+                  //className="w-full py-4 text-lg font-medium text-gray-800 placeholder-gray-400 bg-transparent border-0 focus:outline-none focus:ring-0 disabled:cursor-not-allowed"
+                  className={`w-full text-sm font-semibold ${value ? "text-textBlack" : "text-textGrey"
+                    } placeholder:text-textGrey placeholder:font-normal placeholder:italic`}
+                  onBlur={(e) => (e.target as HTMLInputElement).blur()}
+                />
+              </div>
+
+              {/* Percentage Symbol */}
+
+              <div className="inset-y-0 right-0 flex items-center justify-end pr-2">
+                <span className="text-[12px] text-textGrey">{switchValue ? "%" : "Fixed"}</span>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        {/* Helper Text */}
+        <div className="mt-1 px-6">
+          <p className="text-xs text-gray-500">
+            {switchValue ? "Maximum: 100%" : max ? `Range: ${min} - ${max}` : `Minimum: ${min}`}
+          </p>
+        </div>
+
+        {/* Description */}
+        {description && (
+          <div className="mt-1 px-6">
+            <p
+              //className="text-sm text-gray-600"
+              className={` text-xs text-textDarkGrey font-semibold w-full`}
+            >
+              {description}
+            </p>
+          </div>
+        )}
+
+        {/* Error Message */}
+        {errorMessage && (
+          <div className="mt-2 px-6">
+            <p className="text-sm text-red-500 font-medium">{errorMessage}</p>
+          </div>
+        )}
+      </div>
+    )
+  },
+)
+
+
 

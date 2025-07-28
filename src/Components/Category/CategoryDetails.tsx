@@ -11,9 +11,6 @@ const CategoryDetails = ({
 }: {
     categoryData: any;
 }) => {
-    useEffect(() => {
-        console.log("make me shine", categoryData)
-    }, [])
     return (
         <div className="flex flex-col justify-between w-full h-full min-h-[360px]">
             {/* <div className="flex flex-col gap-3">

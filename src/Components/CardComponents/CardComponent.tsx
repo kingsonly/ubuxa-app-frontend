@@ -276,6 +276,7 @@ export default function QuantitySelector({
     >
       {isSelected && (
         <button
+          type="button"
           onClick={() => updateQuantity(-1)}
           disabled={isMinusDisabled}
           className="group rounded-full disabled:opacity-50 transition-colors disabled:cursor-not-allowed"
@@ -308,6 +309,7 @@ export default function QuantitySelector({
       </span>
       {isSelected && (
         <button
+          type="button"
           onClick={() => updateQuantity(1)}
           disabled={isPlusDisabled}
           className="group rounded-full disabled:opacity-50 transition-colors disabled:cursor-not-allowed"

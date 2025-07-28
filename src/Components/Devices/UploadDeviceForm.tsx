@@ -1,14 +1,16 @@
 import type React from "react"
 import { z } from "zod"
-import { Input, ModalInput, ToggleInput } from "../InputComponent/Input"
+import { FileInput, ModalInput, ToggleInput } from "../InputComponent/Input"
 import { useEffect, useState } from "react"
+import { RiDeleteBin5Fill } from "react-icons/ri"
+import roletwo from "../../assets/table/roletwo.svg";
 import SelectDeviceInventoryModal from "./SelectDeviceInventoryModal"
 import { DeviceStore } from "@/stores/DeviceStore"
 import { observer } from "mobx-react-lite"
-import { infoMessages } from "@/lib/infoMessages"
+import { RxFilePlus } from "react-icons/rx"
 import InfoTooltip from "../Info/InfoTooltip"
-import { CardComponent } from "../CardComponents/CardComponent"
-interface SingleDeviceFormProps {
+import { infoMessages } from "@/lib/infoMessages"
+interface UploadDeviceFormProps {
     formData: {
         serialNumber: string
         key: string
@@ -26,41 +28,24 @@ interface SingleDeviceFormProps {
 }
 
 // Updated schema with conditional validation
-const SingleDeviceFormSchema = z
+const UploadDeviceFormSchema = z
     .object({
         isTokenable: z.boolean(),
         inventoryId: z.string().min(1, "Please select an inventory"),
-        serialNumber: z.string().trim().min(1, "Serial number is required"),
-        key: z.string().optional(),
-        startingCode: z.string().optional(),
-        count: z
-            .string()
-            .trim()
-            .optional()
-            .refine((val) => !val || /^\d+$/.test(val), {
-                message: "Device Count must be a valid integer",
-            })
-            .transform((val) => (val ? Number(val).toString() : val)),
-        timeDivider: z.string().optional(),
         restrictedDigitMode: z.boolean(),
-        hardwareModel: z.string().optional(),
-        firmwareVersion: z.string().optional(),
+        devicesFile: z
+            .instanceof(File, { message: "Devices file is required" })
+            .refine(
+                (file) =>
+                    ["csv", "xlsx"].includes(
+                        file.name.split(".").pop()?.toLowerCase() || ""
+                    ),
+                { message: "Only .csv and .xlsx files are allowed." }
+            )
     })
-    .refine(
-        (data) => {
-            // If device is tokenable, key is required
-            if (data.isTokenable && (!data.key || data.key.trim() === "")) {
-                return false
-            }
-            return true
-        },
-        {
-            message: "Key is required when device is tokenable",
-            path: ["key"],
-        },
-    )
 
-const SingleDeviceForm: React.FC<SingleDeviceFormProps> = observer(({
+
+const UploadDeviceForm: React.FC<UploadDeviceFormProps> = observer(({
     formData,
     onFormDataChange,
     formErrors,
@@ -69,26 +54,32 @@ const SingleDeviceForm: React.FC<SingleDeviceFormProps> = observer(({
     const [isCustomerProductModalOpen, setIsCustomerProductModalOpen] =
         useState<boolean>(false);
     useEffect(() => {
-        console.log("DeviceStore.selectedInventory", DeviceStore.selectedInventory?.productImage)
         updateInventoryId()
 
     }, [DeviceStore.selectedInventory])
     const selectedInventory = DeviceStore.selectedInventory;
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target
-        const updatedFormData = { ...formData, [name]: value }
 
-        // Validate the form
-        const result = SingleDeviceFormSchema.safeParse(updatedFormData)
-        onValidationChange(result.success)
+    const handleFileChange = (e: {
+        target: { name: any; value: any; files: any }
+    }) => {
+        const { name, files } = e.target
+        if (files && files.length > 0) {
+            const fileData = { ...formData, [name]: files[0] }
+            // const fileData = { [name]: files[0] }
+            // Validate just the file field
 
-        onFormDataChange(updatedFormData)
+            const result = UploadDeviceFormSchema.safeParse(fileData)
+            onValidationChange(result.success)
+            onFormDataChange(fileData)
+        }
+
     }
+
     const updateInventoryId = () => {
         const updatedFormData = { ...formData, inventoryId: DeviceStore.selectedInventory?.productId }
 
         // Validate the form
-        const result = SingleDeviceFormSchema.safeParse(updatedFormData)
+        const result = UploadDeviceFormSchema.safeParse(updatedFormData)
         onValidationChange(result.success)
         onFormDataChange(updatedFormData)
     }
@@ -97,7 +88,7 @@ const SingleDeviceForm: React.FC<SingleDeviceFormProps> = observer(({
         const updatedFormData = { ...formData, [fieldName]: checked }
 
         // Validate the form
-        const result = SingleDeviceFormSchema.safeParse(updatedFormData)
+        const result = UploadDeviceFormSchema.safeParse(updatedFormData)
         onValidationChange(result.success)
 
         onFormDataChange(updatedFormData)
@@ -125,16 +116,18 @@ const SingleDeviceForm: React.FC<SingleDeviceFormProps> = observer(({
                 </div>
             </div>
 
+
             {/* Serial Number - Second field */}
-            <Input
-                type="text"
-                name="serialNumber"
-                label="Serial Number"
-                value={formData.serialNumber}
-                onChange={handleInputChange}
-                placeholder="Enter Serial Number"
+            <FileInput
+                name="devicesFile"
+                label="Devices File"
+                onChange={handleFileChange}
                 required={true}
-                errorMessage={getFieldError("serialNumber")}
+                accept=".csv,.xlsx"
+                placeholder="Upload Device File"
+                errorMessage={getFieldError("devicesFile")}
+                iconRight={<RxFilePlus color="black" title="Upload File" />}
+                description="Only .csv and .xlsx files are allowed"
             />
             {/* Inventory field */}
             <ModalInput
@@ -150,12 +143,21 @@ const SingleDeviceForm: React.FC<SingleDeviceFormProps> = observer(({
                 itemsSelected={
                     <div className="w-full">
                         {selectedInventory?.productId && (
-                            <CardComponent
-                                variant="deviceInventory"
-                                productImage={selectedInventory.productImage}
-                                productName={selectedInventory.productName}
-
-                            />
+                            <div className="relative flex items-center gap-1 w-max">
+                                <img src={roletwo} alt="Icon" width="30px" />
+                                <span className="bg-[#EFF2FF] px-3 py-1.5 rounded-full text-xs font-bold text-textDarkGrey capitalize">
+                                    {selectedInventory?.productName}
+                                </span>
+                                <span
+                                    className="flex items-center justify-center w-7 h-7 bg-white cursor-pointer border-[0.6px] border-strokeGreyTwo rounded-full transition-all hover:opacity-50"
+                                    title="Remove Inventory"
+                                    onClick={() => {
+                                        DeviceStore.unsetInventory()
+                                    }}
+                                >
+                                    <RiDeleteBin5Fill color="#FC4C5D" />
+                                </span>
+                            </div>
                         )}
                     </div>
                 }
@@ -171,73 +173,6 @@ const SingleDeviceForm: React.FC<SingleDeviceFormProps> = observer(({
             {/* Conditional fields - only show if device is tokenable */}
             {formData.isTokenable && (
                 <>
-                    <Input
-                        type="text"
-                        name="key"
-                        label="Key"
-                        value={formData.key}
-                        onChange={handleInputChange}
-                        placeholder="Enter Key"
-                        required={true}
-                        errorMessage={getFieldError("key")}
-                    />
-
-                    <Input
-                        type="text"
-                        name="startingCode"
-                        label="Starting Code"
-                        value={formData.startingCode}
-                        onChange={handleInputChange}
-                        placeholder="Enter Starting Code"
-                        required={false}
-                        errorMessage={getFieldError("startingCode")}
-                    />
-
-                    <Input
-                        type="number"
-                        name="count"
-                        label="Count"
-                        value={formData.count || ""}
-                        onChange={handleInputChange}
-                        placeholder="Enter Count"
-                        required={false}
-                        errorMessage={getFieldError("count")}
-                    />
-
-                    <Input
-                        type="number"
-                        name="timeDivider"
-                        label="Time Divider"
-                        value={formData.timeDivider}
-                        onChange={handleInputChange}
-                        placeholder="Enter Time Divider"
-                        required={false}
-                        min={1}
-                        errorMessage={getFieldError("timeDivider")}
-                    />
-
-                    <Input
-                        type="text"
-                        name="hardwareModel"
-                        label="Hardware Model"
-                        value={formData.hardwareModel}
-                        onChange={handleInputChange}
-                        placeholder="Enter Hardware Model"
-                        required={false}
-                        errorMessage={getFieldError("hardwareModel")}
-                    />
-
-                    <Input
-                        type="text"
-                        name="firmwareVersion"
-                        label="Firmware Version"
-                        value={formData.firmwareVersion}
-                        onChange={handleInputChange}
-                        placeholder="Enter Firmware Version"
-                        required={false}
-                        errorMessage={getFieldError("firmwareVersion")}
-                    />
-
                     <div className="flex items-center justify-between gap-2 w-full">
                         <label className="text-sm text-textBlack font-semibold flex gap-1"><span className="">Restricted Digit Mode</span> <InfoTooltip message={infoMessages.device.restrictedDigitMode} /></label>
 
@@ -252,6 +187,7 @@ const SingleDeviceForm: React.FC<SingleDeviceFormProps> = observer(({
                                 {formData.restrictedDigitMode ? <span className='text-errorTwo '>Restricted</span> : <span className='text-green-500'>Unrestricted</span>}
                             </span>
                         </div>
+
                     </div>
                 </>
             )}
@@ -259,4 +195,4 @@ const SingleDeviceForm: React.FC<SingleDeviceFormProps> = observer(({
     )
 })
 
-export { SingleDeviceForm, SingleDeviceFormSchema }
+export { UploadDeviceForm, UploadDeviceFormSchema }

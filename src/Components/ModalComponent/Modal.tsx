@@ -112,21 +112,24 @@ export const Modal = ({
           >
             <div
               className={`flex ${leftHeaderContainerClass
-                ? leftHeaderContainerClass
-                : "items-center gap-1"
+
+                  ? leftHeaderContainerClass
+                  : "items-center gap-1"
                 }`}
             >
               {leftHeaderComponents}
             </div>
             <div
               className={`flex ${rightHeaderContainerClass
-                ? rightHeaderContainerClass
-                : "items-center gap-1 "
+
+                  ? rightHeaderContainerClass
+                  : "items-center gap-1 "
                 }`}
             >
               {rightHeaderComponents}
               <button
                 onClick={handleClose}
+                type="button"
                 className="flex items-center justify-center w-[24px] h-[24px] bg-white border border-strokeGreyTwo rounded-full top-4 right-4 hover:bg-slate-100"
                 aria-label="Close modal"
                 title="Close modal"
