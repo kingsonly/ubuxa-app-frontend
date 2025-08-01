@@ -3,6 +3,9 @@ import React, { useCallback, useEffect } from "react";
 import { DataStateWrapper } from "../Loaders/DataStateWrapper";
 import type { Contract, SaleItem } from "./contractType";
 import { formatDateTime } from "@/utils/helpers";
+import { useTenant } from "@/Context/tenantsContext";
+import ContractTemplate from "./ContractTemplate";
+import { Modal } from "../ModalComponent/Modal";
 
 const ContractModal = ({
   setIsOpen,
@@ -17,6 +20,9 @@ const ContractModal = ({
   );
 
   const contractData: Contract = fetchSingleContract?.data;
+
+
+
 
   const handleClose = useCallback(() => {
     setIsOpen(false);
@@ -42,22 +48,30 @@ const ContractModal = ({
   );
 
   return (
-    <div className="flex items-center justify-center w-full">
-      <div
-        className="fixed inset-0 z-40 transition-opacity bg-black opacity-50"
-        onClick={handleClose}
-        aria-hidden="true"
-      ></div>
-      <section className="fixed inset-y-0 inset-x-[20%] z-50">
-        <div className="bg-white h-screen overflow-y-auto">
-          <DataStateWrapper
-            isLoading={fetchSingleContract?.isLoading}
-            error={fetchSingleContract?.error}
-            errorStates={fetchSingleContract?.errorStates}
-            refreshData={fetchSingleContract?.mutate}
-            errorMessage="Failed to fetch contract details"
-          >
-            <div className="flex flex-col gap-4 w-full p-4">
+
+    <Modal isOpen={setIsOpen}>
+
+
+      <div className="flex items-center justify-center w-full">
+        <div
+          className="fixed inset-0 z-40 transition-opacity bg-black opacity-50"
+          onClick={handleClose}
+          aria-hidden="true"
+        ></div>
+        <section className="fixed inset-y-0 inset-x-[20%] z-50 bg-blue-700">
+          <div className="bg-white h-screen overflow-y-auto ">
+            <DataStateWrapper
+              isLoading={fetchSingleContract?.isLoading}
+              error={fetchSingleContract?.error}
+              errorStates={fetchSingleContract?.errorStates}
+              refreshData={fetchSingleContract?.mutate}
+              errorMessage="Failed to fetch contract details"
+            >
+
+              {/* <ContractTemplate contractInfo={contractData} /> */}
+              <ContractTemplate {...contractData} />
+
+              {/* <div className="flex flex-col gap-4 w-full p-4">
               <h1 className="text-center font-bold text-[1.5rem]">
                 END USER AGREEMENT
               </h1>
@@ -302,11 +316,12 @@ const ContractModal = ({
                 </p>
               </section>
               <TableOne data={contractData} />
-            </div>
-          </DataStateWrapper>
-        </div>
-      </section>
-    </div>
+            </div> */}
+            </DataStateWrapper>
+          </div>
+        </section>
+      </div>
+    </Modal>
   );
 };
 

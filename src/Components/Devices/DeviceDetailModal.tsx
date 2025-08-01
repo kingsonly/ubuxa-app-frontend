@@ -1,5 +1,5 @@
 import { useApiCall, useGetRequest } from "@/utils/useApiCall";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { KeyedMutator } from "swr";
 import { TabNamesType } from "../Inventory/InventoryDetailModal";
 import { Modal } from "../ModalComponent/Modal";

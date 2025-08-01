@@ -155,7 +155,7 @@ const SalesDetailsModal = ({
           <div className="flex items-center gap-3">
             {[data?.daysToNextInstallment, data?.status].map((item, index) =>
               index === 0 &&
-              fetchSingleSale?.data.paymentMode === "ONE_OFF" ? null : (
+                fetchSingleSale?.data.paymentMode === "ONE_OFF" ? null : (
                 <SimpleTag
                   key={index}
                   text={item}
@@ -171,9 +171,8 @@ const SalesDetailsModal = ({
     >
       <div className="bg-white">
         <header
-          className={`flex items-center ${
-            data?.saleId ? "justify-between" : "justify-end"
-          } bg-paleGrayGradientLeft p-4 min-h-[64px] border-b-[0.6px] border-b-strokeGreyThree`}
+          className={`flex items-center ${data?.saleId ? "justify-between" : "justify-end"
+            } bg-paleGrayGradientLeft p-4 min-h-[64px] border-b-[0.6px] border-b-strokeGreyThree`}
         >
           {!data?.saleId ? null : (
             <div className="flex items-center gap-1 pl-1 pr-2 py-1 w-max bg-[#F6F8FA] border-[0.4px] border-strokeGreyTwo rounded-full">

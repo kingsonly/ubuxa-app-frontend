@@ -1,3 +1,4 @@
+import { KeyedMutator } from 'swr';
 export type Contract = {
   id: string;
   initialAmountPaid: number;
@@ -26,12 +27,22 @@ export type Contract = {
   expirationDate: string; // ISO date string
   fullNameAsOnID: string;
   addressAsOnID: string;
-  signedContractUrl: string | null;
+  signatures?: ContractSignatures;
+  // signedContractUrl: string | null;
   signedAt: string | null; // ISO date string
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
   sale: Sale[];
+
+  refresh?: KeyedMutator<any>;
+
 };
+
+export interface ContractSignatures {
+  nextOfKin?: string;
+  guarantor?: string;
+  owner?: string;
+}
 
 type Sale = {
   id: string;
@@ -126,3 +137,5 @@ type InventoryDetail = {
   updatedAt: string; // ISO date string
   deletedAt: string | null; // ISO date string
 };
+
+

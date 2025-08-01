@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { DropDown } from "../DropDownComponent/DropDown";
 import { copyToClipboard } from "../../utils/helpers";
 import { PiCopySimple } from "react-icons/pi";

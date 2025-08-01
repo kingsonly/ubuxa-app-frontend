@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-const DiscountType = z.enum(["FIXED", "PERCENTAGE"]);
-const PriceType = z.enum(["FIXED", "PERCENTAGE"]);
+// const DiscountType = z.enum(["FIXED", "PERCENTAGE"]);
+// const PriceType = z.enum(["FIXED", "PERCENTAGE"]);
 
 // export const saleRecipientSchema = z.object({
 //   firstname: z.string().trim().min(2, "Firstname is required"),
