@@ -177,7 +177,7 @@ const SalesDetailsModal = ({
           {!data?.saleId ? null : (
             <div className="flex items-center gap-1 pl-1 pr-2 py-1 w-max bg-[#F6F8FA] border-[0.4px] border-strokeGreyTwo rounded-full">
               <ProductTag productTag={data?.productCategory} />
-              <p className="text-textBlack text-xs">{data?.paymentMode} HIIII</p>
+              <p className="text-textBlack text-xs">{data?.paymentMode}</p>
             </div>
           )}
           {/* {fetchSingleSale?.data?.sale?.status === "COMPLETED" ? null : (

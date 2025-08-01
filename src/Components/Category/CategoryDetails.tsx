@@ -2,7 +2,7 @@ import inventoryIcon from "../../assets/inventory/inventoryIcon.svg";
 import { Tag } from "../Products/ProductDetails";
 import { formatDateTime } from "@/utils/helpers";
 import { GoDotFill } from "react-icons/go";
-import { useEffect } from "react";
+
 
 
 
@@ -14,7 +14,7 @@ const CategoryDetails = ({
     return (
         <div className="flex flex-col justify-between w-full h-full min-h-[360px]">
             {/* <div className="flex flex-col gap-3">
-               
+
             </div> */}
             <div className="flex flex-col p-2.5 gap-2 bg-white border-[0.6px] border-strokeGreyThree rounded-[20px]">
                 <p className="flex gap-1 w-max text-textLightGrey text-xs font-medium pb-2">
