@@ -57,7 +57,14 @@ const SaleRecipientForm = ({
 
   const saveForm = () => {
     if (!validateItems()) return;
-    SaleStore.addOrUpdateRecipient(currentProductId, formData);
+    const cleanedFormData = {
+      firstname: formData.firstname || "",
+      lastname: formData.lastname || "",
+      address: formData.address || "",
+      phone: formData.phone || "",
+      email: formData.email || "",
+    };
+    SaleStore.addOrUpdateRecipient(currentProductId, cleanedFormData);
     SaleStore.addSaleItem(currentProductId);
     handleClose();
   };
@@ -103,7 +110,7 @@ const SaleRecipientForm = ({
         type="text"
         name="firstname"
         label="First Name"
-        value={formData.firstname}
+        value={formData.firstname || ""}
         onChange={handleInputChange}
         placeholder="Enter First Name"
         required={true}
@@ -113,7 +120,7 @@ const SaleRecipientForm = ({
         type="text"
         name="lastname"
         label="Last Name"
-        value={formData.lastname}
+        value={formData.lastname || ""}
         onChange={handleInputChange}
         placeholder="Enter Last Name"
         required={true}
@@ -123,7 +130,7 @@ const SaleRecipientForm = ({
         type="text"
         name="address"
         label="Address"
-        value={formData.address}
+        value={formData.address || ""}
         onChange={handleInputChange}
         placeholder="Enter Address"
         required={true}
@@ -133,7 +140,7 @@ const SaleRecipientForm = ({
         type="text"
         name="phone"
         label="Phone"
-        value={formData.phone}
+        value={formData.phone || ""}
         onChange={handleInputChange}
         placeholder="Enter Phone"
         required={true}
@@ -143,7 +150,7 @@ const SaleRecipientForm = ({
         type="email"
         name="email"
         label="Email"
-        value={formData.email}
+        value={formData.email || ""}
         onChange={handleInputChange}
         placeholder="Enter Email"
         required={true}
