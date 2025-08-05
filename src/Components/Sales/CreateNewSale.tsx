@@ -89,7 +89,7 @@ const CreateNewSale = observer(
       const payload: SalePayload = {
         category: SaleStore.category,
         customerId: SaleStore.customer?.customerId as string,
-        saleItems: SaleStore.getTransformedSaleItems() as SaleItem[],
+        saleItems: SaleStore.getTransformedSaleItems() as unknown as SaleItem[],
         applyMargin: formData.applyMargin,
       };
       if (SaleStore.doesSaleItemHaveInstallment()) {

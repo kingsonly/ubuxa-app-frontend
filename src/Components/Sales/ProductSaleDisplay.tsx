@@ -193,7 +193,6 @@
 
 
 
-import React from "react";
 import { Tag } from "../Products/ProductDetails";
 import {
   NairaSymbol,
@@ -201,7 +200,7 @@ import {
   SimpleTag,
 } from "../CardComponents/CardComponent";
 import { RiDeleteBin5Fill } from "react-icons/ri";
-import { ExtraInfoType } from "./CreateNewSale";
+import { ExtraInfoType } from "./ExtraInfoPill";
 import { SaleStore } from "@/stores/SaleStore";
 import { observer } from "mobx-react-lite";
 import ExtraInfoPill from "./ExtraInfoPill";
@@ -263,7 +262,7 @@ const ProductSaleDisplay = observer(({
     productTag: string;
   };
   onRemoveProduct: (productId: string) => void;
-  setExtraInfoModal: React.Dispatch<React.SetStateAction<ExtraInfoType>>;
+  setExtraInfoModal: (type: ExtraInfoType) => void;
   getIsFormFilled: () => boolean;
   getFieldError: (fieldName: string, productId: string) => string[];
 }) => {
@@ -339,7 +338,7 @@ const ProductSaleDisplay = observer(({
               <ExtraInfoPill
                 key={type}
                 type={type}
-                selected={false /* you can also pass selected state */}
+                label={type}
                 onClick={() => setExtraInfoModal(type)}
                 infoMessage={infoMessages[type]}
                 required={requiredFlags[type]}

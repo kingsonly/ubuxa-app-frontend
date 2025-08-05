@@ -6,7 +6,7 @@ export type ModalType = {
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
-  size?: "small" | "medium" | "large";
+  size?: "small" | "medium" | "large" | "extra";
   layout?: "right" | "default";
   bodyStyle?: string;
   headerClass?: string;
@@ -73,6 +73,7 @@ export const Modal = ({
     small: "w-[90vw] sm:w-[50vw] md:w-[40vw] lg:w-[30vw] xl:w-[25vw] max-w-[360px]",
     medium: "w-[95vw] sm:w-[70vw] md:w-[60vw] lg:w-[50vw] xl:w-[42vw] max-w-[530px]",
     large: "w-[100vw] sm:w-[90vw] md:w-[75vw] lg:w-[65vw] xl:w-[50vw] max-w-[660px]",
+    extra: "w-[100vw] sm:w-[90vw] md:w-[80vw] lg:w-[70vw] xl:w-[85vw] max-w-[800px]",
   };
 
   // Conditional layout styles
@@ -111,6 +112,7 @@ export const Modal = ({
           >
             <div
               className={`flex ${leftHeaderContainerClass
+
                   ? leftHeaderContainerClass
                   : "items-center gap-1"
                 }`}
@@ -119,6 +121,7 @@ export const Modal = ({
             </div>
             <div
               className={`flex ${rightHeaderContainerClass
+
                   ? rightHeaderContainerClass
                   : "items-center gap-1 "
                 }`}

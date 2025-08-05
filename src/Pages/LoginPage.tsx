@@ -110,6 +110,7 @@ const LoginPage = () => {
       const tenantInfo = user.tenants?.[0]
       const tenant = tenantInfo?.tenant
       const role = tenantInfo?.role
+      // console.log("tenant", tenant)
 
       const userData = {
         token: response.headers.access_token,
@@ -134,6 +135,10 @@ const LoginPage = () => {
         tenant: {
           id: tenant?.id,
           status: tenant?.status,
+          company: tenant?.companyName,
+          email: tenant?.email,
+          phone: tenant?.phone,
+          domain: tenant?.domainUrl,
           paymentProvider: tenant?.paymentProvider,
           providerPublicKey: tenant?.providerPublicKey,
           logoUrl: tenant?.logoUrl,
@@ -242,6 +247,10 @@ const LoginPage = () => {
         tenant: {
           id: tenant?.id,
           status: tenant?.status,
+          companyName: tenant?.companyName,
+          email: tenant?.email,
+          phone: tenant?.phone,
+          domainUrl: tenant?.domainUrl,
           paymentProvider: tenant?.paymentProvider,
           providerPublicKey: tenant?.providerPublicKey,
           logoUrl: tenant?.logoUrl,

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-const DiscountType = z.enum(["FIXED", "PERCENTAGE"]);
-const PriceType = z.enum(["FIXED", "PERCENTAGE"]);
+// const DiscountType = z.enum(["FIXED", "PERCENTAGE"]);
+// const PriceType = z.enum(["FIXED", "PERCENTAGE"]);
 
 // export const saleRecipientSchema = z.object({
 //   firstname: z.string().trim().min(2, "Firstname is required"),
@@ -502,25 +502,25 @@ export const formSchema = z
     }
   });
 
-export type SaleItem = {
-  productId: string;
-  quantity: number;
-  paymentMode: "INSTALLMENT" | "ONE_OFF";
-  discount?: number;
-  installmentDuration?: number;
-  installmentStartingPrice?: number;
-  devices: string[];
-  miscellaneousPrices?: {
-    [key: string]: number;
-  };
-  saleRecipient: {
-    firstname: string;
-    lastname: string;
-    address: string;
-    phone: string;
-    email: string;
-  };
-};
+// export type SaleItem = {
+//   productId: string;
+//   quantity: number;
+//   paymentMode: "INSTALLMENT" | "ONE_OFF";
+//   discount?: number;
+//   installmentDuration?: number;
+//   installmentStartingPrice?: number;
+//   devices: string[];
+//   miscellaneousPrices?: {
+//     [key: string]: number;
+//   };
+//   saleRecipient: {
+//     firstname: string;
+//     lastname: string;
+//     address: string;
+//     phone: string;
+//     email: string;
+//   };
+// };
 
 type NextOfKinDetails = {
   fullName: string;
@@ -604,4 +604,29 @@ export const defaultSaleFormData: SalePayload = {
       addressAsOnID: "",
     },
   },
+};
+
+
+export type SaleItem = {
+  productId: string;
+  quantity: number;
+  devices: string[];
+  miscellaneousPrices?: {
+    [key: string]: number;
+  };
+  saleRecipient: {
+    firstname?: string;
+    lastname?: string;
+    address?: string;
+    phone?: string;
+    email?: string;
+  };
+  parameters: {
+    paymentMode?: "INSTALLMENT" | "ONE_OFF";
+    discount?: number;
+    discountType?: "FIXED" | "PERCENTAGE";
+    installmentDuration?: number;
+    installmentStartingPrice?: number;
+    installmentStartingPriceType?: "FIXED" | "PERCENTAGE";
+  };
 };
