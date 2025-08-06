@@ -23,7 +23,7 @@ interface CreateNewStoreProps {
 const CreateNewStore: React.FC<CreateNewStoreProps> = ({ isOpen, setIsOpen }) => {
   const [formData, setFormData] = useState<FormData>({
     name: "",
-    inventoryClassId: "",
+    type: "",
     storePicture: "",
   });
 
@@ -103,19 +103,19 @@ const CreateNewStore: React.FC<CreateNewStoreProps> = ({ isOpen, setIsOpen }) =>
            
           />
           <SelectInput
-            label="* Inventory Class"
-            value={formData.inventoryClassId}
+            label="* Store Type"
+            value={formData.type}
             onChange={(value: string) =>
-              setFormData((prev) => ({ ...prev, inventoryClassId: value }))
+              setFormData((prev) => ({ ...prev, type: value }))
             }
             options={[
-              { label: "Regular", value: "regular" },
-              { label: "Returned", value: "returned" },
-              { label: "Refurbished", value: "refurbished" },
+              { label: "Main", value: "main" },
+              { label: "Regional", value: "regional" },
+              { label: "Sub Regional", value: "sub-regional" },
             ]}
             required={true}
-            errorMessage={getFieldError("inventoryClassId")}
-            placeholder="Inventory Class"
+            errorMessage={getFieldError("type")}
+            placeholder="Store Type"
           />
           <FileInput
             name="storePicture"
