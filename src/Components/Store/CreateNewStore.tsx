@@ -10,7 +10,7 @@ import { SelectInput } from "../InputComponent/Input";
 const formSchema = z.object({
   name: z.string().min(1, "Warehouse Name is required"),
   inventoryClassId: z.string().min(1, "Inventory Class is required"),
-  warehousePicture: z.string().min(1, "Warehouse Picture is required"),
+  storePicture: z.string().min(1, "Store Picture is required"),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -24,7 +24,7 @@ const CreateNewStore: React.FC<CreateNewStoreProps> = ({ isOpen, setIsOpen }) =>
   const [formData, setFormData] = useState<FormData>({
     name: "",
     inventoryClassId: "",
-    warehousePicture: "",
+    storePicture: "",
   });
 
   const { apiCall } = useApiCall();
@@ -60,7 +60,7 @@ const CreateNewStore: React.FC<CreateNewStoreProps> = ({ isOpen, setIsOpen }) =>
       });
 
       if (response.status === 200) {
-        setFormData({ name: "", inventoryClassId: "", warehousePicture: "" });
+        setFormData({ name: "", inventoryClassId: "", storePicture: "" });
         setIsOpen(false);
       } else {
         setApiError(response.data.message || "An error occurred");
@@ -89,15 +89,15 @@ const CreateNewStore: React.FC<CreateNewStoreProps> = ({ isOpen, setIsOpen }) =>
       bodyStyle="pb-[100px]"
     >
       <form onSubmit={handleSubmit} className="flex flex-col items-center bg-white w-full max-w-xl mx-auto pt-6 pb-8 px-4 gap-4" noValidate>
-        <h2 className="text-2xl font-bold text-center mb-4">New Warehouse</h2>
+        <h2 className="text-2xl font-bold text-center mb-4">New Store</h2>
         <div className="w-full flex flex-col gap-4">
           <Input
             type="text"
             name="name"
-            label="* Warehouse Name"
+            label="* Store Name"
             value={formData.name}
             onChange={handleInputChange}
-            placeholder=" Warehouse Name"
+            placeholder="Store Name"
             required={true}
             errorMessage={getFieldError("name")}
            
@@ -118,13 +118,13 @@ const CreateNewStore: React.FC<CreateNewStoreProps> = ({ isOpen, setIsOpen }) =>
             placeholder="Inventory Class"
           />
           <FileInput
-            name="warehousePicture"
-            label="Warehouse Picture"
+            name="storePicture"
+            label="Store Picture"
             onChange={handleInputChange}
             required={true}
             accept=".jpg,.jpeg,.png,.svg"
-            placeholder="Warehouse Picture"
-            errorMessage={getFieldError("warehousePicture")}
+            placeholder="Store Picture"
+            errorMessage={getFieldError("storePicture")}
           />
         </div>
         <ApiErrorMessage apiError={apiError} />

@@ -5,6 +5,7 @@ import { mockStores } from '../../data/mockStores';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { DropDown } from '../DropDownComponent/DropDown';
+import StoreDetailModal from './StoreDetailModal';
 
 interface StoreTableProps {
   onStoreSelect?: (store: Store) => void;
@@ -12,12 +13,16 @@ interface StoreTableProps {
 
 export const StoreTable: React.FC<StoreTableProps> = ({ onStoreSelect }) => {
   const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [storeId, setStoreId] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(6);
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
 
   const handleStoreClick = (store: Store) => {
     setSelectedStore(store);
+    setStoreId(store.id);
+    setIsOpen(true);
     onStoreSelect?.(store);
   };
 
@@ -35,7 +40,7 @@ export const StoreTable: React.FC<StoreTableProps> = ({ onStoreSelect }) => {
       console.log("INDEX:", index);
       switch (index) {
         case 0:
-          navigate("/settings/profile");
+          navigate(`/store/${storeId}`);
           break;
         case 1:
           navigate("/inventory");
@@ -101,16 +106,15 @@ export const StoreTable: React.FC<StoreTableProps> = ({ onStoreSelect }) => {
           // Clear filters logic if needed
         }}
       />
-      {/* {selectedStore && (
-        <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-          <h4 className="font-medium text-gray-900 mb-2">Selected Store</h4>
-          <div className="text-sm text-gray-700 space-y-1">
-            <p><strong>Name:</strong> {selectedStore.name}</p>
-            <p><strong>Type:</strong> {selectedStore.type}</p>
-            <p><strong>Capacity:</strong> {selectedStore.capacity}</p>
-          </div>
-        </div>
-      )} */}
+      {/* <StoreDetailModal /> */}
+      {selectedStore && (
+        <StoreDetailModal 
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+          warehouseID={storeId}
+          // refreshTable={refreshTable}
+        />
+      )}
     </div>
   );
 };
