@@ -9,7 +9,7 @@ import { SelectInput } from "../InputComponent/Input";
 
 const formSchema = z.object({
   name: z.string().min(1, "Warehouse Name is required"),
-  inventoryClassId: z.string().min(1, "Inventory Class is required"),
+  type: z.string().min(1, "Inventory Class is required"),
   storePicture: z.string().min(1, "Store Picture is required"),
 });
 
@@ -60,7 +60,7 @@ const CreateNewStore: React.FC<CreateNewStoreProps> = ({ isOpen, setIsOpen }) =>
       });
 
       if (response.status === 200) {
-        setFormData({ name: "", inventoryClassId: "", storePicture: "" });
+        setFormData({ name: "", type: "", storePicture: "" });
         setIsOpen(false);
       } else {
         setApiError(response.data.message || "An error occurred");
