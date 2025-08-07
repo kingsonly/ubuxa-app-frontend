@@ -226,6 +226,7 @@ export const Icon = ({
 }) => {
   return (
     <button
+      type="button"
       className="flex items-center justify-center gap-1 w-max px-2 h-[32px] bg-white border-[0.2px] border-strokeGreyTwo rounded-full shadow-innerCustom transition-all hover:bg-customPrimary"
       onClick={handleClick}
     >

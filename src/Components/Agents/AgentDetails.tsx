@@ -62,7 +62,6 @@ const AgentDetails = ({
     e.preventDefault();
     setLoading(true);
     try {
-      console.log("Submitted Data:", formData);
       if (refreshTable) await refreshTable();
     } catch (error) {
       console.error(error);

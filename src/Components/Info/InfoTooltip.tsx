@@ -19,7 +19,8 @@ const InfoTooltip: React.FC<InfoTooltipProps> = ({ message, variant, size = 16, 
                         <Info size={size} className={`${variant === "ink" ? "text-inkBlueTwo bg-paleLightBlue" : "text-textBlack bg-[#F6F8FA]"}`} />
                     </span>
                 </TooltipTrigger>
-                <TooltipContent className={`max-w-xs text-sm p-2  border border-primary rounded-md shadow ${variant === "ink" ? "text-inkBlueTwo bg-paleLightBlue" : "text-textBlack bg-[#F6F8FA]"}`}>
+                <TooltipContent className={`max-w-xs text-xs font-light  p-2  border border-primary rounded-md shadow ${variant === "ink" ? "text-inkBlueTwo bg-paleLightBlue" : "text-textBlack bg-[#F6F8FA]"}`}>
+
                     {message}
                 </TooltipContent>
             </Tooltip>

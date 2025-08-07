@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { DropDown } from "../DropDownComponent/DropDown";
 import { copyToClipboard } from "../../utils/helpers";
 import { PiCopySimple } from "react-icons/pi";
@@ -44,7 +44,7 @@ export type TableType = {
   loading: boolean;
   refreshTable?: () => Promise<any>;
   queryValue?: string;
-  paginationInfo: PaginationType;
+  paginationInfo?: PaginationType;
   clearFilters?: () => void;
 };
 
@@ -64,18 +64,25 @@ export const Table = (props: TableType) => {
     paginationInfo,
     clearFilters,
   } = props;
+  const pagination = paginationInfo ? paginationInfo() : null;
+  const total = pagination?.total ?? tableData.length;
+  const currentPage = pagination?.currentPage ?? 1;
+  const entriesPerPage = pagination?.entriesPerPage ?? tableData.length;
+  const setCurrentPage = pagination?.setCurrentPage;
+  const setEntriesPerPage = pagination?.setEntriesPerPage;
+
   const [hoveredCell, setHoveredCell] = useState<{
     rowIndex: number;
     colIndex: number;
   } | null>(null);
 
-  const {
-    total,
-    currentPage,
-    entriesPerPage,
-    setCurrentPage,
-    setEntriesPerPage,
-  } = paginationInfo();
+  // const {
+  //   total,
+  //   currentPage,
+  //   entriesPerPage,
+  //   setCurrentPage,
+  //   setEntriesPerPage,
+  // } = paginationInfo();
 
   // Pagination state
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -85,8 +92,7 @@ export const Table = (props: TableType) => {
     return tableData || [];
   }, [tableData]);
 
-  useEffect(() => {
-  }, [tableData]);
+
 
   const SkeletonLoader = () => {
     return (
@@ -127,17 +133,29 @@ export const Table = (props: TableType) => {
     );
   };
 
-  const PaginationComponent = () => {
-    return (
+  // const PaginationComponent = () => {
+  //   return (
+  //     <Pagination
+  //       totalEntries={totalEntries}
+  //       entriesPerPage={entriesPerPage}
+  //       currentPage={currentPage}
+  //       onPageChange={setCurrentPage}
+  //       onEntriesPerPageChange={setEntriesPerPage}
+  //     />
+  //   );
+  // };
+
+  const PaginationComponent = () => (
+    pagination ? (
       <Pagination
-        totalEntries={totalEntries}
+        totalEntries={total}
         entriesPerPage={entriesPerPage}
         currentPage={currentPage}
-        onPageChange={setCurrentPage}
-        onEntriesPerPageChange={setEntriesPerPage}
+        onPageChange={setCurrentPage!}
+        onEntriesPerPageChange={setEntriesPerPage!}
       />
-    );
-  };
+    ) : null
+  );
 
   return (
     <div className="flex flex-col w-full gap-2">
@@ -230,6 +248,7 @@ export const Table = (props: TableType) => {
                       </tr>
                     </thead>
                     <tbody>
+
                       {paginatedData?.map((row, rowIndex) => (
                         <tr
                           key={rowIndex}
@@ -295,3 +314,4 @@ export const Table = (props: TableType) => {
     </div>
   );
 };
+
