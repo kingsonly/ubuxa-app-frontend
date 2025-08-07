@@ -2,21 +2,22 @@ import React, { useState } from 'react';
 import PageLayout from './PageLayout';
 import { StoreTable } from '../Components/Store/StoreTable';
 import inventorybadge from "../assets/inventory/inventorybadge.png";
-import { Store } from '../types/store';
+import { StoreResponse } from '../types/store';
 import { TitlePill } from '../Components/TitlePillComponent/TitlePill';
 import inventorygradient from "../assets/inventory/inventorygradient.svg";
 import ActionButton from '../Components/ActionButtonComponent/ActionButton';
 import circleAction from "../assets/settings/addCircle.svg";
 import CreateNewStore from '@/Components/Store/CreateNewStore';
-// import { DropDown } from '../Components/DropDownComponent/DropDown';
+import { useStoreManagement } from '@/hooks/useStoreManagement';
+import { observer } from 'mobx-react-lite';
 
-const StorePage: React.FC = () => {
-  const handleStoreSelect = (store: Store) => {
+const StorePage: React.FC = observer(() => {
+  const { storeCount, activeStores, inactiveStores, fetchAllStores } = useStoreManagement();
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const handleStoreSelect = (store: StoreResponse) => {
     console.log('Selected store:', store);
   };
-
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [formType, setFormType] = useState<StoreFormType>('newStore');
 
   return (
     <>
@@ -28,7 +29,21 @@ const StorePage: React.FC = () => {
                   iconBgColor="bg-[#FDEEC2]"
                   topText="All"
                   bottomText="STORES"
-                  value={0}
+                  value={storeCount}
+              />
+              <TitlePill
+                  icon={inventorygradient}
+                  iconBgColor="bg-[#E8F5E8]"
+                  topText="Active"
+                  bottomText="STORES"
+                  value={activeStores.length}
+              />
+              <TitlePill
+                  icon={inventorygradient}
+                  iconBgColor="bg-[#FFE8E8]"
+                  topText="Inactive"
+                  bottomText="STORES"
+                  value={inactiveStores.length}
               />
           </div>
           <div className="flex w-full items-center justify-between gap-2 min-w-max sm:w-max sm:justify-end">
@@ -37,7 +52,6 @@ const StorePage: React.FC = () => {
                   icon={<img src={circleAction} />}
                   onClick={() => setIsOpen(true)}
               />
-              {/* <DropDown {...dropDownList} /> */}
           </div>
         </section>
         <div className="max-w-6xl mx-auto">
@@ -47,10 +61,10 @@ const StorePage: React.FC = () => {
     <CreateNewStore
       isOpen={isOpen}
       setIsOpen={setIsOpen}
-      formType={formType}
+      onStoreCreated={() => fetchAllStores(true)}
     />
     </>
   );
-};
+});
 
 export default StorePage;

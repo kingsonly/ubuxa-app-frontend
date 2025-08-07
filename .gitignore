@@ -27,3 +27,5 @@ dist-ssr
 *storybook.log
 *storybook-static
 test.mjs
+SIMPLIFIED_STORE_SOLUTION.md
+STORE_IMPLEMENTATION_SUMMARY.md

@@ -2,6 +2,7 @@ import { ProductStore } from "./ProductStore";
 import { ContractStore } from "./ContractStore";
 import { SaleStore } from "./SaleStore";
 import { DeviceStore } from "./DeviceStore";
+import { StoreStore } from "./StoreStore";
 
 function createRootStore() {
   const rootStore = {
@@ -9,6 +10,7 @@ function createRootStore() {
     contractStore: ContractStore,
     saleStore: SaleStore,
     deviceStore: DeviceStore,
+    storeStore: StoreStore,
   };
 
   return rootStore;
