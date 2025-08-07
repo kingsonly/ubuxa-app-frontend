@@ -29,20 +29,27 @@ export const Modal = ({
   rightHeaderContainerClass,
   rightHeaderComponents,
 }: ModalType) => {
-  const [isClosing, setIsClosing] = useState<boolean>(false);
+  const [shouldRender, setShouldRender] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  // Handle modal visibility and animations
+  useEffect(() => {
+    if (isOpen) {
+      setShouldRender(true);
+      // Small delay to ensure DOM is ready before animation
+      const timer = setTimeout(() => setIsAnimating(true), 10);
+      return () => clearTimeout(timer);
+    } else {
+      setIsAnimating(false);
+      // Keep rendered during close animation
+      const timer = setTimeout(() => setShouldRender(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
 
   const handleClose = useCallback(() => {
-    if (isOpen) {
-      setIsClosing(true);
-      setTimeout(
-        () => {
-          setIsClosing(false);
-          onClose();
-        },
-        layout === "right" ? 250 : 0
-      );
-    }
-  }, [isOpen, layout, onClose]);
+    onClose();
+  }, [onClose]);
 
   // Close modal on ESC key
   useEffect(() => {
@@ -55,18 +62,30 @@ export const Modal = ({
     };
   }, [handleClose]);
 
-  // Prevent background scroll when modal is open
+
+
+  // Prevent background scroll and handle scrollbar flickering
   useEffect(() => {
-    const originalStyle = window.getComputedStyle(document.body).overflow;
     if (isOpen) {
-      document.body.style.overflow = "hidden";
+      // Calculate scrollbar width
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      
+      // Set CSS custom property for scrollbar width
+      document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
+      
+      // Add modal-open class to body
+      document.body.classList.add('modal-open');
+      
+      return () => {
+        // Remove modal-open class and custom property
+        document.body.classList.remove('modal-open');
+        document.documentElement.style.removeProperty('--scrollbar-width');
+      };
     }
-    return () => {
-      document.body.style.overflow = originalStyle;
-    };
   }, [isOpen]);
 
-  if (!isOpen && !isClosing) return null;
+  // Don't render if not needed
+  if (!shouldRender) return null;
 
   // Modal size mapping
   const sizeClasses = {
@@ -79,12 +98,11 @@ export const Modal = ({
   // Conditional layout styles
   const layoutClasses = clsx(
     layout === "right" &&
-    "h-[100vh] mt-2 mr-1.5 bg-white shadow-lg transition-transform transform rounded-md",
+    "h-[100vh] mt-2 mr-1.5 bg-white shadow-lg modal-content transform rounded-md",
     sizeClasses[size],
     {
-      "animate-slide-out-right": isClosing,
-      "animate-slide-in-right": !isClosing && layout === "right",
-      "translate-x-full": !isClosing && layout === "right",
+      "translate-x-0": isAnimating && layout === "right",
+      "translate-x-full": !isAnimating && layout === "right",
       "-translate-y-full mt-2": layout !== "right",
     }
   );
@@ -98,8 +116,14 @@ export const Modal = ({
   return (
     <div className={wrapperClasses}>
       <div
-        className={`fixed inset-0 ${layout === "default" ? "z-40 rounded-md" : ""
-          } transition-opacity bg-black opacity-50`}
+        className={clsx(
+          "fixed inset-0 bg-black modal-backdrop",
+          layout === "default" ? "z-40 rounded-md" : "",
+          {
+            "opacity-0": !isAnimating,
+            "opacity-50": isAnimating,
+          }
+        )}
         onClick={handleClose}
         aria-hidden="true"
       ></div>

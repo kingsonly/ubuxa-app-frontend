@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import drop from "../../assets/table/dropdown.svg";
 import dateIcon from "../../assets/table/date.svg";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Icon } from "../Settings/UserModal";
 import edit from "../../assets/edit.svg";
-import { Modal } from "@/Components/ModalComponent/Modal";
 
 export type DropDownType = {
   name?: string;
@@ -24,8 +24,16 @@ export type DropDownType = {
 
 export const DropDown = (props: DropDownType) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showIcon, setShowIcon] = useState<number | null>();
+  const [position, setPosition] = useState({ 
+    top: 0, 
+    left: 0, 
+    placement: { vertical: 'bottom', horizontal: 'right' } 
+  });
+
+  const dropdownRef = useRef<HTMLDivElement | HTMLUListElement>(null);
+  const buttonRef = useRef<HTMLButtonElement | HTMLDivElement>(null);
 
   const {
     name,
@@ -41,12 +49,50 @@ export const DropDown = (props: DropDownType) => {
     cardData,
   } = props;
 
+  const calculatePosition = () => {
+    if (!buttonRef.current) return;
+
+    const buttonRect = buttonRef.current.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    // Estimated dropdown dimensions with padding
+    const dropdownWidth = 200;
+    const dropdownHeight = isDate ? 320 : Math.min((items?.length || 1) * 40 + 20, 300);
+    const padding = 10;
+
+    // Calculate vertical placement and position
+    const spaceBelow = viewportHeight - buttonRect.bottom - padding;
+    const spaceAbove = buttonRect.top - padding;
+    const vertical = spaceBelow >= dropdownHeight ? 'bottom' :
+      spaceAbove >= dropdownHeight ? 'top' :
+        spaceBelow > spaceAbove ? 'bottom' : 'top';
+
+    // Calculate horizontal placement and position
+    const spaceRight = viewportWidth - buttonRect.right - padding;
+    const spaceLeft = buttonRect.left - padding;
+    const horizontal = spaceRight >= dropdownWidth ? 'right' :
+      spaceLeft >= dropdownWidth ? 'left' :
+        spaceRight > spaceLeft ? 'right' : 'left';
+
+    // Calculate absolute position for portal
+    let top = vertical === 'bottom' ? buttonRect.bottom + 5 : buttonRect.top - dropdownHeight - 5;
+    let left = horizontal === 'right' ? buttonRect.left : buttonRect.right - dropdownWidth;
+
+    // Ensure dropdown stays within viewport bounds
+    top = Math.max(padding, Math.min(top, viewportHeight - dropdownHeight - padding));
+    left = Math.max(padding, Math.min(left, viewportWidth - dropdownWidth - padding));
+
+    setPosition({ 
+      top, 
+      left, 
+      placement: { vertical, horizontal } 
+    });
+  };
+
   const handleClick = () => {
-    if (isDate) {
-      setIsOpen(true);
-    } else {
-      setIsOpen(true);
-    }
+    calculatePosition();
+    setIsOpen(true);
   };
 
   const handleOptionClick = (index: number, cardData?: any) => {
@@ -64,43 +110,75 @@ export const DropDown = (props: DropDownType) => {
     }
   };
 
-  return (
-    <div className="relative flex w-max">
-      {showCustomButton ? (
-        <div onClick={handleClick} className="w-max">
-          <Icon icon={edit} />
-        </div>
-      ) : (
-        <button
-          type="button"
-          className="flex items-center justify-between w-max gap-2 pl-2 pr-1 py-1 bg-[#F9F9F9] border-[0.6px] border-strokeGreyThree rounded-full"
-          onClick={handleClick}
-        >
-          <span className="text-xs font-medium text-textGrey">
-            {isDate && selectedDate
-              ? selectedDate.toLocaleDateString("default", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })
-              : name}
-          </span>
-          <img
-            src={isDate ? dateIcon : drop}
-            alt="DropdownIcon"
-            className={`w-4 h-4 ${buttonImgStyle || ""}`}
-          />
-        </button>
-      )}
-      <Modal
-        isOpen={isOpen}
-        onClose={() => {
-          setIsOpen(false);
-          setShowIcon(null);
-        }}
-      >
+  // Recalculate position on window resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (isOpen) {
+        calculatePosition();
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isOpen]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current && 
+        !dropdownRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+        setShowIcon(null);
+      }
+    };
+
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsOpen(false);
+        setShowIcon(null);
+      }
+    };
+
+    const handleScroll = () => {
+      if (isOpen) {
+        calculatePosition();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEscapeKey);
+      window.addEventListener('scroll', handleScroll, true); // Capture scroll events
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscapeKey);
+      window.removeEventListener('scroll', handleScroll, true);
+    };
+  }, [isOpen]);
+
+  // Create dropdown content
+  const renderDropdownContent = () => {
+    if (!isOpen) return null;
+
+    const content = (
+      <>
         {isDate ? (
-          <div className="absolute top-[35px] right-0 z-50">
+          <div 
+            ref={dropdownRef as React.RefObject<HTMLDivElement>}
+            className="bg-white border border-strokeGreyThree rounded-lg shadow-lg"
+            style={{
+              position: 'fixed',
+              top: `${position.top}px`,
+              left: `${position.left}px`,
+              zIndex: 9999,
+            }}
+          >
             <DatePicker
               selected={selectedDate}
               onChange={handleDateChange}
@@ -110,7 +188,14 @@ export const DropDown = (props: DropDownType) => {
           </div>
         ) : (
           <ul
-            className={`${dropDownContainerStyle} absolute top-[35px] right-0 z-[1000] flex flex-col gap-0.5 p-2 bg-white border-[0.6px] border-strokeGreyThree rounded-[20px] shadow-lg w-[200px]`}
+            ref={dropdownRef as React.RefObject<HTMLUListElement>}
+            className={`${dropDownContainerStyle} flex flex-col gap-0.5 p-2 bg-white border-[0.6px] border-strokeGreyThree rounded-[20px] shadow-lg w-[200px] max-h-[300px] overflow-y-auto`}
+            style={{
+              position: 'fixed',
+              top: `${position.top}px`,
+              left: `${position.left}px`,
+              zIndex: 9999,
+            }}
           >
             {items?.map((item, index) => (
               <li
@@ -153,7 +238,47 @@ export const DropDown = (props: DropDownType) => {
             ))}
           </ul>
         )}
-      </Modal>
-    </div>
+      </>
+    );
+
+    // Render in portal to document body
+    return createPortal(content, document.body);
+  };
+
+  return (
+    <>
+      <div className="flex w-max">
+        {showCustomButton ? (
+          <div ref={buttonRef as React.RefObject<HTMLDivElement>} onClick={handleClick} className="w-max">
+            <Icon icon={edit} />
+          </div>
+        ) : (
+          <button
+            ref={buttonRef as React.RefObject<HTMLButtonElement>}
+            type="button"
+            className="flex items-center justify-between w-max gap-2 pl-2 pr-1 py-1 bg-[#F9F9F9] border-[0.6px] border-strokeGreyThree rounded-full"
+            onClick={handleClick}
+          >
+            <span className="text-xs font-medium text-textGrey">
+              {isDate && selectedDate
+                ? selectedDate.toLocaleDateString("en-US", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })
+                : name || (isDate ? "Select Date" : "Select Option")}
+            </span>
+            <img
+              src={isDate ? dateIcon : drop}
+              alt="DropdownIcon"
+              className={`w-4 h-4 ${buttonImgStyle || ""}`}
+            />
+          </button>
+        )}
+      </div>
+
+      {/* Dropdown Content - Rendered via Portal */}
+      {renderDropdownContent()}
+    </>
   );
 };

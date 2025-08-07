@@ -54,7 +54,7 @@ const StorePage: React.FC = observer(() => {
               />
           </div>
         </section>
-        <div className="max-w-6xl mx-auto">
+        <div className="w-full mx-auto mt-8">
           <StoreTable onStoreSelect={handleStoreSelect} />
         </div>
     </PageLayout>

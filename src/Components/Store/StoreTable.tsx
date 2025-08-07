@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { Table, PaginationType } from '../TableComponent/Table';
 import { StoreResponse } from '../../types/store';
 import { useStoreManagement } from '@/hooks/useStoreManagement';
-import { useNavigate } from 'react-router-dom';
+
 import { DropDown } from '../DropDownComponent/DropDown';
 import StoreDetailModal from './StoreDetailModal';
-import UserAssignmentModal from './UserAssignmentModal';
+import StoreUserManagement from './StoreUserManagement';
 import { observer } from 'mobx-react-lite';
 
 interface StoreTableProps {
@@ -13,7 +13,6 @@ interface StoreTableProps {
 }
 
 export const StoreTable: React.FC<StoreTableProps> = observer(({ onStoreSelect }) => {
-  const navigate = useNavigate();
   const { stores, loading, fetchAllStores } = useStoreManagement();
   
   const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
@@ -39,7 +38,7 @@ export const StoreTable: React.FC<StoreTableProps> = observer(({ onStoreSelect }
   });
 
   const getDropDownList = (store: StoreResponse) => ({
-    items: ["View Store", "Assign Users", "View Inventory", store.isActive ? "Deactivate" : "Activate"],
+    items: ["View Store", "Manage Users"],
     onClickLink: (index: number) => {
       setSelectedStoreId(store.id);
       setSelectedStoreName(store.name);
@@ -51,13 +50,13 @@ export const StoreTable: React.FC<StoreTableProps> = observer(({ onStoreSelect }
         case 1:
           setIsUserModalOpen(true);
           break;
-        case 2:
-          navigate("/inventory");
-          break;
-        case 3:
-          // Toggle store status - this could be implemented as a quick action
-          console.log(`${store.isActive ? 'Deactivating' : 'Activating'} store:`, store.name);
-          break;
+        // case 2:
+        //   navigate("/inventory");
+        //   break;
+        // case 3:
+        //   // Toggle store status - this could be implemented as a quick action
+        //   console.log(`${store.isActive ? 'Deactivating' : 'Activating'} store:`, store.name);
+        //   break;
         default:
           break;
       }
@@ -148,12 +147,11 @@ export const StoreTable: React.FC<StoreTableProps> = observer(({ onStoreSelect }
             onStoreUpdated={() => fetchAllStores(true)}
           />
           
-          <UserAssignmentModal
+          <StoreUserManagement
             isOpen={isUserModalOpen}
             setIsOpen={setIsUserModalOpen}
             storeId={selectedStoreId}
             storeName={selectedStoreName}
-            onUserAssigned={() => fetchAllStores(true)}
           />
         </>
       )}

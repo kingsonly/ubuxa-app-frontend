@@ -45,6 +45,57 @@
   color: #4f46e5;
 }
 
+/* Modal Styles */
+.modal-open {
+  overflow: hidden;
+  padding-right: var(--scrollbar-width, 0px);
+}
+
+.modal-backdrop {
+  transition: opacity 300ms ease-in-out;
+}
+
+.modal-content {
+  transition: transform 300ms ease-in-out;
+}
+
+/* Smooth modal animations */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.5;
+  }
+}
+
+@keyframes modalFadeOut {
+  from {
+    opacity: 0.5;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes modalSlideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes modalSlideOut {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -407,4 +458,29 @@ table {
 
 .overflow-x-auto::-webkit-scrollbar {
   display: none;
+}
+
+/* Prevent scrollbar flickering when modals open/close */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* Ensure consistent scrollbar space */
+body {
+  overflow-y: scroll;
+}
+
+/* Modal-specific styles to prevent layout shift */
+.modal-open {
+  overflow: hidden !important;
+  padding-right: var(--scrollbar-width, 0px) !important;
+}
+
+/* Smooth modal animations */
+.modal-backdrop {
+  transition: opacity 0.5s ease-in-out;
+}
+
+.modal-content {
+  transition: transform 0.5s ease-in-out;
 }

@@ -115,7 +115,7 @@ const CreateNewStore: React.FC<CreateNewStoreProps> = ({ isOpen, setIsOpen, onSt
       layout="right"
       bodyStyle="pb-[100px]"
     >
-      <div className="flex items-center justify-center px-4 w-full min-h-[64px] border-b-[0.6px] border-strokeGreyThree bg-paleCreamGradientLeft">
+      <div className={`flex items-center justify-center px-4 w-full min-h-[64px] border-b-[0.6px]  ${isFormFilled ? "bg-paleCreamGradientLeft" : "bg-paleGrayGradientLeft"}`}>
         <h2 className="text-xl text-textBlack font-semibold font-secondary" style={{ textShadow: "1px 1px grey" }}>
           New Store
         </h2>
