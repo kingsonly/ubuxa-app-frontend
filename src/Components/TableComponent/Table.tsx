@@ -92,8 +92,6 @@ export const Table = (props: TableType) => {
     return tableData || [];
   }, [tableData]);
 
-
-
   const SkeletonLoader = () => {
     return (
       <>
@@ -145,7 +143,7 @@ export const Table = (props: TableType) => {
   //   );
   // };
 
-  const PaginationComponent = () => (
+  const PaginationComponent = () =>
     pagination ? (
       <Pagination
         totalEntries={total}
@@ -154,8 +152,7 @@ export const Table = (props: TableType) => {
         onPageChange={setCurrentPage!}
         onEntriesPerPageChange={setEntriesPerPage!}
       />
-    ) : null
-  );
+    ) : null;
 
   return (
     <div className="flex flex-col w-full gap-2">
@@ -238,7 +235,11 @@ export const Table = (props: TableType) => {
                           >
                             <div className="flex items-center gap-1">
                               <div className="flex items-center gap-1">
-                                {column.leftIcon ? column.leftIcon : <span className="w-1.5 h-1.5 bg-strokeGreyTwo rounded-full"></span>}
+                                {column.leftIcon ? (
+                                  column.leftIcon
+                                ) : (
+                                  <span className="w-1.5 h-1.5 bg-strokeGreyTwo rounded-full"></span>
+                                )}
                                 <span>{column.title}</span>
                               </div>
                               {column.rightIcon}
@@ -248,13 +249,11 @@ export const Table = (props: TableType) => {
                       </tr>
                     </thead>
                     <tbody>
-
                       {paginatedData?.map((row, rowIndex) => (
                         <tr
                           key={rowIndex}
                           className="h-[40px] hover:opacity-80"
                         >
-
                           {columnList?.map((column, colIndex) => {
                             const cellValue = row[column.key];
 
@@ -268,13 +267,13 @@ export const Table = (props: TableType) => {
                                 onMouseLeave={() => setHoveredCell(null)}
                               >
                                 {column.valueIsAComponent &&
-                                  column.customValue ? (
+                                column.customValue ? (
                                   column.customValue(cellValue, row)
                                 ) : (
                                   <div className="flex items-center justify-between">
                                     <span>{cellValue || "-"}</span>
                                     {colIndex === 0 ||
-                                      colIndex ===
+                                    colIndex ===
                                       columnList?.length - 1 ? null : (
                                       <span
                                         className="flex items-center justify-center w-5 h-5 rounded-full cursor-pointer"
@@ -283,7 +282,7 @@ export const Table = (props: TableType) => {
                                         }
                                       >
                                         {hoveredCell?.rowIndex === rowIndex &&
-                                          hoveredCell?.colIndex === colIndex ? (
+                                        hoveredCell?.colIndex === colIndex ? (
                                           <PiCopySimple />
                                         ) : null}
                                       </span>
@@ -314,4 +313,3 @@ export const Table = (props: TableType) => {
     </div>
   );
 };
-

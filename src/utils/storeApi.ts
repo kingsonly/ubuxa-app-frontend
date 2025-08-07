@@ -37,9 +37,25 @@ export const useStoreApi = () => {
         });
     };
 
-    const getStoreUsers = async (storeId: string) => {
+    const getStoreUsers = async (storeId: string, queryParams?: Record<string, any> | null) => {
+        let endpoint = `/v1/stores/${storeId}/users`;
+        
+        // Add query parameters if provided
+        if (queryParams && Object.keys(queryParams).length > 0) {
+            const searchParams = new URLSearchParams();
+            Object.entries(queryParams).forEach(([key, value]) => {
+                if (value !== null && value !== undefined && value !== '') {
+                    searchParams.append(key, value.toString());
+                }
+            });
+            const queryString = searchParams.toString();
+            if (queryString) {
+                endpoint += `?${queryString}`;
+            }
+        }
+
         return await apiCall({
-            endpoint: `/v1/stores/${storeId}/users`,
+            endpoint,
             method: "get",
             showToast: false,
         });
