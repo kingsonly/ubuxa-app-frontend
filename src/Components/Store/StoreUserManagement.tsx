@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Modal } from "../ModalComponent/Modal";
 import { SimpleTag } from "../CardComponents/CardComponent";
-
+import { Table, PaginationType } from "../TableComponent/Table";
 import { DataStateWrapper } from "../Loaders/DataStateWrapper";
 import { useStoreApi } from "@/utils/storeApi";
 import { observer } from "mobx-react-lite";
+import { GoDotFill } from "react-icons/go";
+import role from "../../assets/table/role.svg";
+import clock from "../../assets/table/clock.svg";
 
 interface User {
   id: string;

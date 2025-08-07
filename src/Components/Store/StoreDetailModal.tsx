@@ -120,6 +120,7 @@ const StoreDetailModal: React.FC<StoreDetailModalProps> = observer(({
       setIsEditing(false);
       onStoreUpdated?.();
     } catch (error: any) {
+      console.log(error)
       const errorMessage = error?.response?.data?.message || "Failed to update store";
       setApiError(errorMessage);
     }
@@ -163,12 +164,6 @@ const StoreDetailModal: React.FC<StoreDetailModalProps> = observer(({
           {isEditing ? "Edit Store" : "Store Details"}
         </h2>
       </div>
-
-      {loading ? (
-        <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-        </div>
-      ) : (
         <div className="flex flex-col items-center bg-white w-full px-[2.5em] gap-4 py-8">
           {!isEditing ? (
             // View Mode
@@ -321,14 +316,8 @@ const StoreDetailModal: React.FC<StoreDetailModalProps> = observer(({
               
               <ApiErrorMessage apiError={apiError} />
               
-              <div className="flex items-center justify-between gap-4 w-full mt-6">
-                <SecondaryButton
-                  variant="secondary"
-                  onClick={() => setIsEditing(false)}
-                  disabled={loading}
-                >
-                  Cancel
-                </SecondaryButton>
+              <div className="flex items-center justify-center w-full mt-6">
+               
                 <ProceedButton
                   type="submit"
                   disabled={!isFormFilled || loading}
@@ -339,7 +328,7 @@ const StoreDetailModal: React.FC<StoreDetailModalProps> = observer(({
             </form>
           )}
         </div>
-      )}
+      
     </Modal>
   );
 });

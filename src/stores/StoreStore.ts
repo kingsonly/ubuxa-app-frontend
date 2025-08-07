@@ -4,16 +4,21 @@ import { StoreResponse, StoreUserResponse } from "@/types/store";
 const StoreModel = types.model("Store", {
   id: types.string,
   name: types.string,
-  description: types.maybe(types.string),
-  address: types.maybe(types.string),
-  phone: types.maybe(types.string),
-  email: types.maybe(types.string),
+  // description: types.maybe(types.string),
+  // address: types.maybe(types.string),
+  // phone: types.maybe(types.string),
+  // email: types.maybe(types.string),
+  // deletedAt: types.maybe(types.string),
+description: types.maybeNull(types.string),
+address: types.maybeNull(types.string),
+phone: types.maybeNull(types.string),
+email: types.maybeNull(types.string),
+deletedAt: types.maybeNull(types.string),
   classification: types.enumeration(["MAIN", "BRANCH", "OUTLET"]),
   isActive: types.boolean,
   tenantId: types.string,
   createdAt: types.string,
   updatedAt: types.string,
-  deletedAt: types.maybe(types.string),
 });
 
 const StoreUserModel = types.model("StoreUser", {
