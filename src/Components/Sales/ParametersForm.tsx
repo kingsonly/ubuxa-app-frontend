@@ -1,36 +1,57 @@
 import { useState } from "react";
-import { Input, SelectInput } from "../InputComponent/Input";
+import { FixedPercentageInput, Input, SelectInput } from "../InputComponent/Input";
 import { z } from "zod";
 import { SaleStore } from "@/stores/SaleStore";
 import SecondaryButton from "../SecondaryButton/SecondaryButton";
+import { toJS } from "mobx";
 
 const formSchema = z.object({
-  paymentMode: z.enum(["INSTALLMENT", "ONE_OFF"], {
+  paymentMode: z.string({
     required_error: "Payment mode is required",
   }),
+  salesMode: z.string({
+    required_error: "Sales mode is required",
+  }),
+  repaymentStyle: z.string({
+    required_error: "Repayment Style is required",
+  }).optional(),
+
+  contractType: z.string({
+    required_error: "Contract type Style is required",
+  }).optional(),
   installmentDuration: z.number().optional(),
   installmentStartingPrice: z.number().optional(),
+  installmentStartingPriceType: z.boolean().optional(),
   discount: z.number().optional(),
+  discountType: z.boolean().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
 const defaultFormData: FormData = {
-  paymentMode: "ONE_OFF",
+  salesMode: "ONE_OFF",
+  paymentMode: "CASH",
   installmentDuration: 0,
   installmentStartingPrice: 0,
   discount: 0,
+  discountType: false,
+  installmentStartingPriceType: false,
+  repaymentStyle: "CLEAR_ARREARS",
+  contractType: "MANUAL_SIGNING",
 };
 
 const ParametersForm = ({
   handleClose,
-  currentProductId,
 }: {
   handleClose: () => void;
   currentProductId: string;
 }) => {
+  const existingParamsNode = SaleStore.getParametersByProductId();
+  const initialParams: FormData = existingParamsNode
+    ? toJS(existingParamsNode)
+    : defaultFormData;
   const [formData, setFormData] = useState<FormData>(
-    SaleStore.getParametersByProductId(currentProductId) || defaultFormData
+    initialParams
   );
   const [formErrors, setFormErrors] = useState<z.ZodIssue[]>([]);
 
@@ -69,6 +90,42 @@ const ParametersForm = ({
     }));
     setFormErrors((prev) => prev.filter((error) => error.path[0] !== name));
   };
+  const handleOnSwitchChange = (
+    e: boolean
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      ["installmentStartingPriceType"]: e, // Transform back to zero
+    }));
+    return
+  };
+  const handleOnSwitchDiscountChange = (
+    e: boolean
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      ["discountType"]: e, // Transform back to zero
+    }));
+    return
+  };
+  const handleInitialAmountInput = (
+    e: number
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      ["installmentStartingPrice"]: e, // Transform back to zero
+    }));
+    return
+  };
+  const handleDiscountInput = (
+    e: number
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      ["discount"]: e, // Transform back to zero
+    }));
+    return
+  };
 
   const handleSelectChange = (name: string, values: string | string[]) => {
     setFormData((prev) => ({
@@ -79,13 +136,14 @@ const ParametersForm = ({
   };
 
   const isFormFilled =
-    formData.paymentMode === "ONE_OFF"
-      ? Boolean(formData.paymentMode)
+    formData.salesMode === "ONE_OFF"
+      ? Boolean(formData.salesMode)
       : Boolean(
-          formData.paymentMode &&
-            formData.installmentDuration &&
-            formData.installmentStartingPrice
-        );
+        formData.salesMode &&
+        formData.paymentMode &&
+        formData.installmentDuration &&
+        formData.installmentStartingPrice
+      );
   const getFieldError = (fieldName: string) => {
     return formErrors.find((error) => error.path[0] === fieldName)?.message;
   };
@@ -111,36 +169,55 @@ const ParametersForm = ({
 
   const saveForm = () => {
     if (!validateItems()) return;
-    SaleStore.addParameters(currentProductId, {
+    console.log("FORM DATA", formData);
+    SaleStore.addParameters({
       ...formData,
-      installmentDuration: Number(formData.installmentDuration),
-      installmentStartingPrice: Number(formData.installmentStartingPrice),
-      discount: Number(formData.discount),
+      repaymentStyle: formData.repaymentStyle || "CLEAR_ARREARS",
+      contractType: formData.contractType || "MANUAL_SIGNING",
+      installmentDuration: Number(formData.installmentDuration) || 0,
+      installmentStartingPrice: Number(formData.installmentStartingPrice) || 0,
+      installmentStartingPriceType: formData.installmentStartingPriceType || false,
+      discount: Number(formData.discount) || 0,
+      discountType: formData.discountType || false,
     });
-    SaleStore.addSaleItem(currentProductId);
+    SaleStore.addSaleItem();
     handleClose();
   };
 
+  const MODE_TO_OPTION: Record<string, { label: string; value: string }> = {
+    one_off: { label: "Single Deposit", value: "ONE_OFF" },
+    installment: { label: "Installment", value: "INSTALLMENT" },
+    eaas: { label: "Perpetuity", value: "EAAS" },
+    // …and any other modes you might get
+  };
   const rawPaymentModes =
-    SaleStore.getProductById(currentProductId)?.productPaymentModes;
+    SaleStore.products?.productPaymentModes;
   const paymentModesArray = rawPaymentModes
     ?.split(",")
-    .map((mode) => mode.trim().toLowerCase());
+    .map((mode) => mode.trim().toLowerCase()) as string[];
+  console.log("PAYMENT MODES", paymentModesArray);
 
-  const hasInstallment = paymentModesArray?.includes("installment");
-  const hasMultipleModes = paymentModesArray && paymentModesArray.length > 1;
+  const paymentOptions = [
+    { label: "Cash", value: "CASH" },
+    { label: "POS", value: "POS" },
+    { label: "System", value: "SYSTEM" },
+  ];
+  const repaymentOptions = [
+    { label: "Clear Arrears", value: "CLEAR_ARREARS" },
+    { label: "Pay-As-You-Go", value: "PAY_AS_YOU_GO" },
+  ];
+  const contractTypeOptions = [
+    { label: "Manual", value: "MANUAL_SIGNING" },
+    { label: "Automatic", value: "AUTOMATIC_SIGNING" },
+  ];
 
-  const paymentOptions =
-    hasInstallment && hasMultipleModes
-      ? [
-          { label: "Single Deposit", value: "ONE_OFF" },
-          { label: "Installment", value: "INSTALLMENT" },
-        ]
-      : [{ label: "Single Deposit", value: "ONE_OFF" }];
+  const salesOptions = paymentModesArray
+    .map((mode) => MODE_TO_OPTION[mode])
+    .filter(Boolean);
 
   return (
-    <div className="flex flex-col justify-between w-full h-full min-h-[360px]">
-      <div className="flex flex-col gap-3">
+    <div className="flex flex-col justify-between w-full h-full h-full max-h-[360px] py-4 pr-1 sm:pr-3 overflow-y-auto  ">
+      <div className="flex flex-col gap-6 mb-4">
         <SelectInput
           label="Payment Mode"
           options={paymentOptions}
@@ -152,7 +229,20 @@ const ParametersForm = ({
           required={true}
           errorMessage={getFieldError("paymentMode")}
         />
-        {formData.paymentMode === "INSTALLMENT" ? (
+
+        <SelectInput
+          label="Sales Mode"
+          options={salesOptions}
+          value={formData.salesMode}
+          onChange={(selectedValue) =>
+            handleSelectChange("salesMode", selectedValue)
+          }
+          placeholder="Select Sales Mode"
+          required={true}
+          errorMessage={getFieldError("salesMode")}
+        />
+
+        {formData.salesMode === "INSTALLMENT" || formData.salesMode === "EAAS" ? (
           <Input
             type="number"
             name="installmentDuration"
@@ -169,35 +259,83 @@ const ParametersForm = ({
             }
           />
         ) : null}
-        {formData.paymentMode === "INSTALLMENT" ? (
-          <Input
-            type="number"
-            name="installmentStartingPrice"
-            label="INITIAL PAYMENT AMOUNT (PERCENTAGE)"
+
+
+
+        {formData.salesMode === "INSTALLMENT" || formData.salesMode === "EAAS" ? (
+          <FixedPercentageInput
+            name="initialPaymentAmount"
+            label="INITIAL PAYMENT AMOUNT"
             value={formData.installmentStartingPrice as number}
-            onChange={handleInputChange}
-            placeholder="Initial Payment Amount"
-            required={true}
+            switchValue={formData.installmentStartingPriceType || false}
+            onChange={(v: any) => handleInitialAmountInput(v)}
+            onSwitchChange={(flag: any) => handleOnSwitchChange(flag)}
+            placeholder="Enter initial amount"
+            min={0}
+            max={500}
+            currency="₦"
+            required
             errorMessage={getFieldError("installmentStartingPrice")}
-            description={
-              formData.installmentStartingPrice === 0
-                ? "Enter Initial Payment Amount (Percentage)"
-                : ""
-            }
-            max={100}
+            description="Enter Initial Payment Amount"
+            className=""
           />
         ) : null}
-        <Input
-          type="number"
+
+
+        {formData.salesMode === "INSTALLMENT" || formData.salesMode === "EAAS" ? (
+          <SelectInput
+            label="Select contract type"
+            options={contractTypeOptions}
+            value={formData.contractType || "MANUAL_SIGNING"}
+            onChange={(selectedValue) =>
+              handleSelectChange("contractType", selectedValue)
+            }
+            placeholder="Select Contract Type"
+            required={true}
+            errorMessage={getFieldError("contractType")}
+          />
+
+
+        )
+          : null
+        }
+        {formData.salesMode === "INSTALLMENT" || formData.salesMode === "EAAS" ? (
+          <SelectInput
+            label="Select How Repayments Are Applied"
+            options={repaymentOptions}
+            value={formData.repaymentStyle || "CLEAR_ARREARS"}
+            onChange={(selectedValue) =>
+              handleSelectChange("repaymentStyle", selectedValue)
+            }
+            placeholder="Select How Repayments Are Applied"
+            required={true}
+            errorMessage={getFieldError("repaymentStyle")}
+          />
+
+
+        )
+          : null
+        }
+
+        <FixedPercentageInput
           name="discount"
           label="DISCOUNT"
           value={formData.discount as number}
-          onChange={handleInputChange}
-          placeholder="Discount"
-          required={false}
+          switchValue={formData.discountType || false}
+          onChange={(v: any) => handleDiscountInput(v)}
+          onSwitchChange={(flag: any) => handleOnSwitchDiscountChange(flag)}
+          placeholder="Enter discount"
+          min={0}
+          max={500}
+          currency="₦"
+          required
           errorMessage={getFieldError("discount")}
-          description={formData.discount === 0 ? "Enter Discount Value" : ""}
+          description="Enter Discount"
+          className=""
         />
+
+
+
       </div>
       <div className="flex items-center justify-between gap-1">
         <SecondaryButton

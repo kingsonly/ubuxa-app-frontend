@@ -155,3 +155,104 @@ export function truncateTextByWord(text: string, maxLength: number): string {
 
   return truncated.substring(0, lastSpaceIndex) + "...";
 }
+
+/**
+ * Converts strings like "paymentMode" → "Payment Mode"
+ * and "CLEAR_ARREARS" → "Clear Arrears"
+ */
+export function formatLabel(value: string): string {
+  if (!value) return '';
+
+  // Handle SNAKE_CASE and UPPER_CASE
+  if (value.includes('_')) {
+    return value
+      .toLowerCase()
+      .split('_')
+      .map(capitalizeWord)
+      .join(' ');
+  }
+
+  // Handle camelCase
+  const camelCaseWords = value.replace(/([A-Z])/g, ' $1').split(' ');
+  return camelCaseWords.map(capitalizeWord).join(' ');
+}
+
+function capitalizeWord(word: string): string {
+  return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+}
+
+type ParamConfig = {
+  label: string;
+  formattedValue: string;
+  showNaira: boolean;
+};
+
+export function resolveParamDisplay(
+  key: string,
+  value: any,
+  params: any
+): ParamConfig | null {
+  if (!value && value !== 0) return null;
+
+  const isOneOff = params?.salesMode === 'ONE_OFF' || params?.salesMode === 'EAAS';
+
+  const skipFieldsWhenOneOff = [
+    'repaymentStyle',
+    'installmentDuration',
+    'installmentStartingPrice',
+    'installmentStartingPriceType',
+    'discount',
+    'discountType',
+    'contractType',
+  ];
+
+  if (isOneOff && skipFieldsWhenOneOff.includes(key)) {
+    return null;
+  }
+
+  switch (key) {
+    case 'installmentDuration':
+      return {
+        label: 'Installment Duration',
+        formattedValue: `${value} month${value > 1 ? 's' : ''}`,
+        showNaira: false,
+      };
+
+    case 'installmentStartingPriceType':
+    case 'discountType':
+      return null;
+
+    case 'installmentStartingPrice':
+      return {
+        label: 'Installment Starting Price',
+        formattedValue:
+          params?.installmentStartingPriceType === true
+            ? `${value}%`
+            : formatNumberWithCommas(value),
+        showNaira: params?.installmentStartingPriceType === false,
+      };
+
+    case 'discount':
+      return {
+        label: 'Discount',
+        formattedValue:
+          params?.discountType === true
+            ? `${value}%`
+            : formatNumberWithCommas(value),
+        showNaira: params?.discountType === false,
+      };
+
+    default:
+      return {
+        label: formatLabel(key),
+        formattedValue:
+          typeof value === 'number' && value >= 1
+            ? formatNumberWithCommas(value)
+            : formatLabel(value),
+        showNaira: typeof value === 'number',
+      };
+  }
+}
+
+
+

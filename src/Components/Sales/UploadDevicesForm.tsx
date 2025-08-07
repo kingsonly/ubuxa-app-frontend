@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { z } from "zod";
-import { FaPlus } from "react-icons/fa";
 import { MdFilterList, MdFilterListOff } from "react-icons/md";
 import { HiPlus } from "react-icons/hi2";
 import { useApiCall, useGetRequest } from "@/utils/useApiCall";
@@ -13,6 +12,7 @@ import { ProductDetailRow } from "./ProductSaleDisplay";
 import SecondaryButton from "../SecondaryButton/SecondaryButton";
 import { revalidateStore, truncateTextByWord } from "@/utils/helpers";
 import { observer } from "mobx-react-lite";
+import { toast } from "react-toastify";
 
 type DeviceFormSchema = {
   serialNumber: string;
@@ -87,7 +87,6 @@ const UploadDevicesForm = observer(
     const [currentInventoryId, setCurrentInventoryId] = useState<string>("");
     const [selectedDevices, setSelectedDevices] = useState<string[]>(
       SaleStore.getSelectedTentativeDevices(
-        currentProductId,
         currentInventoryId
       ) || []
     );
@@ -95,12 +94,12 @@ const UploadDevicesForm = observer(
     const [linkView, setLinkView] = useState<string>("");
     const [prevDescription, setPrevDescription] = useState<string>("");
     const [requiredQuantity, setRequiredQuantity] = useState<number>(0);
-    const product = SaleStore.getProductById(currentProductId);
+    const product = SaleStore.products;
     const [showLinkedDevices, setShowLinkedDevices] = useState(false);
 
     const [linkedDevicesCount, setLinkedDevicesCount] = useState<number>(0);
 
-    const { data, mutate } = useGetRequest("/v1/device", true);
+    //const { data, mutate } = useGetRequest("/v1/device", true);
     const {
       data: productData,
       isLoading: productLoading,
@@ -113,16 +112,30 @@ const UploadDevicesForm = observer(
     useEffect(() => {
       const tentativeDevices =
         SaleStore.getSelectedTentativeDevices(
-          currentProductId,
           currentInventoryId
         ) || [];
       setSelectedDeviceIds(tentativeDevices);
+
     }, [currentProductId, currentInventoryId]);
+
+    useEffect(() => {
+      if (editMode) {
+        fetchDevice();
+      }
+
+    }, [editMode]);
+
+    useEffect(() => {
+      if (linkView === "selectDevice") {
+        fetchDevice();
+      }
+
+    }, [linkView]);
 
     const selectedLinkedDevices: DeviceResponse[] = filteredDevices
       ? filteredDevices.filter(
-          (device) => selectedDeviceIds && selectedDeviceIds.includes(device.id)
-        )
+        (device) => selectedDeviceIds && selectedDeviceIds.includes(device.id)
+      )
       : [];
 
     const addDeviceId = (id: string) => {
@@ -148,10 +161,14 @@ const UploadDevicesForm = observer(
         if (filterKey) newParams[filterKey] = searchTerm;
         else newParams.serialNumber = searchTerm;
       }
+      newParams["inventoryId"] = currentInventoryId
+      newParams["fetchFormat"] = 'unused'
+
       return newParams;
     };
 
     const fetchDevice = async () => {
+      console.log("current inventory id", currentInventoryId);
       setLoading(true);
       const newParams = await filterDevices();
       try {
@@ -183,7 +200,7 @@ const UploadDevicesForm = observer(
           data: validatedData,
           successMessage: "Device created successfully!",
         });
-        await mutate();
+        //await mutate();
         setCreateDevice(false);
         setLinkView("selectDevice");
         setDescription(prevDescription ? prevDescription : "Select Device");
@@ -232,7 +249,6 @@ const UploadDevicesForm = observer(
         if (isCurrentlySelected) {
           // Remove device
           SaleStore.removeSingleTentativeDevice(
-            currentProductId,
             id.toString(),
             currentInventoryId
           );
@@ -240,7 +256,6 @@ const UploadDevicesForm = observer(
         } else {
           // Add device
           SaleStore.addOrUpdateTentativeDevices(
-            currentProductId,
             [id.toString()],
             currentInventoryId
           );
@@ -252,12 +267,12 @@ const UploadDevicesForm = observer(
     };
 
     const linkDevice = () => {
+
       if (selectedDevices.length !== requiredQuantity) return;
 
       // Get existing tentative devices
       const existingDevices =
         SaleStore.getSelectedTentativeDevices(
-          currentProductId,
           currentInventoryId
         ) || [];
 
@@ -270,29 +285,27 @@ const UploadDevicesForm = observer(
       ];
 
       SaleStore.addOrUpdateTentativeDevices(
-        currentProductId,
         validDevices,
         currentInventoryId
       );
       handleCancel();
     };
 
-    const linkedStoreCount =
-      SaleStore.getAllTentativeDevices(currentProductId)?.length || 0;
+    const linkedStoreCount = SaleStore.getAllTentativeDevices()?.length || 0;
 
     const saveForm = () => {
       if (linkedStoreCount !== requiredDevices) return;
 
       // Get current tentative devices
       const tentativeDevices =
-        SaleStore.getSelectedTentativeDevices(currentProductId) || [];
-
+        SaleStore.getSelectedTentativeDevices() || [];
+      console.log("did not know", tentativeDevices);
       // Ensure all IDs are strings
       const validDevices = tentativeDevices.map((d) => String(d));
 
       // Update devices in store
-      SaleStore.addOrUpdateDevices(currentProductId, validDevices);
-      SaleStore.addSaleItem(currentProductId);
+      SaleStore.addOrUpdateDevices(validDevices);
+      SaleStore.addSaleItem();
       handleClose();
     };
 
@@ -319,10 +332,10 @@ const UploadDevicesForm = observer(
 
     revalidateStore(SaleStore);
 
-    const filteredAvailableDevices = (data?.devices || []).filter(
+    const filteredAvailableDevices = (filteredDevices || []).filter(
       (device: DeviceResponse) => {
         const allLinkedDevices: string[] =
-          SaleStore.getAllTentativeDevices(currentProductId);
+          SaleStore.getAllTentativeDevices();
 
         return (
           !allLinkedDevices.includes(device.id) &&
@@ -332,11 +345,8 @@ const UploadDevicesForm = observer(
     );
 
     const saleDevicesExist = () => {
-      const devices: string[] =
-        SaleStore.getTransformedSaleItems().find(
-          (s) => s.productId === currentProductId
-        )?.devices || [];
-
+      const saleItem = SaleStore.getTransformedSaleItems();
+      const devices: string[] = Array.isArray(saleItem.devices) ? saleItem.devices : [];
       const sumInventories =
         productData?.inventories?.reduce(
           (sum: any, inv: any) => sum + (inv?.productInventoryQuantity || 0),
@@ -346,8 +356,7 @@ const UploadDevicesForm = observer(
       return devices?.length === sumInventories;
     };
 
-    const allTentativeDevices: string[] =
-      SaleStore.getAllTentativeDevices(currentProductId);
+    // const allTentativeDevices: string[] = SaleStore.getAllTentativeDevices();
 
     if (editMode) {
       const linkedDevices =
@@ -361,6 +370,7 @@ const UploadDevicesForm = observer(
       );
 
       return (
+
         <div className="flex flex-col h-full max-h-[400px] gap-4">
           <div className="flex flex-col items-center justify-between">
             <h3 className="text-sm font-medium text-center ">
@@ -391,7 +401,7 @@ const UploadDevicesForm = observer(
               </thead>
               <tbody>
                 {linkedDevices.map((deviceId) => {
-                  const device = data?.devices?.find(
+                  const device = filteredDevices?.find(
                     (d: DeviceResponse) => d.id === deviceId
                   );
                   return device ? (
@@ -680,15 +690,13 @@ const UploadDevicesForm = observer(
                     <div className="flex items-center justify-between absolute right-3 top-1/2 -translate-y-1/2 w-max gap-2 cursor-pointer">
                       <IoIosSearch
                         className="text-textDarkGrey w-5 h-5"
-                        title={`${
-                          filterKey === "search"
-                            ? "Perform Search"
-                            : `Search by ${
-                                filterShape.find(
-                                  (filter) => filter.value === filterKey
-                                )?.name
-                              }`
-                        }`}
+                        title={`${filterKey === "search"
+                          ? "Perform Search"
+                          : `Search by ${filterShape.find(
+                            (filter) => filter.value === filterKey
+                          )?.name
+                          }`
+                          }`}
                         onClick={() => {
                           filterDevices();
                           fetchDevice();
@@ -734,9 +742,8 @@ const UploadDevicesForm = observer(
                       ) : (
                         <span className="flex items-center justify-between w-full gap-1">
                           <span
-                            className={`cursor-pointer ${
-                              showLinkedDevices ? "text-blue-500 underline" : ""
-                            }`}
+                            className={`cursor-pointer ${showLinkedDevices ? "text-blue-500 underline" : ""
+                              }`}
                             onClick={() => setShowLinkedDevices(false)}
                           >
                             {filteredAvailableDevices?.length === 0
@@ -749,11 +756,10 @@ const UploadDevicesForm = observer(
                             found
                           </span>
                           <span
-                            className={`cursor-pointer ${
-                              !showLinkedDevices
-                                ? "text-blue-500 underline"
-                                : ""
-                            }`}
+                            className={`cursor-pointer ${!showLinkedDevices
+                              ? "text-blue-500 underline"
+                              : ""
+                              }`}
                             onClick={() => setShowLinkedDevices(true)}
                           >
                             {selectedLinkedDevices?.length === 0 ? "" : "View"}{" "}
@@ -782,9 +788,8 @@ const UploadDevicesForm = observer(
                 ) : linkView === "" ? (
                   <div className="flex flex-col items-center justify-center w-full max-h-[410px] mt-2 gap-1">
                     <p className="text-sm text-textBlack font-medium">
-                      {`Link the Product Inventor${
-                        productData?.inventories?.length > 1 ? "ies" : "y"
-                      } Below`}
+                      {`Link the Product Inventor${productData?.inventories?.length > 1 ? "ies" : "y"
+                        } Below`}
                     </p>
                     <div className="w-full max-h-[340px] overflow-y-auto">
                       <div className="flex flex-col gap-2 items-center justify-start w-full pt-2 pr-3">
@@ -811,13 +816,31 @@ const UploadDevicesForm = observer(
                                 className="flex items-center justify-between w-full gap-3"
                               >
                                 <div
-                                  className={`flex bg-white flex-col gap-2 w-full p-2.5 border-[0.6px] rounded-[20px] transition-colors ${
-                                    isFullyLinked
-                                      ? "border-green-500"
-                                      : isPartiallyLinked
+                                  onClick={() => {
+                                    if (isFullyLinked) {
+                                      setCurrentInventoryId(inventoryId);
+                                      setEditMode(true);
+                                    } else {
+                                      setLinkView("selectDevice");
+                                      setDescription(
+                                        `Select Devices for ${item?.name}`
+                                      );
+                                      setPrevDescription(
+                                        `Select Devices for ${item?.name}`
+                                      );
+                                      setRequiredQuantity(
+                                        item?.productInventoryQuantity
+                                      );
+                                      setCurrentInventoryId(inventoryId);
+                                    }
+
+                                  }}
+                                  className={`cursor-pointer flex bg-white flex-col gap-2 w-full p-2.5 border-[0.6px] rounded-[20px] transition-colors ${isFullyLinked
+                                    ? "border-green-500"
+                                    : isPartiallyLinked
                                       ? "border-yellow-500"
                                       : "border-strokeGreyThree"
-                                  }`}
+                                    }`}
                                 >
                                   <div className="flex justify-between items-start">
                                     <div className="flex-1">
@@ -861,11 +884,10 @@ const UploadDevicesForm = observer(
                                   </div>
                                 ) : (
                                   <div
-                                    className={`flex items-center justify-center p-0.5 rounded-full border-[0.6px] ${
-                                      isPartiallyLinked
-                                        ? "bg-yellow-200 border-yellow-300"
-                                        : "bg-slate-200 border-strokeGreyTwo"
-                                    } cursor-pointer transition-colors`}
+                                    className={`flex items-center justify-center p-0.5 rounded-full border-[0.6px] ${isPartiallyLinked
+                                      ? "bg-yellow-200 border-yellow-300"
+                                      : "bg-slate-200 border-strokeGreyTwo"
+                                      } cursor-pointer transition-colors`}
                                     onClick={() => {
                                       setLinkView("selectDevice");
                                       setDescription(
@@ -881,11 +903,10 @@ const UploadDevicesForm = observer(
                                     }}
                                   >
                                     <LuPlus
-                                      className={`w-4 h-4 transition-colors ${
-                                        isPartiallyLinked
-                                          ? "text-yellow-600"
-                                          : "text-textDarkGrey"
-                                      }`}
+                                      className={`w-4 h-4 transition-colors ${isPartiallyLinked
+                                        ? "text-yellow-600"
+                                        : "text-textDarkGrey"
+                                        }`}
                                       title={
                                         isPartiallyLinked
                                           ? "Partially linked"
@@ -912,11 +933,9 @@ const UploadDevicesForm = observer(
                           saleDevicesExist()
                             ? "Update Linked Devices"
                             : linkedStoreCount === requiredDevices
-                            ? `✓ Save Linked ${linkedStoreCount} Device${
-                                linkedStoreCount > 1 ? "s" : ""
+                              ? `✓ Save Linked ${linkedStoreCount} Device${linkedStoreCount > 1 ? "s" : ""
                               }`
-                            : `Saved ${linkedStoreCount} of ${requiredDevices} Linked Device${
-                                requiredDevices > 1 ? "s" : ""
+                              : `Saved ${linkedStoreCount} of ${requiredDevices} Linked Device${requiredDevices > 1 ? "s" : ""
                               }`
                         }
                         onClick={saveForm}
@@ -927,7 +946,7 @@ const UploadDevicesForm = observer(
 
               {linkView === "" ? null : filteredDevices === null ||
                 filteredDevices?.length === 0 ? null : (
-                <div className="overflow-auto max-h-[220px] border border-strokeGreyTwo rounded-md bg-white mt-2">
+                <div className="overflow-auto max-h-[230px] mb-[100px] border border-strokeGreyTwo rounded-md bg-white mt-2">
                   <table className="w-full border-collapse">
                     <thead className="bg-gray-100 sticky top-0 z-10">
                       <tr>
@@ -948,58 +967,68 @@ const UploadDevicesForm = observer(
                     <tbody>
                       {showLinkedDevices
                         ? selectedLinkedDevices?.map((device) => (
-                            <tr
-                              key={device.serialNumber}
-                              onClick={() => {
-                                toggleDeviceSelection(device.id);
-                                setLinkedDevicesCount((prev) => prev - 1);
-                              }}
-                              className="border-b border-gray-200 cursor-pointer hover:bg-red-100"
-                            >
-                              <td className="text-sm p-3 whitespace-nowrap">
-                                {device.serialNumber}
-                              </td>
-                              <td className="text-sm p-3 whitespace-nowrap">
-                                {device.key}
-                              </td>
-                              <td className="text-sm p-3 whitespace-nowrap">
-                                {device.hardwareModel}
-                              </td>
-                              <td className="text-sm p-3 whitespace-nowrap">
-                                {device.firmwareVersion}
-                              </td>
-                            </tr>
-                          ))
-                        : filteredAvailableDevices?.map(
-                            (device: DeviceResponse) => (
+                          <tr
+                            key={device.serialNumber}
+                            onClick={() => {
+                              toggleDeviceSelection(device.id);
+                              setLinkedDevicesCount((prev) => prev - 1);
+                            }}
+                            className="border-b border-gray-200 cursor-pointer hover:bg-red-100"
+                          >
+                            <td className="text-sm p-3 whitespace-nowrap">
+                              {device.serialNumber}
+                            </td>
+                            <td className="text-sm p-3 whitespace-nowrap">
+                              {device.key}
+                            </td>
+                            <td className="text-sm p-3 whitespace-nowrap">
+                              {device.hardwareModel}
+                            </td>
+                            <td className="text-sm p-3 whitespace-nowrap">
+                              {device.firmwareVersion}
+                            </td>
+                          </tr>
+                        ))
+                        :
+                        filteredDevices?.map(
+                          (device: DeviceResponse) => {
+                            const linked = SaleStore.getTentativeDevicesByInventory(
+                              currentProductId,
+                              currentInventoryId
+                            ) || [];
+                            // const isLinked = linked.includes(device.id);
+                            // const atMax = linked.length >= requiredQuantity;
+
+                            return (
                               <tr
                                 key={device.serialNumber}
                                 onClick={() => {
-                                  if (
-                                    (SaleStore.getTentativeDevicesByInventory(
-                                      currentProductId,
-                                      currentInventoryId
-                                    )?.length || selectedDevices.length) ===
-                                    requiredQuantity
-                                  ) {
+                                  const isLinked = linked.includes(device.id);
+                                  const atMax = linked.length >= requiredQuantity;
+
+                                  if (isLinked) {
+                                    // remove it
+                                    toggleDeviceSelection(device.id);
+                                    setLinkedDevicesCount((c) => c - 1);
+                                  } else if (atMax) {
+                                    // already at max and trying to add a new one
+                                    toast.warn(`You can only select up to ${requiredQuantity} devices`);
                                     return;
                                   } else {
+                                    // add it
                                     toggleDeviceSelection(device.id);
-                                    setLinkedDevicesCount((prev) => prev + 1);
+                                    setLinkedDevicesCount((c) => c + 1);
                                   }
                                 }}
-                                className={`border-b border-gray-200 
-                                  ${
-                                    allTentativeDevices.includes(device.id) ||
-                                    (SaleStore.getTentativeDevicesByInventory(
-                                      currentProductId,
-                                      currentInventoryId
-                                    )?.length || selectedDevices.length) ===
-                                      requiredQuantity
-                                      ? "cursor-not-allowed"
+
+                                className={`
+                                  border-b border-gray-200
+                                  ${linked.includes(device.id)
+                                    ? "cursor-pointer hover:bg-red-500"
+                                    : linked.length >= requiredQuantity
+                                      ? "cursor-not-allowed hover:bg-red-100"
                                       : "cursor-pointer hover:bg-[#E3FAD6]"
-                                  }
-                                  `}
+                                  }`}
                               >
                                 <td className="text-sm p-3 whitespace-nowrap">
                                   {device.serialNumber}
@@ -1015,54 +1044,55 @@ const UploadDevicesForm = observer(
                                 </td>
                               </tr>
                             )
-                          )}
+                          }
+                        )
+
+                      }
                     </tbody>
                   </table>
                 </div>
               )}
 
-              {linkView === ""
+              {/* {linkView === ""
                 ? null
                 : data?.length === 0 && (
-                    <div className="text-center pt-2">
-                      <p className="mb-2">No devices available.</p>
-                      <button
-                        type="button"
-                        className="px-4 py-2 bg-success hover:bg-green-500 text-white rounded-md transition-colors flex items-center justify-center mx-auto"
-                        onClick={() => {
-                          setCreateDevice(true);
-                          setLinkView("createDevice");
-                          setDescription("Create Device");
-                        }}
-                      >
-                        <FaPlus className="mr-2" />
-                        Create Device
-                      </button>
-                    </div>
-                  )}
+                  <div className="text-center pt-2">
+                    <p className="mb-2">No devices available.</p>
+                    <button
+                      type="button"
+                      className="px-4 py-2 bg-success hover:bg-green-500 text-white rounded-md transition-colors flex items-center justify-center mx-auto"
+                      onClick={() => {
+                        setCreateDevice(true);
+                        setLinkView("createDevice");
+                        setDescription("Create Device");
+                      }}
+                    >
+                      <FaPlus className="mr-2" />
+                      Create Device
+                    </button>
+                  </div>
+                )} */}
             </div>
 
             {linkView === "" ? null : (
               <div className="flex flex-col w-full gap-1 px-5 pb-4 mt-4 absolute bottom-0 left-0">
                 <p className="text-sm text-textBlack font-medium">
-                  {`Selected ${
-                    SaleStore.getTentativeDevicesByInventory(
-                      currentProductId,
-                      currentInventoryId
-                    )?.length || linkedDevicesCount
-                  } device${
-                    SaleStore.getTentativeDevicesByInventory(
+                  {`Selected ${SaleStore.getTentativeDevicesByInventory(
+                    currentProductId,
+                    currentInventoryId
+                  )?.length || linkedDevicesCount
+                    } device${SaleStore.getTentativeDevicesByInventory(
                       currentProductId,
                       currentInventoryId
                     )?.length || linkedDevicesCount > 1
                       ? "s"
                       : ""
-                  } out of the required ${requiredQuantity}.`}
+                    } out of the required ${requiredQuantity}.`}
                 </p>
                 <div className="flex items-center justify-between gap-1">
                   <SecondaryButton
                     variant="secondary"
-                    children="Back"
+                    children="Back "
                     onClick={handleCancel}
                   />
                   <SecondaryButton

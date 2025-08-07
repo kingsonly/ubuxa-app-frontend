@@ -2,7 +2,6 @@ import inventoryIcon from "../../assets/inventory/inventoryIcon.svg";
 import { Tag } from "../Products/ProductDetails";
 import { formatDateTime } from "@/utils/helpers";
 import { GoDotFill } from "react-icons/go";
-import { useEffect } from "react";
 
 
 

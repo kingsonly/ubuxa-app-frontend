@@ -7,7 +7,7 @@ import { Tag } from "../Products/ProductDetails";
 import { NameTag } from "../CardComponents/CardComponent";
 import { ProductDetailRow } from "./ProductSaleDisplay";
 import { IoReturnUpBack } from "react-icons/io5";
-import { formatNumberWithCommas } from "@/utils/helpers";
+import { capitalizeFirstLetter, formatLabel, formatNumberWithCommas, resolveParamDisplay } from "@/utils/helpers";
 import creditcardicon from "../../assets/creditcardgrey.svg";
 import { useFlutterwave, closePaymentModal } from "flutterwave-react-v3";
 import { FlutterwaveConfig } from "flutterwave-react-v3/dist/types";
@@ -23,7 +23,7 @@ const SalesSummary = ({
   setSummaryState: React.Dispatch<React.SetStateAction<boolean>>;
   resetSaleModalState: () => void;
   loading: boolean;
-  getIsFormFilled: () => boolean;
+  getIsFormFilled: () => any;
   apiErrorMessage: React.ReactNode;
 }) => {
   const [paymentLoading, setPaymentLoading] = useState(false);
@@ -31,6 +31,7 @@ const SalesSummary = ({
 
   const paymentInfo = SaleStore.paymentDetails;
   const handleFlutterPayment = useFlutterwave(paymentInfo as FlutterwaveConfig);
+  const salesData = SaleStore.products
 
   const initializePayment = () => {
     if (paymentInfo === null) {
@@ -55,6 +56,156 @@ const SalesSummary = ({
       },
     });
   };
+
+  const renderSummary = (salesData: any) => {
+    const params = SaleStore.getParametersByProductId();
+    const identificationDetails = SaleStore.identificationDetails;
+    const guarantorDetails = SaleStore.guarantorDetails;
+    const nextOfKinDetails = SaleStore.nextOfKinDetails;
+
+    const miscellaneousCosts = SaleStore.getMiscellaneousByProductId()?.costs;
+    const miscCostsExist = miscellaneousCosts ? Object.keys(miscellaneousCosts).length >= 1 : false;
+
+    return (
+      <div
+        className="flex flex-col w-full p-2.5 gap-2 bg-white border-[0.6px] border-strokeGreyThree rounded-[20px]"
+      >
+        <p className="flex gap-1 w-max text-textLightGrey text-xs font-medium pb-2">
+          <img src={producticon} alt="Product Icon" /> PRODUCT{" "}
+
+        </p>
+
+        <ProductDetailRow
+          label="Product Category"
+          value={salesData.productTag}
+        />
+        <ProductDetailRow
+          label="Product Name"
+          value={salesData.productName}
+        />
+        <ProductDetailRow
+          label="Product Quantity"
+          value={salesData.productUnits}
+        />
+        <ProductDetailRow
+          label="Product Price"
+          value={salesData.productPrice}
+        />
+
+        <div className="flex flex-col w-full gap-2 bg-[#F9F9F9] p-3 border-[0.6px] border-strokeGreyThree rounded-[20px]">
+          <p className="text-sm font-medium text-textGreyTwo mb-1">Sales Parameters</p>
+          {Object.entries(params || {}).map(([key, value]) => {
+            const display = resolveParamDisplay(key, value, params);
+            if (!display) return null;
+
+            return (
+              <ProductDetailRow
+                key={key}
+                label={display.label}
+                value={display.formattedValue}
+                showNaira={display.showNaira}
+              />
+            );
+          })}
+        </div>
+
+        {params?.salesMode === "INSTALLMENT" ?
+          <div className="flex flex-col w-full gap-2 bg-[#F9F9F9] p-3 border-[0.6px] border-strokeGreyThree rounded-[20px]">
+            <p className="text-sm font-medium text-textGreyTwo mb-1">Identification Details </p>
+            {
+
+              Object.entries(identificationDetails || {}).map(([key, value]) => {
+
+                return (
+                  key !== "customerIdImage" ?
+                    <ProductDetailRow
+                      key={identificationDetails.customerCountry}
+                      label={formatLabel(key)}
+                      value={key === "expirationDate" ? new Date(value).toLocaleDateString() : formatLabel(value)}
+                      showNaira={false}
+
+                    />
+                    :
+
+                    <div className="flex items-center justify-between p-2.5 gap-2 bg-white border-[0.6px] border-strokeGreyThree rounded-[20px]">
+                      <Tag name={formatLabel(key)} />
+                      <div className="flex items-center justify-center w-full p-2 max-w-[70%] h-[100px] gap-2 border-[0.6px] border-strokeCream rounded-[20px] overflow-clip">
+                        <img
+                          src={URL.createObjectURL(value) || "/placeholder.svg"}
+                          alt="Product Image"
+                          className="w-full h-full object-cover rounded"
+                        />
+                      </div>
+
+
+                    </div>
+                );
+              })}
+          </div>
+          : null}
+        {params?.salesMode === "INSTALLMENT" ?
+          <div className="flex flex-col w-full gap-2 bg-[#F9F9F9] p-3 border-[0.6px] border-strokeGreyThree rounded-[20px]">
+            <p className="text-sm font-medium text-textGreyTwo mb-1">Guarantor Details</p>
+            {Object.entries(guarantorDetails || {}).map(([key, value]) => {
+              return (
+                <ProductDetailRow
+                  key={key}
+                  label={formatLabel(key)}
+                  value={formatLabel(value)}
+                  showNaira={false}
+                />
+              );
+            })}
+          </div>
+          : null}
+        {params?.salesMode === "INSTALLMENT" && nextOfKinDetails.fullName.length > 0 && nextOfKinDetails.phoneNumber.length > 0 ?
+          <div className="flex flex-col w-full gap-2 bg-[#F9F9F9] p-3 border-[0.6px] border-strokeGreyThree rounded-[20px]">
+            <p className="text-sm font-medium text-textGreyTwo mb-1">Next of kin Details</p>
+            {Object.entries(nextOfKinDetails || {}).map(([key, value]) => {
+              return (
+                <ProductDetailRow
+                  key={key}
+                  label={formatLabel(key)}
+                  value={formatLabel(value)}
+                  showNaira={false}
+                />
+              );
+            })}
+          </div>
+          : null}
+
+        {!miscCostsExist ? null : (
+          <div className="flex flex-col w-full gap-2 bg-[#F9F9F9] p-3 border-[0.6px] border-strokeGreyThree rounded-[20px]">
+            <p className="text-sm font-medium text-textGreyTwo mb-1">Miscellaneous Costs</p>
+            {miscellaneousCosts && Array.from(miscellaneousCosts.entries()).map(
+              ([name, cost], index) => (
+                <ProductDetailRow
+                  key={index}
+                  label={capitalizeFirstLetter(name)}
+                  value={formatNumberWithCommas(cost)}
+                  showNaira={true}
+                />
+              )
+            )}
+
+            {miscellaneousCosts && (
+              <div className="pt-2 border-t border-strokeGreyThree mt-2">
+                <ProductDetailRow
+                  label="Total Miscellaneous"
+                  value={formatNumberWithCommas(
+                    Array.from(miscellaneousCosts.values()).reduce((sum, cost) => sum + cost, 0)
+                  )}
+                  showNaira={true}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+      </div>
+    );
+
+  }
 
   return (
     <>
@@ -84,92 +235,7 @@ const SalesSummary = ({
               </div>
             </div>
           </div>
-          {SaleStore.products.map((item, index) => {
-            const params = SaleStore.getParametersByProductId(item?.productId);
-            const paramList = [
-              "Payment Mode",
-              "Number of Installments",
-              "Initial Deposit",
-              "Discount",
-            ];
-            const recipient = SaleStore.getRecipientByProductId(
-              item?.productId
-            );
-            const miscellaneousCosts = SaleStore.getMiscellaneousByProductId(
-              item?.productId
-            ).costs;
-            const miscCostsExist = Object.keys(miscellaneousCosts).length >= 1;
-
-            return (
-              <div
-                key={index}
-                className="flex flex-col w-full p-2.5 gap-2 bg-white border-[0.6px] border-strokeGreyThree rounded-[20px]"
-              >
-                <p className="flex gap-1 w-max text-textLightGrey text-xs font-medium pb-2">
-                  <img src={producticon} alt="Product Icon" /> PRODUCT{" "}
-                  {index + 1}
-                </p>
-
-                <ProductDetailRow
-                  label="Product Category"
-                  value={item.productTag}
-                />
-                <ProductDetailRow
-                  label="Product Name"
-                  value={item.productName}
-                />
-                <ProductDetailRow
-                  label="Product Quantity"
-                  value={item.productUnits}
-                />
-                <ProductDetailRow
-                  label="Product Price"
-                  value={item.productPrice}
-                />
-
-                <div className="flex flex-col w-full gap-2 bg-[#F9F9F9] p-3 border-[0.6px] border-strokeGreyThree rounded-[20px]">
-                  {Object.entries(params || {}).map(([key, value], index) =>
-                    !value ? null : (
-                      <ProductDetailRow
-                        key={key}
-                        label={paramList[index]}
-                        value={
-                          value >= 1 ? formatNumberWithCommas(value) : value
-                        }
-                        showNaira={Boolean(value >= 2)}
-                      />
-                    )
-                  )}
-                </div>
-
-                {!miscCostsExist ? null : (
-                  <div className="flex flex-col w-full gap-2 bg-[#F9F9F9] p-3 border-[0.6px] border-strokeGreyThree rounded-[20px]">
-                    {Array.from(miscellaneousCosts.entries()).map(
-                      ([name, cost]) => (
-                        <ProductDetailRow
-                          key={index}
-                          label={name}
-                          value={formatNumberWithCommas(cost)}
-                          showNaira={true}
-                        />
-                      )
-                    )}
-                  </div>
-                )}
-
-                <div className="flex flex-col w-full gap-2 bg-[#F9F9F9] p-3 border-[0.6px] border-strokeGreyThree rounded-[20px]">
-                  <ProductDetailRow
-                    label="Recipient Name"
-                    value={`${recipient?.firstname} ${recipient?.lastname}`}
-                  />
-                  <ProductDetailRow
-                    label="Recipient Address"
-                    value={recipient?.address as string}
-                  />
-                </div>
-              </div>
-            );
-          })}
+          {renderSummary(salesData)}
 
           {apiErrorMessage}
 

@@ -113,7 +113,7 @@ const Products = () => {
 
   return (
     <>
-      <PageLayout pageName="Products" badge={productsbadge}>
+      <PageLayout pageName="Packages" badge={productsbadge}>
         <section className="flex flex-col-reverse sm:flex-row items-center justify-between w-full bg-paleGrayGradient px-2 md:px-8 py-4 gap-2 min-h-[64px]">
           <div className="flex flex-wrap w-full items-center gap-2 gap-y-3">
             <TitlePill
@@ -154,7 +154,7 @@ const Products = () => {
           </div>
           <div className="flex w-full items-center justify-between gap-2 min-w-max sm:w-max sm:justify-end">
             <ActionButton
-              label="New Product"
+              label="New Packages"
               icon={<AddCircleIcon />}
               onClick={() => {
                 setFormType("newProduct");

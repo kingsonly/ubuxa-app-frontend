@@ -195,7 +195,8 @@ const SelectCustomerProductModal = observer(
         ? SaleStore.customer?.customerId
           ? 1
           : 0
-        : SaleStore.products.length;
+        : SaleStore.products?.productId ? 1
+          : 0;
 
     const handleTabSelect = useCallback(
       (key: string) => {
@@ -265,8 +266,8 @@ const SelectCustomerProductModal = observer(
                   setModalOpen(false);
                 }}
                 className={`text-sm  ${itemsSelected > 0
-                    ? "bg-primaryGradient text-white"
-                    : "bg-[#F6F8FA] text-textDarkGrey cursor-not-allowed"
+                  ? "bg-primaryGradient text-white"
+                  : "bg-[#F6F8FA] text-textDarkGrey cursor-not-allowed"
                   } h-[24px] px-4 border-[0.6px] border-strokeGreyTwo rounded-full`}
               >
                 Done
@@ -302,40 +303,38 @@ const SelectCustomerProductModal = observer(
             >
               <div
                 className={`flex flex-wrap ${fetchProductCategoryById?.error
-                    ? "justify-center"
-                    : "justify-start"
+                  ? "justify-center"
+                  : "justify-start"
                   } items-center h-full gap-4`}
               >
                 {fetchedData?.data?.total > 0 ? (
                   paginatedData?.map((data: any, index: number) => {
                     return (
+
+
                       <CardComponent
                         key={`${data.productId}-${index}`}
-                        variant={"inventoryTwo"}
+                        variant={"salesProduct"}
                         isSale={true}
                         productId={data.productId}
                         productImage={data.productImage}
                         productTag={data.productTag}
                         productName={data.productName}
                         productPrice={data.productPrice}
-                        productUnits={SaleStore.currentProductUnits(
-                          data.productId
-                        )}
+                        productUnits={SaleStore.currentProductUnits()}
                         productPaymentModes={data.productPaymentModes}
                         totalRemainingQuantities={data.totalRemainingQuantities}
                         onSelectProduct={(productInfo) => {
                           if (productInfo) SaleStore.addProduct(productInfo);
-                          SaleStore.addSaleItem(
-                            productInfo.productId as string
-                          );
+                          SaleStore.addSaleItem();
                         }}
-                        onRemoveProduct={(productId) => {
-                          SaleStore.removeProduct(productId as string);
-                          SaleStore.removeSaleItem(productId as string);
+                        onRemoveProduct={() => {
+                          SaleStore.removeProduct();
+                          SaleStore.removeSaleItem();
                         }}
-                        isProductSelected={SaleStore.products.some(
-                          (p) => p.productId === data.productId
-                        )}
+                      // isProductSelected={SaleStore.products.some(
+                      //   (p) => p.productId === data.productId
+                      // )}
                       />
                     );
                   })

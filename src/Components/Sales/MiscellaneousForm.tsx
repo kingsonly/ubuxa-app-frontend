@@ -29,7 +29,7 @@ export default function MiscellaneousForm({
 }) {
   const [items, setItems] = useState<CostItem[]>(() => {
     const miscellaneous =
-      SaleStore.getMiscellaneousByProductId(currentProductId);
+      SaleStore.getMiscellaneousByProductId();
     if (miscellaneous && miscellaneous.costs.size > 0) {
       return Array.from(miscellaneous.costs.entries()).map(([name, cost]) => ({
         name,
@@ -100,7 +100,7 @@ export default function MiscellaneousForm({
     }, {} as Record<string, number>);
 
     SaleStore.addOrUpdateMiscellaneousPrice(currentProductId, newItemsObject);
-    SaleStore.addSaleItem(currentProductId);
+    SaleStore.addSaleItem();
     handleClose();
   };
 
@@ -118,10 +118,9 @@ export default function MiscellaneousForm({
                 onChange={(e) => handleChange(index, "name", e.target.value)}
                 placeholder="Cost Title Here"
                 className={`w-full px-3 py-2 border rounded-md outline-none transition-colors
-                  ${
-                    errors[index]?.name
-                      ? "border-errorTwo focus:border-errorTwo"
-                      : "border-gray-300 focus:border-blue-500"
+                  ${errors[index]?.name
+                    ? "border-errorTwo focus:border-errorTwo"
+                    : "border-gray-300 focus:border-blue-500"
                   }`}
               />
               {errors[index]?.name && (
@@ -144,10 +143,9 @@ export default function MiscellaneousForm({
                   step="0.01"
                   placeholder="0.00"
                   className={`w-full pl-7 pr-4 py-2 border rounded-md outline-none transition-colors no-spinner
-                    ${
-                      errors[index]?.cost
-                        ? "border-errorTwo focus:border-errorTwo"
-                        : "border-gray-300 focus:border-blue-500"
+                    ${errors[index]?.cost
+                      ? "border-errorTwo focus:border-errorTwo"
+                      : "border-gray-300 focus:border-blue-500"
                     }`}
                 />
               </div>

@@ -17,10 +17,12 @@ import {
 } from "../../utils/helpers";
 import useBreakpoint from "../../hooks/useBreakpoint";
 import { DeviceStore } from "@/stores/DeviceStore";
+import { SaleStore } from "@/stores/SaleStore";
 
 export type CardComponentProps = {
   variant:
   | "agent"
+  | "salesProduct"
   | "customer"
   | "transactions"
   | "sales"
@@ -422,7 +424,22 @@ export const CardComponent = ({
 
       }
 
-    } else {
+    } else if (variant === "salesProduct") {
+      if (onSelectProduct) {
+
+        if (SaleStore.products?.productId === productId) {
+
+          onRemoveProduct?.(productId);
+        } else {
+          onSelectProduct(updatedProductInfo);
+
+        }
+
+      }
+
+    }
+
+    else {
       if (totalRemainingQuantities === 0) return;
       if (!_selected) {
         if (updatedProductInfo) {
@@ -445,7 +462,7 @@ export const CardComponent = ({
 
   const handleCardClick = () => {
     if (!readOnly && !noAction) {
-      if (variant === "inventoryTwo" || variant === "deviceInventory") handleSelectProduct();
+      if (variant === "inventoryTwo" || variant === "deviceInventory" || variant === "salesProduct") handleSelectProduct();
     }
   };
 
@@ -454,12 +471,13 @@ export const CardComponent = ({
       className={`relative flex flex-col ${variant === "inventoryOne" ||
         variant === "inventoryTwo" ||
         variant === "deviceInventory" ||
+        variant === "salesProduct" ||
         variant === "salesTransactions"
         ? `${inventoryMobile ? "w-full" : "w-[47%] md:w-[48%]"} ${readOnly ? "md:w-[47%]" : "md:w-[31%]"
         }`
         : "w-[32%] min-w-[204px]"
-        } bg-white border-[0.6px] rounded-[20px] ${_selected || readOnly || productId === DeviceStore.selectedInventory?.productId ? "border-success" : "border-strokeGreyThree"
-        } ${(variant === "deviceInventory" || variant === "inventoryOne" || variant === "inventoryTwo") &&
+        } bg-white border-[0.6px] rounded-[20px] ${_selected || readOnly || productId === DeviceStore.selectedInventory?.productId || productId === SaleStore.products?.productId ? "border-success" : "border-strokeGreyThree"
+        } ${(variant === "deviceInventory" || variant === "inventoryOne" || variant === "inventoryTwo" || variant === "salesProduct") &&
           isSale &&
           totalRemainingQuantities &&
           totalRemainingQuantities > 0
@@ -529,7 +547,7 @@ export const CardComponent = ({
               />
             </div>
           </div>
-        ) : variant === "deviceInventory" || variant === "inventoryOne" || variant === "inventoryTwo" ? (
+        ) : variant === "deviceInventory" || variant === "inventoryOne" || variant === "inventoryTwo" || variant === "salesProduct" ? (
           <div className="flex items-center justify-center w-full h-[120px]">
             <div className="relative w-full h-full">
               <img
@@ -736,9 +754,9 @@ export const CardComponent = ({
               </p>
               <ProductTag productTag={productTag} />
             </div>
-          ) : variant === "deviceInventory" || variant === "inventoryOne" || variant === "inventoryTwo" ? (
+          ) : variant === "deviceInventory" || variant === "inventoryOne" || variant === "inventoryTwo" || variant === "salesProduct" ? (
             <div className="flex flex-col gap-2">
-              {variant === "deviceInventory" || variant === "inventoryTwo" && (
+              {variant === "deviceInventory" || variant === "inventoryTwo" || variant === "salesProduct" && (
                 <p className="flex items-center justify-center bg-paleLightBlue text-inkBlueTwo w-max p-1 h-[14px] text-[8px] font-medium rounded-full uppercase">
                   {productTag}
                 </p>
@@ -802,7 +820,7 @@ export const CardComponent = ({
               showIcon={false}
               containerClass="bg-successTwo text-textDarkGrey font-bold px-2 py-1 border border-successThree rounded-full"
             />
-          ) : variant === "deviceInventory" || variant === "inventoryOne" ? (
+          ) : variant === "deviceInventory" || variant === "inventoryOne" || variant === "salesProduct" ? (
             productPrice ? (
               <SimpleTag
                 text={productPrice}
@@ -835,7 +853,7 @@ export const CardComponent = ({
             initialQuantity={_productUnits}
             isSale={isSale}
           />
-        ) : variant === "deviceInventory" || !showDropdown ? null : (
+        ) : variant === "deviceInventory" || variant === "salesProduct" || !showDropdown ? null : (
 
           <DropDown {...dropDownList} cardData={productInfo} />
         )}

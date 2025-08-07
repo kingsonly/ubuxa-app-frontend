@@ -1,11 +1,20 @@
 import { ChangeEvent, ReactNode, useEffect, useRef, forwardRef } from "react";
 import { CgChevronDown } from "react-icons/cg";
 import { useState } from "react";
-import { LuImagePlus } from "react-icons/lu";
+//import { LuImagePlus} from "react-icons/lu";
 import useBreakpoint from "@/hooks/useBreakpoint";
 import { IoIosSwap } from "react-icons/io";
 import { Tag } from "../Products/ProductDetails";
 import InfoTooltip from "../Info/InfoTooltip";
+import {
+  ImagePlusIcon as LuImagePlus,
+  VideoIcon as LuVideo,
+  LollipopIcon as LuMusic,
+  ArchiveIcon as LuArchive,
+  FileIcon as LuFile,
+  LucideFileText,
+  LucideFileSpreadsheet,
+} from "lucide-react"
 
 export const Asterik = () => {
   return (
@@ -385,115 +394,116 @@ export type FileInputType = {
   errorMessage?: string;
   description?: string;
   descriptionClass?: string;
+  value?: File | null
 };
 
-export const FileInput = ({
-  name,
-  label,
-  onChange,
-  placeholder,
-  disabled = false,
-  required = false,
-  iconRight,
-  style,
-  accept = "*/*",
-  errorMessage,
-  description = "",
-  descriptionClass,
-}: FileInputType) => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+// export const FileInput = ({
+//   name,
+//   label,
+//   onChange,
+//   placeholder,
+//   disabled = false,
+//   required = false,
+//   iconRight,
+//   style,
+//   accept = "*/*",
+//   errorMessage,
+//   description = "",
+//   descriptionClass,
+// }: FileInputType) => {
+//   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      // Simply set the selected file and pass it to the parent via onChange
-      setSelectedFile(file);
-      onChange({
-        target: {
-          name,
-          files: e.target.files, // Pass the file to parent
-        },
-      } as unknown as React.ChangeEvent<HTMLInputElement>);
-    }
-  };
+//   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     if (e.target.files && e.target.files[0]) {
+//       const file = e.target.files[0];
+//       // Simply set the selected file and pass it to the parent via onChange
+//       setSelectedFile(file);
+//       onChange({
+//         target: {
+//           name,
+//           files: e.target.files, // Pass the file to parent
+//         },
+//       } as unknown as React.ChangeEvent<HTMLInputElement>);
+//     }
+//   };
 
-  const openFile = () => {
-    return (document.getElementById(name) as HTMLInputElement).click();
-  };
+//   const openFile = () => {
+//     return (document.getElementById(name) as HTMLInputElement).click();
+//   };
 
-  return (
-    <div className="w-full">
-      <div
-        className={`relative autofill-parent flex
-          ${style} 
-          ${selectedFile ? "border-strokeCream" : "border-strokeGrey"}
-          ${disabled ? "bg-gray-200 cursor-not-allowed" : "bg-white"}
-          items-center w-full max-w-full h-[48px] px-[1.1em] py-[1.25em] 
-          gap-1 rounded-3xl border-[0.6px] cursor-pointer
-          transition-all focus:outline-none focus:ring-2 focus:ring-customPrimary focus:border-transparent`}
-        onClick={openFile}
-      >
-        <span
-          className={`absolute flex -top-2 items-center justify-center text-[10px] text-textGrey font-semibold px-2 py-0.5 max-w-max h-4 bg-white border-[0.6px] border-strokeCream rounded-[200px] transition-opacity duration-500 ease-in-out
-            ${selectedFile ? "opacity-100" : "opacity-0"}
-          `}
-        >
-          {label.toUpperCase()}
-        </span>
-        {required && <Asterik />}
+//   return (
+//     <div className="w-full">
+//       <div
+//         className={`relative autofill-parent flex
+//           ${style} 
+//           ${selectedFile ? "border-strokeCream" : "border-strokeGrey"}
+//           ${disabled ? "bg-gray-200 cursor-not-allowed" : "bg-white"}
+//           items-center w-full max-w-full h-[48px] px-[1.1em] py-[1.25em] 
+//           gap-1 rounded-3xl border-[0.6px] cursor-pointer
+//           transition-all focus:outline-none focus:ring-2 focus:ring-customPrimary focus:border-transparent`}
+//         onClick={openFile}
+//       >
+//         <span
+//           className={`absolute flex -top-2 items-center justify-center text-[10px] text-textGrey font-semibold px-2 py-0.5 max-w-max h-4 bg-white border-[0.6px] border-strokeCream rounded-[200px] transition-opacity duration-500 ease-in-out
+//             ${selectedFile ? "opacity-100" : "opacity-0"}
+//           `}
+//         >
+//           {label.toUpperCase()}
+//         </span>
+//         {required && <Asterik />}
 
-        {/* Hidden file input */}
-        <input
-          type="file"
-          id={name}
-          name={name}
-          onChange={handleFileChange}
-          disabled={disabled}
-          style={{ display: "none" }}
-          accept={accept}
-        />
-        {/* Custom button to trigger file input */}
-        <div className="flex items-center justify-between w-full">
-          <>
-            <button
-              type="button"
-              disabled={disabled}
-              className="text-sm text-textGrey italic truncate"
-            >
-              {selectedFile ? (
-                <span className="text-sm not-italic font-semibold text-textBlack">
-                  {selectedFile.name}
-                </span>
-              ) : (
-                placeholder
-              )}
-            </button>
-          </>
+//         {/* Hidden file input */}
+//         <input
+//           type="file"
+//           id={name}
+//           name={name}
+//           onChange={handleFileChange}
+//           disabled={disabled}
+//           style={{ display: "none" }}
+//           accept={accept}
+//         />
+//         {/* Custom button to trigger file input */}
+//         <div className="flex items-center justify-between w-full">
+//           <>
+//             <button
+//               type="button"
+//               disabled={disabled}
+//               className="text-sm text-textGrey italic truncate"
+//             >
+//               {selectedFile ? (
+//                 <span className="text-sm not-italic font-semibold text-textBlack">
+//                   {selectedFile.name}
+//                 </span>
+//               ) : (
+//                 placeholder
+//               )}
+//             </button>
+//           </>
 
-          <span>
-            {iconRight ? (
-              iconRight
-            ) : (
-              <LuImagePlus color="black" title="Upload Image" />
-            )}
-          </span>
-        </div>
-      </div>
-      {description && (
-        <p
-          className={`mt-1 px-[1.3em] text-xs text-textDarkGrey font-semibold w-full ${descriptionClass}`}
-        >
-          {description}
-        </p>
-      )}
-      {errorMessage && (
-        <p className="mt-1 px-[1.3em] text-xs text-errorTwo font-semibold w-full">
-          {errorMessage}
-        </p>
-      )}
-    </div>
-  );
-};
+//           <span>
+//             {iconRight ? (
+//               iconRight
+//             ) : (
+//               <LuImagePlus color="black" title="Upload Image" />
+//             )}
+//           </span>
+//         </div>
+//       </div>
+//       {description && (
+//         <p
+//           className={`mt-1 px-[1.3em] text-xs text-textDarkGrey font-semibold w-full ${descriptionClass}`}
+//         >
+//           {description}
+//         </p>
+//       )}
+//       {errorMessage && (
+//         <p className="mt-1 px-[1.3em] text-xs text-errorTwo font-semibold w-full">
+//           {errorMessage}
+//         </p>
+//       )}
+//     </div>
+//   );
+// };
 
 export const SmallFileInput = ({
   name,
@@ -556,6 +566,237 @@ export const SmallFileInput = ({
   );
 };
 
+const isImageFile = (file: File): boolean => {
+  return file.type.startsWith("image/")
+}
+
+// Get file size in readable format
+const getFileSize = (bytes: number): string => {
+  if (bytes === 0) return "0 Bytes"
+  const k = 1024
+  const sizes = ["Bytes", "KB", "MB", "GB"]
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+}
+
+const getFileIcon = (fileType: string, fileName: string) => {
+  const extension = fileName.split(".").pop()?.toLowerCase()
+
+  if (fileType.startsWith("image/")) {
+    return <LuImagePlus className="w-5 h-5 text-blue-500" />
+  }
+
+  switch (extension) {
+    case "pdf":
+      return <LuFile className="w-5 h-5 text-red-500" />
+    case "doc":
+    case "docx":
+      return <LucideFileText className="w-5 h-5 text-blue-600" />
+    case "xls":
+    case "xlsx":
+    case "csv":
+      return <LucideFileSpreadsheet className="w-5 h-5 text-green-600" />
+    case "mp4":
+    case "avi":
+    case "mov":
+    case "wmv":
+      return <LuVideo className="w-5 h-5 text-purple-500" />
+    case "mp3":
+    case "wav":
+    case "flac":
+      return <LuMusic className="w-5 h-5 text-orange-500" />
+    case "zip":
+    case "rar":
+    case "7z":
+      return <LuArchive className="w-5 h-5 text-gray-600" />
+    default:
+      return <LuFile className="w-5 h-5 text-gray-500" />
+  }
+}
+export const FileInput = ({
+  name,
+  label,
+  onChange,
+  placeholder = "Choose file",
+  disabled = false,
+  required = false,
+  iconRight,
+  style = "",
+  accept = "*/*",
+  errorMessage,
+  description = "",
+  descriptionClass = "",
+  value,
+}: FileInputType) => {
+  const [selectedFile, setSelectedFile] = useState<File | null>(value || null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+
+  // Update local state when value prop changes
+  useEffect(() => {
+    setSelectedFile(value || null)
+    if (value && isImageFile(value)) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string)
+      }
+      reader.readAsDataURL(value)
+    } else {
+      setImagePreview(null)
+    }
+  }, [value])
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0]
+      setSelectedFile(file)
+
+      // Create image preview if it's an image file
+      if (isImageFile(file)) {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          setImagePreview(e.target?.result as string)
+        }
+        reader.readAsDataURL(file)
+      } else {
+        setImagePreview(null)
+      }
+
+      // Pass the file to parent via onChange
+      onChange({
+        target: {
+          name,
+          files: e.target.files,
+        },
+      } as unknown as React.ChangeEvent<HTMLInputElement>)
+    }
+  }
+
+  // const handleRemoveFile = (e: React.MouseEvent) => {
+  //   e.stopPropagation()
+  //   setSelectedFile(null)
+  //   setImagePreview(null)
+
+  //   // Clear the input value
+  //   const input = document.getElementById(name) as HTMLInputElement
+  //   if (input) {
+  //     input.value = ""
+  //   }
+
+  //   // Notify parent of change
+  //   onChange({
+  //     target: {
+  //       name,
+  //       files: null,
+  //     },
+  //   } as unknown as React.ChangeEvent<HTMLInputElement>)
+  // }
+
+  const openFile = () => {
+    if (!disabled) {
+      ; (document.getElementById(name) as HTMLInputElement).click()
+    }
+  }
+
+  return (
+    <div className="w-full">
+      <div
+        className={`relative autofill-parent flex ${style} ${selectedFile ? "border-strokeCream" : "border-strokeGrey"
+          } ${disabled ? "bg-gray-200 cursor-not-allowed" : "bg-white cursor-pointer"
+          } items-center w-full max-w-full min-h-[48px] px-[1.1em] py-[1.25em] gap-1 rounded-3xl border-[0.6px] transition-all focus:outline-none focus:ring-2 focus:ring-customPrimary focus:border-transparent ${selectedFile ? "flex-col items-start p-4" : ""
+          }`}
+        onClick={openFile}
+      >
+        <span
+          className={`absolute flex -top-2 left-4 items-center justify-center text-[10px] text-textGrey font-semibold px-2 py-0.5 max-w-max h-4 bg-white border-[0.6px] border-strokeCream rounded-[200px] transition-opacity duration-500 ease-in-out ${selectedFile ? "opacity-100" : "opacity-0"
+            }`}
+        >
+          <div className="flex items-center gap-1">
+            <div>
+              {required && <Asterik />}
+            </div>
+            <div>
+              {label.toUpperCase()}
+            </div>
+          </div>
+
+        </span>
+
+
+
+        {/* Hidden file input */}
+        <input
+          type="file"
+          id={name}
+          name={name}
+          onChange={handleFileChange}
+          disabled={disabled}
+          style={{ display: "none" }}
+          accept={accept}
+        />
+
+        {selectedFile ? (
+          <div className="flex items-start justify-between w-full">
+            <div className="flex items-start gap-3 flex-1">
+              {/* Image preview or file icon */}
+              <div className="flex-shrink-0">
+                {imagePreview ? (
+                  <div className="relative">
+                    <img
+                      src={imagePreview || "/placeholder.svg"}
+                      alt="Preview"
+                      className="w-16 h-16 object-cover rounded-lg border border-gray-200"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-16 h-16 flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200">
+                    {getFileIcon(selectedFile.type, selectedFile.name)}
+                  </div>
+                )}
+              </div>
+
+              {/* File details */}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-textBlack truncate">{selectedFile.name}</p>
+                <p className="text-xs text-textGrey mt-1">{getFileSize(selectedFile.size)}</p>
+                <p className="text-xs text-textGrey">{selectedFile.type || "Unknown type"}</p>
+              </div>
+            </div>
+
+            {/* Remove button */}
+
+            {/* <button
+              type="button"
+              onClick={handleRemoveFile}
+              className="flex-shrink-0 p-1 hover:bg-gray-100 rounded-full transition-colors"
+              title="Remove file"
+            >
+              <LuX className="w-4 h-4 text-gray-500" />
+            </button> */}
+          </div>
+        ) : (
+          /* Default state - no file selected */
+          <div className="flex items-center justify-between w-full">
+            <button type="button" disabled={disabled} className="text-sm text-textGrey italic truncate">
+              <div className="flex items-center gap-1">
+                <div>{required && <Asterik />}</div>
+                <div>{placeholder}</div>
+              </div>
+            </button>
+            <span>{iconRight ? iconRight : <LuImagePlus color="black" />}</span>
+          </div>
+        )}
+      </div>
+
+      {description && (
+        <p className={`mt-1 px-[1.3em] text-xs text-textDarkGrey font-semibold w-full ${descriptionClass}`}>
+          {description}
+        </p>
+      )}
+
+      {errorMessage && <p className="mt-1 px-[1.3em] text-xs text-errorTwo font-semibold w-full">{errorMessage}</p>}
+    </div>
+  )
+}
 export type RadioOption = {
   label: string;
   value: string;
