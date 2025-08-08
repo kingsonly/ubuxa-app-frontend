@@ -6,10 +6,10 @@ import {
   SimpleTag,
 } from "../CardComponents/CardComponent";
 import { RiDeleteBin5Fill } from "react-icons/ri";
-import { ExtraInfoType } from "./CreateNewSale";
 import { SaleStore } from "@/stores/SaleStore";
 import { observer } from "mobx-react-lite";
 import ExtraInfoPill, { ExtraInfoTypePill } from "./ExtraInfoPill";
+import { ExtraInfoType } from "./CreateNewSale";
 
 export const ProductDetailRow = ({ label, value, showNaira = false, title }: {
   label: string;

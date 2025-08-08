@@ -1,0 +1,1030 @@
+// import { useTenant } from '@/Context/tenantsContext';
+// import React from 'react';
+
+// interface ContractData {
+//     company: {
+//         name: string;
+//         address: string;
+//         phone: string;
+//         email: string;
+//     };
+//     customer: {
+//         name: string;
+//         phone: string;
+//         email: string;
+//         gender: string;
+//         nin: string;
+//         bvn: string;
+//     };
+//     installation: {
+//         address: string;
+//         state: string;
+//     };
+//     product: {
+//         name: string;
+//         component: string;
+//         quantity: number;
+//         warranty: string;
+//     };
+//     payment: {
+//         plan: string;
+//         months: number;
+//     };
+//     guarantor: {
+//         name: string;
+//         address: string;
+//         phone: string;
+//         idType: string;
+//     };
+//     dates: {
+//         commencement: string;
+//         collection: string;
+//     };
+// }
+
+// const ContractTemplate: React.FC = () => {
+//     const contractData: ContractData = {
+//         company: {
+//             name: "A4&T POWER SOLUTIONS LIMITED",
+//             address: "27 Okonmoh Jayesinmi Street, Gbagada Phase II, Lagos",
+//             phone: "+234 (0) 703 944 3876",
+//             email: "contact@a4tintegratedng.com"
+//         },
+//         customer: {
+//             name: "Banks Omodele",
+//             phone: "07031943756",
+//             email: "u.omodele@a4tintegratedng.com",
+//             gender: "Female",
+//             nin: "65216637550",
+//             bvn: "2234567800"
+//         },
+//         installation: {
+//             address: "18b Adeobi Street",
+//             state: "Lagos State"
+//         },
+//         product: {
+//             name: "Solaxun System",
+//             component: "A4T13207",
+//             quantity: 1,
+//             warranty: "3 Years"
+//         },
+//         payment: {
+//             plan: "6 Months",
+//             months: 6
+//         },
+//         guarantor: {
+//             name: "Nano Nicholas",
+//             address: "18b Adeobi Street",
+//             phone: "07031943876",
+//             idType: "NIN"
+//         },
+//         dates: {
+//             commencement: "26/06/2025",
+//             collection: "26/06/2025"
+//         }
+//     };
+
+
+//     const { tenant } = useTenant()
+
+//     // alert(JSON.stringify(tenant))
+//     console.log("contract template", tenant)
+
+//     return (
+//         <div className="max-w-5xl mx-auto bg-white p-8 font-sans text-sm border-2 rounded-md m-4">
+//             {/* Header */}
+//             <div className="flex justify-between items-center mb-8">
+//                 <div className="flex space-x-4">
+//                     <button className="bg-blue-900 text-white px-4 py-2 rounded text-sm">
+//                         Installment Contract
+//                     </button>
+//                     <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded text-sm">
+//                         EAAS Contract
+//                     </button>
+//                 </div>
+//                 <div className="text-right text-xs text-gray-600">
+//                     <div>Document No: A4T-C0898-SC</div>
+//                     <div>Date: 7/31/2025</div>
+//                 </div>
+//             </div>
+
+//             {/* Company Header */}
+//             <div className="text-center mb-8">
+//                 <div className="flex items-center justify-center mb-2">
+//                     <div className="w-8 h-8 bg-orange-500 rounded mr-3"></div>
+//                     <h1 className="text-lg font-bold">{tenant.companyName}</h1>
+//                 </div>
+//                 <p className="text-gray-600 text-sm">Solar Energy Solutions</p>
+//             </div>
+
+//             {/* Agreement Title */}
+//             <div className="text-center mb-8">
+//                 <h2 className="text-xl font-bold mb-2">END USER AGREEMENT</h2>
+//                 <p className="text-sm text-gray-600">
+//                     This AGREEMENT is made between A4&T POWER SOLUTIONS LIMITED and the CUSTOMER
+//                 </p>
+//             </div>
+
+//             {/* Company and Customer Details */}
+//             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+//                 <div>
+//                     <h3 className="font-bold text-base mb-4">COMPANY DETAILS</h3>
+//                     <div className="space-y-2 text-sm">
+//                         <div><span className="font-semibold">Company:</span> {contractData.company.name}</div>
+//                         <div><span className="font-semibold">Address:</span> {contractData.company.address}</div>
+//                         <div><span className="font-semibold">Phone:</span> {contractData.company.phone}</div>
+//                         <div><span className="font-semibold">Email:</span> {contractData.company.email}</div>
+//                     </div>
+//                 </div>
+//                 <div>
+//                     <h3 className="font-bold text-base mb-4">CUSTOMER DETAILS</h3>
+//                     <div className="space-y-2 text-sm">
+//                         <div><span className="font-semibold">Name:</span> {contractData.customer.name}</div>
+//                         <div><span className="font-semibold">Phone:</span> {contractData.customer.phone}</div>
+//                         <div><span className="font-semibold">Email:</span> {contractData.customer.email}</div>
+//                         <div><span className="font-semibold">Gender:</span> {contractData.customer.gender}</div>
+//                         <div><span className="font-semibold">NIN:</span> {contractData.customer.nin}</div>
+//                         <div><span className="font-semibold">BVN:</span> {contractData.customer.bvn}</div>
+//                     </div>
+//                 </div>
+//             </div>
+
+//             {/* Installation Address */}
+//             <div className="mb-8">
+//                 <h3 className="font-bold text-base mb-4">INSTALLATION ADDRESS</h3>
+//                 <div className="text-sm">
+//                     <div>{contractData.installation.address}</div>
+//                     <div>{contractData.installation.state}</div>
+//                 </div>
+//             </div>
+
+//             {/* Product Specification */}
+//             <div className="mb-8">
+//                 <h3 className="font-bold text-base mb-4">1. PRODUCT SPECIFICATION</h3>
+//                 <p className="text-sm text-gray-600 mb-4">
+//                     A4&T will sell to the Customer and the Customer agrees to buy from A4&T the following products:
+//                 </p>
+//                 <table className="w-full border-collapse border border-gray-300">
+//                     <thead>
+//                         <tr className="bg-gray-50">
+//                             <th className="border border-gray-300 px-4 py-2 text-left">Product</th>
+//                             <th className="border border-gray-300 px-4 py-2 text-left">Component</th>
+//                             <th className="border border-gray-300 px-4 py-2 text-left">Quantity</th>
+//                             <th className="border border-gray-300 px-4 py-2 text-left">Warranty</th>
+//                         </tr>
+//                     </thead>
+//                     <tbody>
+//                         <tr>
+//                             <td className="border border-gray-300 px-4 py-2">{contractData.product.name}</td>
+//                             <td className="border border-gray-300 px-4 py-2">{contractData.product.component}</td>
+//                             <td className="border border-gray-300 px-4 py-2">{contractData.product.quantity}</td>
+//                             <td className="border border-gray-300 px-4 py-2">{contractData.product.warranty}</td>
+//                         </tr>
+//                     </tbody>
+//                 </table>
+//             </div>
+
+//             {/* Purchase Price & Payment Plans */}
+//             <div className="mb-8">
+//                 <h3 className="font-bold text-base mb-4">2. PURCHASE PRICE & PAYMENT PLANS</h3>
+//                 <div className="mb-4">
+//                     <div className="flex justify-between items-center mb-2">
+//                         <span className="font-semibold">Payment Plan:</span>
+//                         <span className="font-bold text-lg">{contractData.payment.plan}</span>
+//                     </div>
+//                     <div className="text-sm text-gray-600 space-y-2">
+//                         <p>
+//                             The Customer shall pay the purchase price for the Product, based on pricing and payment plans made available by A4&T at
+//                             the time of signing this Agreement.
+//                         </p>
+//                         <p>
+//                             <span className="font-semibold">Payment Schedule:</span> The initial deposit shall be payable upon signing this Agreement. Subsequent installments shall become
+//                             payable monthly until the purchase price is fully discharged.
+//                         </p>
+//                         <p>
+//                             <span className="font-semibold">Important:</span> All payments regarding this Contract/Agreement shall be made to A4&T Account. Take NOTE that no payment
+//                             is to be made either via cash or bank transfer into sales Agent account. A4&T shall not be liable for such payments.
+//                         </p>
+//                     </div>
+//                 </div>
+//             </div>
+
+//             {/* Title */}
+//             <div className="mb-8">
+//                 <h3 className="font-bold text-base mb-4">3. TITLE</h3>
+//                 <p className="text-sm text-gray-600">
+//                     A4&T shall retain ownership, title and all interest to the Product and until full payment of the Purchase Price is received from
+//                     Customer in accordance with the terms of this Agreement.
+//                 </p>
+//             </div>
+
+//             {/* Liens & Encumbrances */}
+//             <div className="mb-8">
+//                 <h3 className="font-bold text-base mb-4">4. LIENS & ENCUMBRANCES</h3>
+//                 <p className="text-sm text-gray-600">
+//                     Customer shall safely keep the Product free from any liens and encumbrances at the Installation Location. Customer shall not
+//                     remove the Product from the Installation Location before the completion of payment of the Purchase Price without A4&T's prior
+//                     written consent.
+//                 </p>
+//             </div>
+
+//             {/* Installation */}
+//             <div className="mb-8">
+//                 <h3 className="font-bold text-base mb-4">5. INSTALLATION</h3>
+//                 <p className="text-sm text-gray-600">
+//                     Customer may not install the Product or engage the services of an Installer to install the Product at the Installation Location.
+//                     A4&T reserves the responsibility for the installation of the System by the Customer or an Installer. Customer is solely liable.
+//                 </p>
+//             </div>
+
+//             {/* Product Warranty */}
+//             <div className="mb-8">
+//                 <h3 className="font-bold text-base mb-4">6. PRODUCT WARRANTY</h3>
+//                 <div className="text-sm text-gray-600 space-y-2">
+//                     <p>
+//                         The Product comes with a 3-year warranty which shall be activated from the date of signing this Agreement and covers only a
+//                         functional malfunction of the Product, not warrants the Customer from using the Product, subject to normal wear and tear. Validity
+//                         of the product warranty is however subject to Customer's compliance with the following terms:
+//                     </p>
+//                     <ul className="list-disc ml-6 space-y-1">
+//                         <li>Before completion of payment of the Purchase Price, Customer shall not sell, transfer or lease the Product to a third party.</li>
+//                         <li>Customer shall promptly report a case of technical malfunction to A4&T by calling the customer experience helpline; and</li>
+//                         <li>Customer shall not open, repair or tamper with the Product or cause a third party to open, repair or tamper with the Product.</li>
+//                     </ul>
+//                     <p>
+//                         Customer shall not be entitled to claim on the product warranty where it is discovered that the Product has been damaged by
+//                         Customer or while in Customer's possession and Customer agrees to pay the cost for the repair of the damage to the System or
+//                         replacement of the Product.
+//                     </p>
+//                 </div>
+//             </div>
+
+//             {/* Default & Conditional Refund */}
+//             <div className="mb-8">
+//                 <h3 className="font-bold text-base mb-4">7. DEFAULT & CONDITIONAL REFUND</h3>
+//                 <p className="text-sm text-gray-600">
+//                     This agreement may be terminated by A4&T with or without prior notice to the customer if the customer fails, neglects, or is unable
+//                     to make payment for more than (7)seven (7) consecutive days from any due date in which case, A4&T shall disconnect, recover or
+//                     take back the A4&T item and the customer shall forfeit any payment made hitherto and shall compensate A4&T according to the
+//                     market price for any damaged or missing parts, accessories and/or components.
+//                 </p>
+//             </div>
+
+//             {/* Next of Kin Details */}
+//             <div className="mb-8">
+//                 <h3 className="font-bold text-base mb-4">NEXT OF KIN DETAILS (Optional)</h3>
+//                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+//                     <div>
+//                         <span className="font-semibold">Name:</span> {contractData.guarantor.name}
+//                     </div>
+//                     <div>
+//                         <span className="font-semibold">Address:</span> {contractData.guarantor.address}
+//                     </div>
+//                     <div>
+//                         <span className="font-semibold">Phone:</span> {contractData.guarantor.phone}
+//                     </div>
+//                 </div>
+//             </div>
+
+//             {/* Guarantor Details */}
+//             <div className="mb-8">
+//                 <h3 className="font-bold text-base mb-4">GUARANTOR DETAILS</h3>
+//                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+//                     <div>
+//                         <div className="mb-2">
+//                             <span className="font-semibold">Guarantor's Name:</span> {contractData.guarantor.name}
+//                         </div>
+//                         <div className="mb-2">
+//                             <span className="font-semibold">Address:</span> {contractData.guarantor.address}
+//                         </div>
+//                         <div className="mb-2">
+//                             <span className="font-semibold">ID Type:</span> {contractData.guarantor.idType}
+//                         </div>
+//                     </div>
+//                     <div>
+//                         <div className="mb-2">
+//                             <span className="font-semibold">Guarantor's Signature:</span>
+//                         </div>
+//                         <div className="border-2 border-dashed border-gray-300 h-20 w-full mb-2 flex items-center justify-center text-gray-400">
+//                             Signature
+//                         </div>
+//                         <div className="text-xs text-gray-500">
+//                             Date: _______________
+//                         </div>
+//                     </div>
+//                 </div>
+//             </div>
+
+//             {/* Contract Timeline */}
+//             <div className="mb-8">
+//                 <h3 className="font-bold text-base mb-4">CONTRACT TIMELINE</h3>
+//                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+//                     <div className="flex items-center">
+//                         <div className="w-4 h-4 bg-blue-500 rounded-full mr-2"></div>
+//                         <div>
+//                             <span className="font-semibold">Commencement Date:</span> {contractData.dates.commencement}
+//                         </div>
+//                     </div>
+//                     <div className="flex items-center">
+//                         <div className="w-4 h-4 bg-green-500 rounded-full mr-2"></div>
+//                         <div>
+//                             <span className="font-semibold">Date of Collection:</span> {contractData.dates.collection}
+//                         </div>
+//                     </div>
+//                 </div>
+//             </div>
+
+//             {/* Customer Acknowledgment */}
+//             <div className="mb-8">
+//                 <h3 className="font-bold text-base mb-4">CUSTOMER ACKNOWLEDGMENT & SIGNATURE</h3>
+//                 <div className="text-sm mb-4">
+//                     <p>
+//                         I, <span className="font-semibold">{contractData.customer.name}</span>, hereby acknowledge that I have read, understood, and agree to all the terms and conditions outlined in
+//                         this agreement. I confirm that all information provided is accurate and complete.
+//                     </p>
+//                 </div>
+//                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//                     <div>
+//                         <div className="mb-2">
+//                             <span className="font-semibold">Customer's Signature:</span>
+//                         </div>
+//                         <div className="border-2 border-dashed border-gray-300 h-20 w-full mb-2 flex items-center justify-center text-gray-400">
+//                             Signature
+//                         </div>
+//                         <div className="text-xs text-gray-500">
+//                             Date: _______________
+//                         </div>
+//                     </div>
+//                     <div>
+//                         <div className="mb-2">
+//                             <span className="font-semibold">Customer Name:</span> {contractData.customer.name}
+//                         </div>
+//                         <div className="mb-2">
+//                             <span className="font-semibold">Phone Number:</span> {contractData.customer.phone}
+//                         </div>
+//                     </div>
+//                 </div>
+//             </div>
+
+//             {/* Terms and Conditions Box */}
+//             <div className="border-2 border-gray-400 p-4 text-center mb-8">
+//                 <h4 className="font-bold text-base mb-2">CUSTOMER HEREBY ACCEPTS THE ABOVE TERMS AND CONDITIONS</h4>
+//                 <p className="text-sm text-gray-600">This agreement is governed by the laws of the Federal Republic of Nigeria</p>
+//             </div>
+
+//             {/* Footer Sections */}
+//             <div className="space-y-6 text-xs text-gray-600">
+//                 <div>
+//                     <h4 className="font-bold text-blue-600 mb-2">8. DATA PROTECTION</h4>
+//                     <p>
+//                         A4&T, in accordance with applicable data protection laws, shall treat personal data as recovered and applying the Agreement and is subject to the relevant data protection laws of Nigeria, Customer
+//                         hereby agrees and accepts A4&T's Privacy Policy published on its website and as may be amended from time to time.
+//                     </p>
+//                 </div>
+
+//                 <div>
+//                     <h4 className="font-bold text-blue-600 mb-2">9. ENTIRE AGREEMENT</h4>
+//                     <p>
+//                         This Product is entirely at the risk of the Customer from the moment the Customer takes possession of the Product even when title has not passed to
+//                         the Customer. The Customer shall be wholly responsible for payment of the Product or for its outstanding value as and when due for the Product in the event of loss and/or damage.
+//                     </p>
+//                 </div>
+
+//                 <div>
+//                     <h4 className="font-bold text-blue-600 mb-2">10. GOVERNING LAW</h4>
+//                     <p>
+//                         This Agreement shall be governed by and construed in accordance with the laws of the Federal Republic of Nigeria. Any and all disputes arising
+//                         hereunder shall be resolved by a competent court having jurisdiction over such matters in the Federal Republic of Nigeria.
+//                     </p>
+//                 </div>
+//             </div>
+//         </div>
+//     );
+//     };
+
+
+// export default ContractTemplate;
+
+import { Download, Eye, Mail, Save, X, Zap } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+// import {
+//     Calendar,
+//     FileText,
+//     User
+// } from "lucide-react"
+
+interface ContractData {
+    // Company Details
+    companyName: string;
+    companyAddress: string;
+    companyPhone: string;
+    companyEmail: string;
+
+    // Customer Details
+    customerName: string;
+    customerPhone: string;
+    customerEmail: string;
+    customerGender: string;
+    customerNIN: string;
+    customerBVN: string;
+
+    // Installation Details
+    installationAddress: string;
+    installationCity: string;
+
+    // Product Details
+    productName: string;
+    productComponent: string;
+    quantity: number;
+    warranty: string;
+
+    // Payment Details
+    paymentModel: string;
+    installationCost: string;
+    minimumDays: number;
+    agreedDailyCost: string;
+    maxDaysBeforeConfiscation: number;
+    idlePeriodFrequency: string;
+    installmentDuration: string;
+
+    // Timeline
+    commencementDate: string;
+    collectionDate: string;
+
+    // Guarantor Details
+    guarantorName: string;
+    guarantorAddress: string;
+    guarantorPhone: string;
+    guarantorIdType: string;
+
+    // Next of Kin
+    nextOfKinName: string;
+    nextOfKinAddress: string;
+    nextOfKinPhone: string;
+
+    // Signatures
+    customerSignature: string;
+    guarantorSignature: string;
+    customerSignatureDate: string;
+    guarantorSignatureDate: string;
+}
+
+const ContractTemplate: React.FC = () => {
+    const [contractType, setContractType] = useState<'installment' | 'eaas'>('eaas');
+    const [showPreview, setShowPreview] = useState(false);
+    const [isEditing, setIsEditing] = useState(true);
+    const contractRef = useRef<HTMLDivElement>(null);
+
+    const [contractData, setContractData] = useState<ContractData>({
+        companyName: 'A4&T POWER SOLUTIONS LIMITED',
+        companyAddress: '27 Olumomol Jayesinmi Street, Gbagada Phase II, Lagos',
+        companyPhone: '+234 (0) 703 394 3875',
+        companyEmail: 'contact@a4tpower.com',
+        customerName: 'Banke Omodele',
+        customerPhone: '07031943875',
+        customerEmail: 'b.omodele@example.com',
+        customerGender: 'Female',
+        customerNIN: '80176337054',
+        customerBVN: '2234567890',
+        installationAddress: '18b Adejola Street',
+        installationCity: 'Lagos State',
+        productName: 'Solarsun System',
+        productComponent: 'A4TSR27',
+        quantity: 1,
+        warranty: '3 Years',
+        paymentModel: 'EAAS',
+        installationCost: 'N50,000',
+        minimumDays: 30,
+        agreedDailyCost: 'N200',
+        maxDaysBeforeConfiscation: 15,
+        idlePeriodFrequency: 'Monthly',
+        installmentDuration: '24 Months',
+        commencementDate: '2025-06-26',
+        collectionDate: '2025-06-26',
+        guarantorName: 'Nemo Nicholas',
+        guarantorAddress: 'Mopo Street',
+        guarantorPhone: '07031943875',
+        guarantorIdType: 'NIN',
+        nextOfKinName: 'Nemo Nicholas',
+        nextOfKinAddress: '18b Adejola Street',
+        nextOfKinPhone: '07031943875',
+        customerSignature: '',
+        guarantorSignature: '',
+        customerSignatureDate: '',
+        guarantorSignatureDate: ''
+    });
+
+    const handleInputChange = (field: keyof ContractData, value: string | number) => {
+        setContractData(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
+    const handleSignature = (type: 'customer' | 'guarantor') => {
+        const signature = prompt(`Enter ${type} signature:`);
+        if (signature) {
+            const today = new Date().toISOString().split('T')[0];
+            setContractData(prev => ({
+                ...prev,
+                [`${type}Signature`]: signature,
+                [`${type}SignatureDate`]: today
+            }));
+        }
+    };
+
+    const CompanyLogo = () => (
+        <div className="flex items-center gap-2 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-green-500 rounded-lg flex items-center justify-center">
+                <Zap className="w-6 h-6 text-white" />
+            </div>
+            <div>
+                <div className="font-bold text-lg text-gray-800">A4&T POWER</div>
+                <div className="text-sm text-gray-600">Solar Energy Solutions</div>
+            </div>
+        </div>
+    );
+
+    const ContractDocument = () => (
+        <div className="bg-white p-8 shadow-lg" ref={contractRef}>
+            {/* Header with Logo */}
+            <div className="border-b-2 border-gray-200 pb-6 mb-8">
+                <CompanyLogo />
+                <div className="text-center mt-4">
+                    <h1 className="text-2xl font-bold text-gray-800 mb-2">
+                        {contractType === 'eaas' ? 'END USER AGREEMENT' : 'INSTALLMENT CONTRACT'}
+                    </h1>
+                    <p className="text-gray-600">
+                        Solar Energy Contract - Document No: A4T-{Date.now().toString().slice(-6)}
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                        Date: {new Date().toLocaleDateString()}
+                    </p>
+                </div>
+            </div>
+
+            {/* Company & Customer Details */}
+            <div className="grid grid-cols-2 gap-8 mb-8">
+                <div>
+                    <h3 className="font-bold text-lg mb-4 border-b border-gray-200 pb-2">COMPANY DETAILS</h3>
+                    <div className="space-y-2 text-sm">
+                        <div><span className="font-medium">Company:</span> {contractData.companyName}</div>
+                        <div><span className="font-medium">Address:</span> {contractData.companyAddress}</div>
+                        <div><span className="font-medium">Phone:</span> {contractData.companyPhone}</div>
+                        <div><span className="font-medium">Email:</span> {contractData.companyEmail}</div>
+                    </div>
+                </div>
+                <div>
+                    <h3 className="font-bold text-lg mb-4 border-b border-gray-200 pb-2">CUSTOMER DETAILS</h3>
+                    <div className="space-y-2 text-sm">
+                        <div><span className="font-medium">Name:</span> {contractData.customerName}</div>
+                        <div><span className="font-medium">Phone:</span> {contractData.customerPhone}</div>
+                        <div><span className="font-medium">Email:</span> {contractData.customerEmail}</div>
+                        <div><span className="font-medium">Gender:</span> {contractData.customerGender}</div>
+                        <div><span className="font-medium">NIN:</span> {contractData.customerNIN}</div>
+                        <div><span className="font-medium">BVN:</span> {contractData.customerBVN}</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Installation Address */}
+            <div className="mb-8">
+                <h3 className="font-bold text-lg mb-4 border-b border-gray-200 pb-2">INSTALLATION ADDRESS</h3>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm">
+                        <span className="font-medium">Location:</span> {contractData.installationAddress}, {contractData.installationCity}
+                    </p>
+                </div>
+            </div>
+
+            {/* Product Specification */}
+            <div className="mb-8">
+                <h3 className="font-bold text-lg mb-4 border-b border-gray-200 pb-2">1. PRODUCT SPECIFICATION</h3>
+                <div className="overflow-x-auto">
+                    <table className="w-full border-collapse border border-gray-300 text-sm">
+                        <thead>
+                            <tr className="bg-gray-100">
+                                <th className="border border-gray-300 px-4 py-2 text-left">Product</th>
+                                <th className="border border-gray-300 px-4 py-2 text-left">Component</th>
+                                <th className="border border-gray-300 px-4 py-2 text-left">Quantity</th>
+                                <th className="border border-gray-300 px-4 py-2 text-left">Warranty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td className="border border-gray-300 px-4 py-2">{contractData.productName}</td>
+                                <td className="border border-gray-300 px-4 py-2">{contractData.productComponent}</td>
+                                <td className="border border-gray-300 px-4 py-2">{contractData.quantity}</td>
+                                <td className="border border-gray-300 px-4 py-2">{contractData.warranty}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {/* Payment Plan */}
+            <div className="mb-8">
+                <h3 className="font-bold text-lg mb-4 border-b border-gray-200 pb-2">2. PURCHASE PRICE & PAYMENT PLANS</h3>
+                <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                    <div className="flex items-center gap-2 mb-2">
+                        <span className="font-medium">Payment Model:</span>
+                        <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                            {contractType === 'eaas' ? 'EAAS' : `Installment - ${contractData.installmentDuration}`}
+                        </span>
+                    </div>
+                    <p className="text-sm text-gray-700">
+                        {contractType === 'eaas'
+                            ? 'Energy as a Service (EAAS) payment model with flexible daily payment options.'
+                            : `Installment payment plan over ${contractData.installmentDuration} duration.`
+                        }
+                    </p>
+                </div>
+
+                {contractType === 'eaas' && (
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div><span className="font-medium">Installation Cost:</span> {contractData.installationCost}</div>
+                        <div><span className="font-medium">Minimum Days:</span> {contractData.minimumDays} days</div>
+                        <div><span className="font-medium">Agreed Daily Cost:</span> {contractData.agreedDailyCost}</div>
+                        <div><span className="font-medium">Max Days Before Confiscation:</span> {contractData.maxDaysBeforeConfiscation} days</div>
+                        <div><span className="font-medium">Idle Period Frequency:</span> {contractData.idlePeriodFrequency}</div>
+                    </div>
+                )}
+            </div>
+
+            {/* Contract Timeline */}
+            <div className="mb-8">
+                <h3 className="font-bold text-lg mb-4 border-b border-gray-200 pb-2">CONTRACT TIMELINE</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span className="font-medium">Commencement Date:</span> {new Date(contractData.commencementDate).toLocaleDateString()}
+                    </div>
+                    <div>
+                        <span className="font-medium">Date of Collection:</span> {new Date(contractData.collectionDate).toLocaleDateString()}
+                    </div>
+                </div>
+            </div>
+
+            {/* Guarantor & Next of Kin */}
+            <div className="grid grid-cols-2 gap-8 mb-8">
+                <div>
+                    <h3 className="font-bold text-lg mb-4 border-b border-gray-200 pb-2">GUARANTOR DETAILS</h3>
+                    <div className="space-y-2 text-sm">
+                        <div><span className="font-medium">Name:</span> {contractData.guarantorName}</div>
+                        <div><span className="font-medium">Address:</span> {contractData.guarantorAddress}</div>
+                        <div><span className="font-medium">Phone:</span> {contractData.guarantorPhone}</div>
+                        <div><span className="font-medium">ID Type:</span> {contractData.guarantorIdType}</div>
+                    </div>
+                </div>
+                <div>
+                    <h3 className="font-bold text-lg mb-4 border-b border-gray-200 pb-2">NEXT OF KIN DETAILS</h3>
+                    <div className="space-y-2 text-sm">
+                        <div><span className="font-medium">Name:</span> {contractData.nextOfKinName}</div>
+                        <div><span className="font-medium">Address:</span> {contractData.nextOfKinAddress}</div>
+                        <div><span className="font-medium">Phone:</span> {contractData.nextOfKinPhone}</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Terms & Conditions Summary */}
+            <div className="mb-8">
+                <h3 className="font-bold text-lg mb-4 border-b border-gray-200 pb-2">TERMS & CONDITIONS SUMMARY</h3>
+                <div className="text-sm space-y-2">
+                    <p>• A4&T shall retain ownership, title and all interest to the Product until full payment is received.</p>
+                    <p>• Customer shall safely keep the Product free from liens and encumbrances at the Installation Location.</p>
+                    <p>• The Product comes with a {contractData.warranty} warranty covering technical malfunctions.</p>
+                    <p>• This agreement may be terminated by A4&T for non-payment exceeding 15 consecutive days.</p>
+                    <p>• Customer acknowledges compliance with data protection laws of Nigeria.</p>
+                    <p>• Agreement is governed by the laws of the Federal Republic of Nigeria.</p>
+                </div>
+            </div>
+
+            {/* Signatures Section */}
+            <div className="border-t-2 border-gray-200 pt-6">
+                <h3 className="font-bold text-lg mb-6 text-center">SIGNATURES</h3>
+                <div className="grid grid-cols-2 gap-8">
+                    <div className="text-center">
+                        <h4 className="font-medium mb-4">CUSTOMER</h4>
+                        <div className="border-2 border-dashed border-gray-300 h-20 flex items-center justify-center mb-2">
+                            {contractData.customerSignature ? (
+                                <div className="text-center">
+                                    <div className="font-signature text-lg text-blue-600">{contractData.customerSignature}</div>
+                                    <div className="text-xs text-gray-500">Digitally Signed</div>
+                                </div>
+                            ) : (
+                                <div className="text-gray-400 text-sm">Customer Signature</div>
+                            )}
+                        </div>
+                        <div className="text-sm">
+                            <div className="font-medium">{contractData.customerName}</div>
+                            <div className="text-gray-600">
+                                {contractData.customerSignatureDate ?
+                                    `Date: ${new Date(contractData.customerSignatureDate).toLocaleDateString()}` :
+                                    'Date: ___________'
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="text-center">
+                        <h4 className="font-medium mb-4">GUARANTOR</h4>
+                        <div className="border-2 border-dashed border-gray-300 h-20 flex items-center justify-center mb-2">
+                            {contractData.guarantorSignature ? (
+                                <div className="text-center">
+                                    <div className="font-signature text-lg text-green-600">{contractData.guarantorSignature}</div>
+                                    <div className="text-xs text-gray-500">Digitally Signed</div>
+                                </div>
+                            ) : (
+                                <div className="text-gray-400 text-sm">Guarantor Signature</div>
+                            )}
+                        </div>
+                        <div className="text-sm">
+                            <div className="font-medium">{contractData.guarantorName}</div>
+                            <div className="text-gray-600">
+                                {contractData.guarantorSignatureDate ?
+                                    `Date: ${new Date(contractData.guarantorSignatureDate).toLocaleDateString()}` :
+                                    'Date: ___________'
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Acceptance Declaration */}
+            <div className="border-2 border-blue-600 bg-blue-50 p-6 rounded-lg mt-8 text-center">
+                <h3 className="font-bold text-lg mb-2">CUSTOMER HEREBY ACCEPTS THE ABOVE TERMS AND CONDITIONS</h3>
+                <p className="text-sm text-gray-600">This agreement is governed by the laws of the Federal Republic of Nigeria</p>
+            </div>
+
+            {/* Footer */}
+            <div className="mt-8 pt-4 border-t border-gray-200 text-center text-xs text-gray-500">
+                <p>This document is generated electronically and is valid when all parties agree to the terms.</p>
+                <p className="mt-1">A4&T POWER SOLUTIONS LIMITED - Solar Energy Contract System</p>
+            </div>
+        </div>
+    );
+
+    return (
+        <div className="flex h-screen bg-gray-100">
+            {/* Side Menu - Form */}
+            <div className="w-1/3 bg-white shadow-lg overflow-y-auto">
+                <div className="p-6 border-b border-gray-200">
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-xl font-bold">Contract Details</h2>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setIsEditing(!isEditing)}
+                                className={`p-2 rounded-lg ${isEditing ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}
+                            >
+                                {isEditing ? <Save className="w-4 h-4" /> : <Edit3 className="w-4 h-4" />}
+                            </button>
+                            <button
+                                onClick={() => setShowPreview(true)}
+                                className="p-2 bg-blue-100 text-blue-700 rounded-lg"
+                            >
+                                <Eye className="w-4 h-4" />
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="flex gap-2 mb-4">
+                        <button
+                            onClick={() => setContractType('eaas')}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium ${contractType === 'eaas'
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-gray-200 text-gray-700'
+                                }`}
+                        >
+                            EAAS Contract
+                        </button>
+                        <button
+                            onClick={() => setContractType('installment')}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium ${contractType === 'installment'
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-gray-200 text-gray-700'
+                                }`}
+                        >
+                            Installment
+                        </button>
+                    </div>
+                </div>
+
+                {isEditing && (
+                    <div className="p-6 space-y-6">
+                        {/* Customer Details */}
+                        <div>
+                            <h3 className="font-semibold mb-3">Customer Information</h3>
+                            <div className="space-y-3">
+                                <input
+                                    type="text"
+                                    placeholder="Customer Name"
+                                    value={contractData.customerName}
+                                    onChange={(e) => handleInputChange('customerName', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Phone"
+                                    value={contractData.customerPhone}
+                                    onChange={(e) => handleInputChange('customerPhone', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                                />
+                                <input
+                                    type="email"
+                                    placeholder="Email"
+                                    value={contractData.customerEmail}
+                                    onChange={(e) => handleInputChange('customerEmail', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                                />
+                                <div className="grid grid-cols-2 gap-2">
+                                    <select
+                                        value={contractData.customerGender}
+                                        onChange={(e) => handleInputChange('customerGender', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                                    >
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
+                                    <input
+                                        type="text"
+                                        placeholder="NIN"
+                                        value={contractData.customerNIN}
+                                        onChange={(e) => handleInputChange('customerNIN', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Installation Details */}
+                        <div>
+                            <h3 className="font-semibold mb-3">Installation Details</h3>
+                            <div className="space-y-3">
+                                <input
+                                    type="text"
+                                    placeholder="Installation Address"
+                                    value={contractData.installationAddress}
+                                    onChange={(e) => handleInputChange('installationAddress', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="City/State"
+                                    value={contractData.installationCity}
+                                    onChange={(e) => handleInputChange('installationCity', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Product Details */}
+                        <div>
+                            <h3 className="font-semibold mb-3">Product Details</h3>
+                            <div className="space-y-3">
+                                <input
+                                    type="text"
+                                    placeholder="Product Name"
+                                    value={contractData.productName}
+                                    onChange={(e) => handleInputChange('productName', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                                />
+                                <div className="grid grid-cols-2 gap-2">
+                                    <input
+                                        type="text"
+                                        placeholder="Component"
+                                        value={contractData.productComponent}
+                                        onChange={(e) => handleInputChange('productComponent', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                                    />
+                                    <input
+                                        type="number"
+                                        placeholder="Quantity"
+                                        value={contractData.quantity}
+                                        onChange={(e) => handleInputChange('quantity', parseInt(e.target.value) || 0)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Payment Details */}
+                        <div>
+                            <h3 className="font-semibold mb-3">Payment Details</h3>
+                            <div className="space-y-3">
+                                {contractType === 'eaas' ? (
+                                    <>
+                                        <input
+                                            type="text"
+                                            placeholder="Installation Cost"
+                                            value={contractData.installationCost}
+                                            onChange={(e) => handleInputChange('installationCost', e.target.value)}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                                        />
+                                        <input
+                                            type="text"
+                                            placeholder="Daily Cost"
+                                            value={contractData.agreedDailyCost}
+                                            onChange={(e) => handleInputChange('agreedDailyCost', e.target.value)}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                                        />
+                                    </>
+                                ) : (
+                                    <input
+                                        type="text"
+                                        placeholder="Installment Duration"
+                                        value={contractData.installmentDuration}
+                                        onChange={(e) => handleInputChange('installmentDuration', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                                    />
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Guarantor Details */}
+                        <div>
+                            <h3 className="font-semibold mb-3">Guarantor Details</h3>
+                            <div className="space-y-3">
+                                <input
+                                    type="text"
+                                    placeholder="Guarantor Name"
+                                    value={contractData.guarantorName}
+                                    onChange={(e) => handleInputChange('guarantorName', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Phone"
+                                    value={contractData.guarantorPhone}
+                                    onChange={(e) => handleInputChange('guarantorPhone', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Signatures */}
+                        <div>
+                            <h3 className="font-semibold mb-3">Signatures</h3>
+                            <div className="space-y-3">
+                                <button
+                                    onClick={() => handleSignature('customer')}
+                                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700"
+                                >
+                                    {contractData.customerSignature ? 'Update Customer Signature' : 'Add Customer Signature'}
+                                </button>
+                                <button
+                                    onClick={() => handleSignature('guarantor')}
+                                    className="w-full px-4 py-2 bg-green-600 text-white rounded-md text-sm hover:bg-green-700"
+                                >
+                                    {contractData.guarantorSignature ? 'Update Guarantor Signature' : 'Add Guarantor Signature'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Main Content - Contract Preview */}
+            <div className="flex-1 overflow-y-auto p-6">
+                <div className="max-w-4xl mx-auto">
+                    <div className="flex justify-between items-center mb-6">
+                        <h1 className="text-2xl font-bold">Contract Preview</h1>
+                        <div className="flex gap-2">
+                            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
+                                <Download className="w-4 h-4" />
+                                Download PDF
+                            </button>
+                            <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2">
+                                <Mail className="w-4 h-4" />
+                                Send Email
+                            </button>
+                        </div>
+                    </div>
+
+                    <ContractDocument />
+                </div>
+            </div>
+
+            {/* Preview Modal */}
+            {showPreview && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg shadow-xl max-w-4xl max-h-[90vh] overflow-y-auto m-4">
+                        <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center">
+                            <h2 className="text-xl font-bold">Contract Preview</h2>
+                            <button
+                                onClick={() => setShowPreview(false)}
+                                className="p-2 hover:bg-gray-100 rounded-lg"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="p-6">
+                            <ContractDocument />
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default ContractTemplate;

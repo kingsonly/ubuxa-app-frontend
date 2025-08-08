@@ -262,6 +262,7 @@ export const SmallSelectInput = ({
   return (
     <div className={`${!mobileStyle ? "w-full max-w-[160px]" : "w-max"}`}>
       <select
+        aria-label={name}
         name={name}
         value={value}
         onChange={onChange}
@@ -357,7 +358,7 @@ export const ModalInput = ({
             <div
               className={`flex flex-col items-center justify-start not-italic text-textBlack w-full px-[1.1em] py-2 max-h-[550px] overflow-y-auto
             ${isItemsSelected ? "opacity-100" : "opacity-0"}
-          
+
           `}
             >
               {itemsSelected}
@@ -876,7 +877,7 @@ export const RadioInput = ({
   return (
     <>
       <div
-        className={`flex 
+        className={`flex
         ${radioParentStyle}
         ${radioLayout === "row" ? "flex-row" : "flex-col"} gap-2`}
       >
@@ -884,7 +885,7 @@ export const RadioInput = ({
           <label
             key={option.value}
             htmlFor={`${name}-${index}`}
-            className={`flex items-center justify-center bg-white w-max max-w-[400px]  
+            className={`flex items-center justify-center bg-white w-max max-w-[400px]
             gap-3 rounded-3xl text-base text-center text-textGrey font-semibold transition-all
             border border-strokeGreyTwo cursor-pointer ${className ? className : "h-[35px] px-[1em] py-[0.2em]"
               }
@@ -1000,7 +1001,7 @@ export const SelectInput = ({
       <div ref={dropdownRef} className={`relative w-full max-w-full`}>
         <div
           className={`relative flex items-center
-            w-full max-w-full h-[48px] px-[1.25em] py-[1.25em] 
+            w-full max-w-full h-[48px] px-[1.25em] py-[1.25em]
             rounded-3xl text-sm text-textGrey border-[0.6px] gap-1 cursor-pointer
             transition-all focus:outline-none focus:ring-2 focus:ring-customPrimary focus:border-transparent
             ${disabled ? "bg-gray-200 cursor-not-allowed" : "bg-white"}
@@ -1129,10 +1130,10 @@ export const SelectMultipleInput = ({
     <div className="w-full">
       <div ref={dropdownRef} className={`relative w-full max-w-full `}>
         <div
-          className={`relative flex items-center justify-between 
+          className={`relative flex items-center justify-between
           ${style}
           ${plainBorder ? "border-strokeGrey" : value ? "border-strokeCream" : "border-strokeGrey"}
-          ${disabled ? "bg-gray-200 cursor-not-allowed" : "bg-white"} 
+          ${disabled ? "bg-gray-200 cursor-not-allowed" : "bg-white"}
           w-full h-[48px] px-[1.3em] py-[1em] cursor-pointer
           rounded-3xl text-sm text-textGrey border-[0.6px] gap-[4.23px]
           transition-all focus:outline-none focus:ring-2 focus:ring-customPrimary`}
@@ -1141,7 +1142,7 @@ export const SelectMultipleInput = ({
           {
             label &&
             <span
-              className={`absolute flex -top-2 items-center justify-center text-[10px] text-textGrey font-semibold px-2 py-0.5 max-w-max h-4 bg-white border-[0.6px] border-strokeCream rounded-[200px] 
+              className={`absolute flex -top-2 items-center justify-center text-[10px] text-textGrey font-semibold px-2 py-0.5 max-w-max h-4 bg-white border-[0.6px] border-strokeCream rounded-[200px]
             transition-opacity duration-500 ease-in-out
             ${value.length > 0 ? "opacity-100" : "opacity-0"}`}
             >
@@ -1377,7 +1378,7 @@ export const FixedPercentageInput = forwardRef<HTMLInputElement, FixedPercentage
         <div className="relative">
           {/* Label Badge */}
           <div className="absolute -top-3 left-6 z-10">
-            <div className={`flex items-center gap-2 bg-white px-3 py-1 rounded-full border-[0.6px] text-[10px] text-textGrey font-semibold  px-2 py-0.5 max-w-max h-6 bg-white border-[0.6px] border-strokeCream rounded-[200px] transition-opacity duration-500 ease-in-out
+            <div className={`flex items-center gap-2 px-3 py-1 border-[0.6px] text-[10px] text-textGrey font-semibold  max-w-max h-6 bg-white border-strokeCream rounded-[200px] transition-opacity duration-500 ease-in-out
             ${value ? "opacity-100" : "opacity-0"} `}>
               <label className=" uppercase tracking-wide">{label}</label>
               {infoMessage && <InfoTooltip message={infoMessage} size={16} />}

@@ -5,8 +5,13 @@ import { ErrorComponent } from "@/Pages/ErrorPage";
 import { PaginationType, Table } from "../TableComponent/Table";
 import gradientcontract from "../../assets/contracts/gradientcontract.svg";
 import roletwo from "../../assets/table/roletwo.svg";
-import ContractModal from "./ContractModal";
+// import ContractModal from "./ContractModal";
 import { Contract } from "./contractType";
+import { Modal } from '@/Components/ModalComponent/Modal';
+import ContractTemplateModal from "./ContractTemplateModal";
+// import { SimpleTag } from "../CardComponents/CardComponent";
+// import ActionButton from '@/Components/ActionButtonComponent/ActionButton';
+// import { Download, Printer } from "lucide-react";
 
 type ContractEntries = {
   productCategory: string;
@@ -102,8 +107,17 @@ const ContractsTable = ({
             paginationInfo={paginationInfo}
             clearFilters={() => setTableQueryParams({})}
           />
-          {isOpen && contractID && (
-            <ContractModal setIsOpen={setIsOpen} contractId={contractID} />
+          {contractID && (
+            // <ContractModal setIsOpen={setIsOpen} contractId={contractID} />
+
+            <Modal isOpen={isOpen}
+              onClose={() => setIsOpen(false)}
+              layout="right"
+              bodyStyle="pb-[100px]"
+              size="extra"
+            >
+              <ContractTemplateModal contractId={contractID} />
+            </Modal>
           )}
         </div>
       ) : (
@@ -183,11 +197,10 @@ export const ContractCardComponent = (
         <div className="flex items-center justify-between pl-2 py-1 pr-1 border-[0.6px] border-strokeGreyThree rounded-full">
           <p className="text-textGrey text-xs">Status</p>
           <p
-            className={`px-2 py-0.5 text-xs font-medium ${
-              props.contractSigned
-                ? "bg-successTwo text-success"
-                : "bg-[#FFEBEC] text-errorTwo"
-            } rounded-full`}
+            className={`px-2 py-0.5 text-xs font-medium ${props.contractSigned
+              ? "bg-successTwo text-success"
+              : "bg-[#FFEBEC] text-errorTwo"
+              } rounded-full`}
           >
             {props.contractSigned ? "Signed" : "Not Signed"}
           </p>
