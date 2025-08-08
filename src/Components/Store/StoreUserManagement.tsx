@@ -60,21 +60,21 @@ const StoreUserManagement: React.FC<StoreUserManagementProps> = observer(({
 
   const storeApi = useStoreApi();
 
-  // Fetch data when modal opens or query params change
+  // Fetch data when modal opens, pagination, or query params change
   useEffect(() => {
     if (isOpen && storeId) {
       fetchData();
     }
-  }, [isOpen, storeId, tableQueryParams]);
+  }, [isOpen, storeId, currentPage, entriesPerPage, tableQueryParams]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Fetch assigned users with query params
-      const storeUsersResponse = await storeApi.getStoreUsers(storeId, tableQueryParams);
-      setAssignedUsers(Array.isArray(storeUsersResponse.data) ? storeUsersResponse.data : []);
+      // Fetch assigned users with pagination and query params
+      const storeUsersResponse = await storeApi.getStoreUsers(storeId, currentPage, entriesPerPage, tableQueryParams);
+      setAssignedUsers(Array.isArray(storeUsersResponse.data.data) ? storeUsersResponse.data.data : []);
     } catch (err: any) {
       setError(err?.response?.data?.message || "Failed to fetch users");
     } finally {

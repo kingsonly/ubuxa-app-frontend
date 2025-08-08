@@ -19,6 +19,11 @@ const StorePage: React.FC = observer(() => {
     console.log('Selected store:', store);
   };
 
+  // Initial data fetch
+  React.useEffect(() => {
+    fetchAllStores(true);
+  }, []);
+
   return (
     <>
       <PageLayout pageName="Stores" badge={inventorybadge} className="w-full p-6">

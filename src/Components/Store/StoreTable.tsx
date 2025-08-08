@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, PaginationType } from '../TableComponent/Table';
 import { StoreResponse } from '../../types/store';
 import { useStoreManagement } from '@/hooks/useStoreManagement';
-
 import { DropDown } from '../DropDownComponent/DropDown';
 import StoreDetailModal from './StoreDetailModal';
 import StoreUserManagement from './StoreUserManagement';
@@ -21,6 +20,16 @@ export const StoreTable: React.FC<StoreTableProps> = observer(({ onStoreSelect }
   const [selectedStoreName, setSelectedStoreName] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(6);
+  const [tableQueryParams, setTableQueryParams] = useState<Record<string, any> | null>({});
+  const [queryValue, setQueryValue] = useState<string>("");
+  const [isSearchQuery, setIsSearchQuery] = useState<boolean>(false);
+
+
+
+  // Fetch data when pagination or query params change
+  useEffect(() => {
+    fetchAllStores(false, currentPage, entriesPerPage, tableQueryParams);
+  }, [currentPage, entriesPerPage, tableQueryParams]);
 
   const handleStoreClick = (store: StoreResponse) => {
     setSelectedStoreId(store.id);
@@ -36,6 +45,62 @@ export const StoreTable: React.FC<StoreTableProps> = observer(({ onStoreSelect }
     setCurrentPage,
     setEntriesPerPage,
   });
+
+  // Filter list for table
+  const filterList = [
+    {
+      name: "Classification",
+      items: ["All Types", "Main", "Branch", "OUTLET"],
+      onClickLink: async (index: number) => {
+        setIsSearchQuery(false);
+        let classification = "";
+        if (index === 1) {
+          classification = "MAIN";
+        } else if (index === 2) {
+          classification = "BRANCH";
+        } else if (index === 3) {
+          classification = "OUTLET";
+        }
+        setQueryValue(classification);
+        setIsSearchQuery(true);
+        setTableQueryParams((prevParams) => ({
+          ...prevParams,
+          classification: classification,
+        }));
+      },
+    },
+    {
+      name: "Status",
+      items: ["All Status", "Active", "Inactive"],
+      onClickLink: async (index: number) => {
+        setIsSearchQuery(false);
+        let status = "";
+        if (index === 1) {
+          status = "true";
+        } else if (index === 2) {
+          status = "false";
+        }
+        setQueryValue(status);
+        setIsSearchQuery(true);
+        setTableQueryParams((prevParams) => ({
+          ...prevParams,
+          isActive: status,
+        }));
+      },
+    },
+    {
+      name: "Search",
+      onSearch: async (query: string) => {
+        setQueryValue(query);
+        setIsSearchQuery(true);
+        setTableQueryParams((prevParams) => ({
+          ...prevParams,
+          search: query,
+        }));
+      },
+      isSearch: true,
+    },
+  ];
 
   const getDropDownList = (store: StoreResponse) => ({
     items: ["View Store", "Manage Users"],
@@ -77,7 +142,7 @@ export const StoreTable: React.FC<StoreTableProps> = observer(({ onStoreSelect }
            <div className="absolute top-4 right-4 z-10">
              <span className={`px-3 py-1 rounded-full text-sm font-medium shadow-lg ${
                store.classification === 'MAIN' 
-                 ? 'bg-purple-500 text-white'
+                 ? 'bg-orange-500 text-white'
                  : store.classification === 'BRANCH'
                  ? 'bg-blue-500 text-white'
                  : 'bg-green-500 text-white'
@@ -126,15 +191,19 @@ export const StoreTable: React.FC<StoreTableProps> = observer(({ onStoreSelect }
     <div className="w-full">
       <Table
         showHeader={true}
-        tableTitle="Stores"
+        tableTitle="STORES"
+        filterList={filterList}
         tableData={stores}
         tableType="card"
         cardComponent={StoreCard}
         loading={loading}
         paginationInfo={paginationInfo}
-        refreshTable={async () => await fetchAllStores(true)}
+        refreshTable={async () => await fetchAllStores(true, currentPage, entriesPerPage, tableQueryParams)}
+        queryValue={isSearchQuery ? queryValue : ""}
         clearFilters={() => {
-          // Clear filters logic if needed
+          setTableQueryParams({});
+          setQueryValue("");
+          setIsSearchQuery(false);
         }}
       />
       

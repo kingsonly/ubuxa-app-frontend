@@ -1,143 +1,150 @@
 import { useApiCall } from "@/utils/useApiCall";
 import { CreateStorePayload, UpdateStorePayload } from "@/types/store";
+import { buildQueryString } from "@/hooks/useQueryString";
 
 export const useStoreApi = () => {
-    const { apiCall } = useApiCall();
+  const { apiCall } = useApiCall();
 
-    const createStore = async (data: CreateStorePayload) => {
-        return await apiCall({
-            endpoint: "/v1/stores",
-            method: "post",
-            data,
-            successMessage: "Store created successfully!",
-        });
-    };
+  const createStore = async (data: CreateStorePayload) => {
+    return await apiCall({
+      endpoint: "/v1/stores",
+      method: "post",
+      data,
+      successMessage: "Store created successfully!",
+    });
+  };
 
-    const getAllStores = async () => {
-        return await apiCall({
-            endpoint: "/v1/stores",
-            method: "get",
-            showToast: false,
-        });
-    };
+  const getAllStores = async (
+    page = 1,
+    limit = 20,
+    queryParams?: Record<string, any> | null
+  ) => {
+    const queryString = buildQueryString(queryParams);
+    const endpoint = `/v1/stores?page=${page}&limit=${limit}${queryString}`;
 
-    const getMainStore = async () => {
-        return await apiCall({
-            endpoint: "/v1/stores/main",
-            method: "get",
-            showToast: false,
-        });
-    };
+    return await apiCall({
+      endpoint,
+      method: "get",
+      showToast: false,
+    });
+  };
 
-    const getStoreById = async (id: string) => {
-        return await apiCall({
-            endpoint: `/v1/stores/${id}`,
-            method: "get",
-            showToast: false,
-        });
-    };
+  const getMainStore = async () => {
+    return await apiCall({
+      endpoint: "/v1/stores/main",
+      method: "get",
+      showToast: false,
+    });
+  };
 
-    const getStoreUsers = async (storeId: string, queryParams?: Record<string, any> | null) => {
-        let endpoint = `/v1/stores/${storeId}/users`;
-        
-        // Add query parameters if provided
-        if (queryParams && Object.keys(queryParams).length > 0) {
-            const searchParams = new URLSearchParams();
-            Object.entries(queryParams).forEach(([key, value]) => {
-                if (value !== null && value !== undefined && value !== '') {
-                    searchParams.append(key, value.toString());
-                }
-            });
-            const queryString = searchParams.toString();
-            if (queryString) {
-                endpoint += `?${queryString}`;
-            }
-        }
+  const getStoreById = async (id: string) => {
+    return await apiCall({
+      endpoint: `/v1/stores/${id}`,
+      method: "get",
+      showToast: false,
+    });
+  };
 
-        return await apiCall({
-            endpoint,
-            method: "get",
-            showToast: false,
-        });
-    };
+  const getStoreUsers = async (
+    storeId: string,
+    page = 1,
+    limit = 20,
+    queryParams?: Record<string, any> | null
+  ) => {
+    const queryString = buildQueryString(queryParams);
+    const endpoint = `/v1/stores/${storeId}/users?page=${page}&limit=${limit}${queryString}`;
 
-    const updateStore = async (id: string, data: UpdateStorePayload) => {
-        return await apiCall({
-            endpoint: `/v1/stores/${id}`,
-            method: "patch",
-            data,
-            successMessage: "Store updated successfully!",
-        });
-    };
+    return await apiCall({
+      endpoint,
+      method: "get",
+      showToast: false,
+    });
+  };
 
-    const deleteStore = async (id: string) => {
-        return await apiCall({
-            endpoint: `/v1/stores/${id}`,
-            method: "delete",
-            successMessage: "Store deleted successfully!",
-        });
-    };
+  const updateStore = async (id: string, data: UpdateStorePayload) => {
+    return await apiCall({
+      endpoint: `/v1/stores/${id}`,
+      method: "patch",
+      data,
+      successMessage: "Store updated successfully!",
+    });
+  };
 
-    const assignUserToStore = async (storeId: string, userId: string) => {
-        return await apiCall({
-            endpoint: `/v1/stores/${storeId}/assign-user/${userId}`,
-            method: "post",
-            successMessage: "User assigned to store successfully!",
-        });
-    };
+  const deleteStore = async (id: string) => {
+    return await apiCall({
+      endpoint: `/v1/stores/${id}`,
+      method: "delete",
+      successMessage: "Store deleted successfully!",
+    });
+  };
 
-    const getUserStore = async (userId: string) => {
-        return await apiCall({
-            endpoint: `/v1/stores/user/${userId}`,
-            method: "get",
-            showToast: false,
-        });
-    };
+  const assignUserToStore = async (storeId: string, userId: string) => {
+    return await apiCall({
+      endpoint: `/v1/stores/${storeId}/assign-user/${userId}`,
+      method: "post",
+      successMessage: "User assigned to store successfully!",
+    });
+  };
 
-    const getCurrentUserStore = async () => {
-        return await apiCall({
-            endpoint: "/v1/stores/user/me/store",
-            method: "get",
-        });
-    };
+  const getUserStore = async (userId: string) => {
+    return await apiCall({
+      endpoint: `/v1/stores/user/${userId}`,
+      method: "get",
+      showToast: false,
+    });
+  };
 
-    const getUserDefaultStore = async (userId: string) => {
-        return await apiCall({
-            endpoint: `/v1/stores/user/${userId}/default`,
-            method: "get",
-            showToast: false,
-        });
-    };
+  const getCurrentUserStore = async () => {
+    return await apiCall({
+      endpoint: "/v1/stores/user/me/store",
+      method: "get",
+    });
+  };
 
-    const getAllTenantUsers = async () => {
-        return await apiCall({
-            endpoint: "/v1/users",
-            method: "get",
-            showToast: false,
-        });
-    };
+  const getUserDefaultStore = async (userId: string) => {
+    return await apiCall({
+      endpoint: `/v1/stores/user/${userId}/default`,
+      method: "get",
+      showToast: false,
+    });
+  };
 
-    const unassignUserFromStore = async (storeId: string, userId: string) => {
-        return await apiCall({
-            endpoint: `/v1/stores/${storeId}/unassign-user/${userId}`,
-            method: "delete",
-            successMessage: "User unassigned from store successfully!",
-        });
-    };
+  const getAllTenantUsers = async (
+    page = 1,
+    limit = 20,
+    queryParams?: Record<string, any> | null
+  ) => {
+    const queryString = buildQueryString(queryParams);
+    const endpoint = `/v1/users?page=${page}&limit=${limit}${queryString}`;
 
-    return {
-        createStore,
-        getAllStores,
-        getMainStore,
-        getStoreById,
-        getStoreUsers,
-        updateStore,
-        deleteStore,
-        assignUserToStore,
-        unassignUserFromStore,
-        getUserStore,
-        getCurrentUserStore,
-        getUserDefaultStore,
-        getAllTenantUsers,
-    };
+    return await apiCall({
+      endpoint,
+      method: "get",
+      showToast: false,
+    });
+  };
+
+  const unassignUserFromStore = async (storeId: string, userId: string) => {
+    return await apiCall({
+      endpoint: `/v1/stores/${storeId}/unassign-user/${userId}`,
+      method: "delete",
+      successMessage: "User unassigned from store successfully!",
+    });
+  };
+
+  return {
+    createStore,
+    getAllStores,
+    getMainStore,
+    getStoreById,
+    getStoreUsers,
+    updateStore,
+    deleteStore,
+    assignUserToStore,
+    unassignUserFromStore,
+    getUserStore,
+    getCurrentUserStore,
+    getUserDefaultStore,
+    getAllTenantUsers,
+  };
 };

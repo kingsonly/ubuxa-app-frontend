@@ -8,7 +8,7 @@ export const useStoreManagement = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchAllStores = async (force = false) => {
+  const fetchAllStores = async (force = false, page = 1, limit = 20, queryParams?: Record<string, any> | null) => {
     // Simple check to prevent multiple calls
     if (StoreStore.loading && !force) {
       return;
@@ -17,8 +17,8 @@ export const useStoreManagement = () => {
     try {
       setLoading(true);
       StoreStore.setLoading(true);
-      const response = await storeApi.getAllStores();
-      StoreStore.setStores(response.data);
+      const response = await storeApi.getAllStores(page, limit, queryParams);
+      StoreStore.setStores(response.data.data);
       StoreStore.setError(null);
     } catch (err: any) {
       const errorMessage = err?.response?.data?.message || "Failed to fetch stores";
@@ -113,7 +113,7 @@ export const useStoreManagement = () => {
     try {
       setLoading(true);
       const response = await storeApi.getStoreUsers(storeId);
-      StoreStore.setStoreUsers(response.data);
+      StoreStore.setStoreUsers(response.data.data);
       return response.data;
     } catch (err: any) {
       const errorMessage = err?.response?.data?.message || "Failed to fetch store users";

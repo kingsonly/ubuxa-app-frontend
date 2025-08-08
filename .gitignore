@@ -27,6 +27,5 @@ dist-ssr
 *storybook.log
 *storybook-static
 test.mjs
-SIMPLIFIED_STORE_SOLUTION.md
-STORE_IMPLEMENTATION_SUMMARY.md
-STORE_USER_MANAGEMENT_TABLE_UPDATED.md
+*.kiro
+
