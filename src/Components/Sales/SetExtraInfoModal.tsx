@@ -9,7 +9,6 @@ import IdentificationForm from "./IdentificationForm";
 import NextOfKinForm from "./NextOfKin";
 import GuarantorForm from "./GuarantorForm";
 import { observer } from "mobx-react-lite";
-import SaleRecipientForm from "./SaleRecipientForm";
 import SalesBoltIcon from "../appIcons/sales-bolt.icon";
 
 const SetExtraInfoModal = observer(
@@ -63,13 +62,6 @@ const SetExtraInfoModal = observer(
             <UploadDevicesForm
               handleClose={handleClose}
               setDescription={setDescription}
-              currentProductId={currentProductId}
-            />
-          );
-        case "recipient":
-          return (
-            <SaleRecipientForm
-              handleClose={handleClose}
               currentProductId={currentProductId}
             />
           );

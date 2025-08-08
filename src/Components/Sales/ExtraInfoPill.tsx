@@ -3,19 +3,19 @@ import { Info } from 'lucide-react';
 import { Check } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
-export type ExtraInfoType = 'parameters' | 'miscellaneous' | 'devices' | 'recipient';
+export type ExtraInfoTypePill = 'parameters' | 'miscellaneous' | 'devices' | 'recipient';
 
 interface ExtraInfoPillProps {
-    type: ExtraInfoType;
+    type: ExtraInfoTypePill;
     label: string;
-    onClick: (type: ExtraInfoType) => void;
+    onClick: (type: ExtraInfoTypePill) => void;
     infoMessage?: string;
     required?: boolean;
     error?: string;
     filled?: boolean;
 }
 
-const labelsMap: Record<ExtraInfoType, string> = {
+const labelsMap: Record<ExtraInfoTypePill, string> = {
     parameters: 'Set Parameters',
     miscellaneous: 'Set Miscellaneous Costs',
     devices: 'Link Device',

@@ -2,9 +2,9 @@ import { toJS } from "mobx";
 import {
   types,
   Instance,
-  cast,
   applySnapshot,
   SnapshotIn,
+  getSnapshot,
 } from "mobx-state-tree";
 
 
@@ -13,46 +13,32 @@ const defaultValues: SnapshotIn<typeof saleStore> = {
   category: "PRODUCT",
   customer: null,
   doesCustomerExist: false,
-  products: [],
+  products: null,
   doesProductCategoryExist: false,
-  parameters: [],
-  miscellaneousPrices: [],
-  devices: [],
-  saleItems: [],
+  parameters: null,
+  miscellaneousPrices: null,
+  devices: null,
+  saleItems: null,
   identificationDetails: {
     idType: "",
     idNumber: "",
-    issuingCountry: "",
-    issueDate: "",
+    customerCountry: "",
+    customerState: "",
+    customerLGA: "",
     expirationDate: "",
-    fullNameAsOnID: "",
-    addressAsOnID: "",
+    installationAddress: "",
+    installationAddressLongitude: "",
+    installationAddressLatitude: "",
   },
   nextOfKinDetails: {
     fullName: "",
-    relationship: "",
     phoneNumber: "",
-    email: "",
-    homeAddress: "",
-    dateOfBirth: "",
-    nationality: "",
   },
   guarantorDetails: {
     fullName: "",
     phoneNumber: "",
     email: "",
     homeAddress: "",
-    dateOfBirth: "",
-    nationality: "",
-    identificationDetails: {
-      idType: "",
-      idNumber: "",
-      issuingCountry: "",
-      issueDate: "",
-      expirationDate: "",
-      fullNameAsOnID: "",
-      addressAsOnID: "",
-    },
   },
   paymentDetails: {
     public_key: "",
@@ -70,21 +56,14 @@ const defaultValues: SnapshotIn<typeof saleStore> = {
 const IdentificationDetailsModel = types.model({
   idType: types.string,
   idNumber: types.string,
-  issuingCountry: types.string,
-  issueDate: types.string,
+  customerCountry: types.string,
+  customerState: types.string,
+  customerLGA: types.string,
   expirationDate: types.string,
-  fullNameAsOnID: types.string,
-  addressAsOnID: types.string,
-});
-
-const GuarantorIdentityModel = types.model({
-  idType: types.string,
-  idNumber: types.string,
-  issuingCountry: types.string,
-  issueDate: types.string,
-  expirationDate: types.string,
-  fullNameAsOnID: types.string,
-  addressAsOnID: types.string,
+  installationAddress: types.string,
+  installationAddressLongitude: types.string,
+  installationAddressLatitude: types.string,
+  customerIdImage: types.maybeNull(types.frozen<File>())
 });
 
 const GuarantorDetailsModel = types.model({
@@ -92,19 +71,12 @@ const GuarantorDetailsModel = types.model({
   phoneNumber: types.string,
   email: types.string,
   homeAddress: types.string,
-  dateOfBirth: types.string,
-  nationality: types.string,
-  identificationDetails: GuarantorIdentityModel,
 });
 
 const NextOfKinDetailsModel = types.model({
   fullName: types.string,
-  relationship: types.string,
   phoneNumber: types.string,
-  email: types.string,
-  homeAddress: types.string,
-  dateOfBirth: types.string,
-  nationality: types.string,
+
 });
 
 const CustomerModel = types.model({
@@ -127,16 +99,17 @@ const ProductModel = types.model({
   productPaymentModes: types.string,
 });
 
-const ParamModel = types.model({
-  paymentMode: types.enumeration(["INSTALLMENT", "ONE_OFF"]),
+
+const ParametersModel = types.model({
+  salesMode: types.string,//types.enumeration(["INSTALLMENT", "ONE_OFF"]),
+  paymentMode: types.string,//types.enumeration(["INSTALLMENT", "ONE_OFF"]),
+  repaymentStyle: types.string,//types.enumeration(["INSTALLMENT", "ONE_OFF"]),
   installmentDuration: types.number,
   installmentStartingPrice: types.number,
   discount: types.number,
-});
-
-const ParametersModel = types.model({
-  currentProductId: types.string,
-  params: ParamModel,
+  installmentStartingPriceType: types.boolean,
+  discountType: types.boolean,
+  contractType: types.string,
 });
 
 const MiscellaneousPricesModel = types.model({
@@ -149,7 +122,6 @@ const SaleMiscellaneousPricesModel = types.model({
 });
 
 const DevicesModel = types.model({
-  currentProductId: types.string,
   devices: types.array(types.string),
 });
 
@@ -159,34 +131,20 @@ const TentativeDeviceInventory = types.model({
 });
 
 const TentativeDevicesModel = types.model({
-  currentProductId: types.string,
   devices: types.array(types.string),
   inventories: types.array(TentativeDeviceInventory),
-});
-
-const SaleRecipientModel = types.model({
-  firstname: types.string,
-  lastname: types.string,
-  address: types.string,
-  phone: types.string,
-  email: types.string,
-});
-
-const RecipientModel = types.model({
-  currentProductId: types.string,
-  recipient: SaleRecipientModel,
 });
 
 const SaleItemsModel = types.model({
   productId: types.string,
   quantity: types.number,
-  paymentMode: types.enumeration(["INSTALLMENT", "ONE_OFF"]),
-  discount: types.number,
-  installmentDuration: types.maybe(types.number),
-  installmentStartingPrice: types.maybe(types.number),
+  parameters: types.maybe(ParametersModel),
+  // paymentMode: types.enumeration(["INSTALLMENT", "ONE_OFF"]),
+  // discount: types.number,
+  // installmentDuration: types.maybe(types.number),
+  // installmentStartingPrice: types.maybe(types.number),
   devices: types.array(types.string),
   miscellaneousPrices: types.maybe(SaleMiscellaneousPricesModel),
-  saleRecipient: types.maybe(SaleRecipientModel),
 });
 
 const CustomizationsModel = types.model({
@@ -216,152 +174,157 @@ const saleStore = types
     category: types.enumeration(["PRODUCT"]),
     customer: types.maybeNull(CustomerModel),
     doesCustomerExist: types.boolean,
-    products: types.array(ProductModel),
+    products: types.maybeNull(ProductModel),
     doesProductCategoryExist: types.boolean,
-    parameters: types.array(ParametersModel),
-    miscellaneousPrices: types.array(MiscellaneousPricesModel),
-    devices: types.array(DevicesModel),
-    tentativeDevices: types.array(TentativeDevicesModel),
-    saleRecipient: types.array(RecipientModel),
-    saleItems: types.array(SaleItemsModel),
+    parameters: types.maybeNull(ParametersModel),
+    miscellaneousPrices: types.maybeNull(MiscellaneousPricesModel),
+    devices: types.maybeNull(DevicesModel),
+    tentativeDevices: types.maybeNull(TentativeDevicesModel),
+    saleItems: types.maybeNull(SaleItemsModel),
     identificationDetails: IdentificationDetailsModel,
     nextOfKinDetails: NextOfKinDetailsModel,
     guarantorDetails: GuarantorDetailsModel,
     paymentDetails: PaymentDataModel,
   })
   .actions((self) => ({
-    addSaleItem(productId: string) {
-      const product = self.products.find((p) => p.productId === productId);
-      if (!product?.productId) return;
+    addSaleItem() {
+      if (!self.products) return;
 
-      const params = self.parameters.find(
-        (p) => p.currentProductId === productId
-      );
+      const { productId, productUnits } = self.products;
+      // const { paymentMode, discount, installmentDuration, installmentStartingPrice } =
+      //   self.parameters.params;
 
-      // Ensure devices is a plain array of strings
-      const devices = toJS(
-        self.devices.find((d) => d.currentProductId === productId)?.devices ||
-        []
-      );
-
-      // Convert `miscellaneousPrices` into a plain object, filtering based on the current productId
-      const miscellaneousCosts = self.miscellaneousPrices.reduce(
-        (acc, misc) => {
-          // Only include the costs that match the current productId
-          if (misc.currentProductId === productId) {
-            const plainCosts = toJS(misc.costs); // Convert to a plain object
-
-            plainCosts.forEach((cost, name) => {
-              if (typeof cost === "number") {
-                acc[name] = cost; // Use the name as the key and cost as the value
-              } else {
-                console.warn(`Invalid cost value for ${name}:`, cost);
-              }
-            });
-          }
-
-          return acc;
-        },
-        {} as Record<string, number>
-      );
-
-      // Fetch or create the saleRecipient for the given productId
-      const recipient = self.saleRecipient.find(
-        (recipient) => recipient.currentProductId === productId
-      );
-
-      // Ensure recipient is copied to avoid using a reference directly
-      const saleRecipient = recipient
-        ? { ...recipient.recipient } // Create a shallow copy of the recipient
-        : {
-          firstname: "",
-          lastname: "",
-          address: "",
-          phone: "",
-          email: "",
-        };
-
-      // Check if saleItem with the same productId exists
-      const existingSaleItem = self.saleItems.find(
-        (item) => item.productId === productId
-      );
-
-      if (existingSaleItem) {
-        // Update existing sale item instead of adding a new one
-        existingSaleItem.quantity = product?.productUnits || 0;
-        existingSaleItem.paymentMode = params?.params?.paymentMode || "ONE_OFF";
-        existingSaleItem.discount = params?.params?.discount || 0;
-        existingSaleItem.installmentDuration =
-          params?.params?.installmentDuration || 0;
-        existingSaleItem.installmentStartingPrice =
-          params?.params?.installmentStartingPrice || 0;
-        existingSaleItem.devices = cast(devices);
-        existingSaleItem.miscellaneousPrices = {
-          costs: cast(miscellaneousCosts),
-        };
-        existingSaleItem.saleRecipient = { ...saleRecipient };
-      } else {
-        // Add a new sale item if it doesn't exist
-        self.saleItems.push({
-          productId,
-          quantity: product?.productUnits || 0,
-          paymentMode: params?.params?.paymentMode || "ONE_OFF",
-          discount: params?.params?.discount || 0,
-          installmentDuration: params?.params?.installmentDuration || 0,
-          installmentStartingPrice:
-            params?.params?.installmentStartingPrice || 0,
-          devices: cast(devices),
-          miscellaneousPrices: { costs: cast(miscellaneousCosts) },
-          saleRecipient: { ...saleRecipient },
-        });
+      // pull a plain array of device IDs
+      const devices: string[] = self.devices?.devices.slice() ?? [];
+      // pull your costs map into a plain object
+      const miscCosts: Record<string, number> = {};
+      if (self.miscellaneousPrices) {
+        for (const [key, val] of toJS(self.miscellaneousPrices.costs).entries()) {
+          if (typeof val === "number") miscCosts[key] = val;
+        }
       }
-    },
-    getTransformedSaleItems() {
-      return self.saleItems.map((item) => {
-        const plainItem = toJS(item);
-        const relevantMiscPrices = self.miscellaneousPrices.find(
-          (m) => m.currentProductId === plainItem.productId
-        ) || { costs: new Map() };
+      const paramsSnapshot = self.parameters
+        ? getSnapshot(self.parameters)
+        : undefined;
 
-        const miscellaneousCosts = Array.from(
-          relevantMiscPrices.costs.entries()
-        ).reduce((acc, [name, cost]) => {
+      self.saleItems = SaleItemsModel.create({
+        productId,
+        quantity: productUnits,
+
+        // paymentMode: self.parameters?.params.paymentMode || "ONE_OFF",
+        // discount: self.parameters?.params.discount || 0,
+        // installmentDuration: self.parameters?.params.installmentDuration,
+        // installmentStartingPrice: self.parameters?.params.installmentStartingPrice,
+        devices,
+        ...(paramsSnapshot && { parameters: paramsSnapshot }),
+        miscellaneousPrices:
+          Object.keys(miscCosts).length > 0
+            ? { costs: miscCosts }
+            : undefined,                                // <- undefined if no costs
+      });
+    },
+    // addSaleItem() {
+    //   const product = self.products;
+    //   if (!product?.productId) return;
+
+    //   const params = self.parameters;
+
+    //   // Ensure devices is a plain array of strings
+    //   const devices = toJS(self.devices);
+
+    //   // Convert `miscellaneousPrices` into a plain object, filtering based on the current productId
+    //   const miscellaneousCosts = self.miscellaneousPrices.reduce(
+    //     (acc, misc) => {
+    //       // Only include the costs that match the current productId
+    //       if (misc.currentProductId === productId) {
+    //         const plainCosts = toJS(misc.costs); // Convert to a plain object
+
+    //         plainCosts.forEach((cost, name) => {
+    //           if (typeof cost === "number") {
+    //             acc[name] = cost; // Use the name as the key and cost as the value
+    //           } else {
+    //             console.warn(`Invalid cost value for ${name}:`, cost);
+    //           }
+    //         });
+    //       }
+
+    //       return acc;
+    //     },
+    //     {} as Record<string, number>
+    //   );
+
+    //   // Fetch or create the saleRecipient for the given productId
+    //   const recipient = self.saleRecipient;
+
+    //   // Ensure recipient is copied to avoid using a reference directly
+    //   const saleRecipient = recipient
+    //     ? { ...recipient.recipient } // Create a shallow copy of the recipient
+    //     : {
+    //       firstname: "",
+    //       lastname: "",
+    //       address: "",
+    //       phone: "",
+    //       email: "",
+    //     };
+
+    //   self.saleItems = {
+    //     productId,
+    //     quantity: product?.productUnits || 0,
+    //     paymentMode: params?.params?.paymentMode || "ONE_OFF",
+    //     discount: params?.params?.discount || 0,
+    //     installmentDuration: params?.params?.installmentDuration || 0,
+    //     installmentStartingPrice:
+    //       params?.params?.installmentStartingPrice || 0,
+    //     devices: devices,
+    //     miscellaneousPrices: { costs: cast(miscellaneousCosts) },
+    //     saleRecipient: { ...saleRecipient },
+    //   };
+    // },
+
+
+    getTransformedSaleItems() {
+      const plainItem = toJS(self.saleItems);
+
+      const costsMap = self.miscellaneousPrices?.costs ?? new Map<string, number>();
+
+      // Turn the Map into a plain { [name]: cost } object
+      const miscellaneousCosts = Array.from(costsMap.entries()).reduce(
+        (acc, [name, cost]) => {
           if (typeof cost === "number") {
             acc[name] = cost;
           } else {
             console.warn(`Invalid cost value for ${name}:`, cost);
           }
           return acc;
-        }, {} as Record<string, number>);
+        },
+        {} as Record<string, number>
+      );
 
-        if (Object.keys(miscellaneousCosts).length === 0) {
-          delete plainItem.miscellaneousPrices;
-        }
+      // If there aren’t actually any costs, remove the field entirely
+      if (Object.keys(miscellaneousCosts).length === 0) {
+        delete plainItem?.miscellaneousPrices;
+      }
 
-        const transformedItem = {
-          ...plainItem,
-          ...(Object.keys(miscellaneousCosts).length > 0 && {
-            miscellaneousPrices: miscellaneousCosts,
-          }),
-        };
+      const transformedItem = {
+        ...plainItem,
+        // only include the field if there's something in it
+        ...(Object.keys(miscellaneousCosts).length > 0 && {
+          miscellaneousPrices: miscellaneousCosts,
+        }),
+      };
 
-        return transformedItem;
-      });
+      return transformedItem;
+
     },
     doesSaleItemHaveInstallment() {
-      const filteredArray = self.saleItems.filter(
-        (item) => item.paymentMode === "INSTALLMENT"
-      );
-      const installmentExists = filteredArray.length > 0;
+      const installmentExists = self.saleItems?.parameters?.salesMode === "INSTALLMENT" || self.saleItems?.parameters?.salesMode === "EAAS";
       return installmentExists;
     },
-    removeSaleItem(productId: string) {
-      self.saleItems.replace(
-        self.saleItems.filter((item) => item.productId !== productId)
-      );
+    removeSaleItem() {
+      self.saleItems = null;
     },
     clearSaleItems() {
-      self.saleItems.clear();
+      self.saleItems = null;
     },
     addCustomer(customer: typeof self.customer) {
       self.customer = customer;
@@ -376,182 +339,102 @@ const saleStore = types
       self.doesCustomerExist = value;
     },
     addProduct(product: any) {
-      const existingIndex = self.products.findIndex(
-        (p) => p.productId === product.productId
-      );
+      // simply overwrite the one product
+      self.products = ProductModel.create(product);
+      self.doesProductCategoryExist = true;
+    },
+    removeProduct() {
+      // clear it
+      self.products = null;
+      //this.removeSaleItem(/* old productId, if you still need to purge */);
+    },
 
-      if (existingIndex !== -1) {
-        // Update existing product
-        self.products[existingIndex] = {
-          ...self.products[existingIndex],
-          ...product,
-        };
-      } else {
-        // Add new product
-        self.products.push(product);
-      }
-    },
-    removeProduct(productId: string) {
-      this.removeParameter(productId);
-      this.removeMiscellaneousPrice(productId);
-      this.removeDevices(productId);
-      this.removeTentativeDevices(productId);
-      this.removeRecipient(productId);
-
-      const index = self.products.findIndex((p) => p.productId === productId);
-      if (index !== -1) self.products.splice(index, 1);
-      this.removeSaleItem(productId);
-    },
-    getProductById(productId?: string) {
-      const product = self.products.find((p) => p.productId === productId);
-      return product;
-    },
-    currentProductUnits(productId?: string) {
-      const currentUnits = self.products.find(
-        (p) => p.productId === productId
-      )?.productUnits;
-      return currentUnits;
+    currentProductUnits() {
+      return self.products?.productUnits;
     },
     emptyProducts() {
-      self.products.clear();
+      self.products = null;
     },
     setProductCategoryExist(value: boolean) {
       self.doesProductCategoryExist = value;
     },
     addParameters(
-      currentProductId: string,
       params: {
-        paymentMode: "INSTALLMENT" | "ONE_OFF";
+        paymentMode: string;
+        contractType: string;
+        salesMode: string;
+        repaymentStyle: string;
         installmentDuration: number;
         installmentStartingPrice: number;
         discount: number;
+        installmentStartingPriceType: boolean
+        discountType: boolean
       }
     ) {
-      const existingIndex = self.parameters.findIndex(
-        (d) => d.currentProductId === currentProductId
-      );
-
-      if (existingIndex !== -1) {
-        applySnapshot(self.parameters[existingIndex].params, params);
-      } else {
-        self.parameters.push(
-          ParametersModel.create({
-            currentProductId,
-            params: toJS(params),
-          })
-        );
-      }
-    },
-    getParametersByProductId(productId: string) {
-      const parameters = self.parameters.find(
-        (p) => p.currentProductId === productId
-      )?.params;
-      return parameters;
-    },
-    removeParameter(currentProductId?: string) {
-      self.parameters.replace(
-        self.parameters.filter((p) => p.currentProductId !== currentProductId)
-      );
-      self.saleItems.forEach((item) => {
-        if (item.productId === currentProductId) {
-          item.paymentMode = "ONE_OFF";
-          item.installmentDuration = 0;
-          item.installmentStartingPrice = 0;
-          item.discount = 0;
-        }
+      console.log("PARAMS:", params);
+      self.parameters = ParametersModel.create({
+        paymentMode: params.paymentMode,
+        repaymentStyle: params.repaymentStyle,
+        salesMode: params.salesMode,
+        contractType: params.contractType,
+        installmentDuration: params.installmentDuration,
+        installmentStartingPrice: params.installmentStartingPrice,
+        installmentStartingPriceType: params.installmentStartingPriceType,
+        discountType: params.discountType,
+        discount: params.discount,
       });
+    },
+    getParametersByProductId() {
+      return self.parameters;
+    },
+    removeParameter() {
+      self.parameters = null;
+      if (self.saleItems) {
+        self.saleItems.parameters = undefined
+      }
+
     },
     addOrUpdateMiscellaneousPrice(
       currentProductId: string,
       costs: Record<string, number>
     ) {
-      const existingIndex = self.miscellaneousPrices.findIndex(
-        (p) => p.currentProductId === currentProductId
-      );
+      self.miscellaneousPrices = MiscellaneousPricesModel.create({ currentProductId, costs })
 
-      if (existingIndex !== -1) {
-        // Update existing entry
-        Object.entries(costs).forEach(([key, value]) => {
-          self.miscellaneousPrices[existingIndex].costs.set(key, value);
+    },
+    getMiscellaneousByProductId() {
+      return self.miscellaneousPrices;
+    },
+    removeMiscellaneousPrice() {
+      // self.miscellaneousPrices.replace(
+      //   self.miscellaneousPrices.filter(
+      //     (p) => p.currentProductId !== currentProductId
+      //   )
+      // );
+      // self.saleItems.forEach((item) => {
+      //   if (item.productId === currentProductId) {
+      //     item.miscellaneousPrices = undefined;
+      //   }
+      // });
+    },
+    addOrUpdateDevices(deviceList: string[]) {
+      // 1️⃣ If there's no DevicesModel yet, create one.
+      if (!self.devices) {
+        self.devices = DevicesModel.create({
+          devices: [],
         });
-      } else {
-        // Add new entry
-        self.miscellaneousPrices.push(
-          MiscellaneousPricesModel.create({ currentProductId, costs })
-        );
       }
-    },
-    getMiscellaneousByProductId(productId: string) {
-      return (
-        self.miscellaneousPrices.find(
-          (m) => m.currentProductId === productId
-        ) || { costs: new Map() }
-      );
-    },
-    removeMiscellaneousPrice(currentProductId?: string) {
-      self.miscellaneousPrices.replace(
-        self.miscellaneousPrices.filter(
-          (p) => p.currentProductId !== currentProductId
-        )
-      );
-      self.saleItems.forEach((item) => {
-        if (item.productId === currentProductId) {
-          item.miscellaneousPrices = undefined;
-        }
-      });
-    },
-    addOrUpdateDevices(currentProductId: string, deviceList: string[]) {
-      const existingIndex = self.devices.findIndex(
-        (d) => d.currentProductId === currentProductId
-      );
 
-      // Normalize all device IDs to strings
-      const normalizedDevices = deviceList.map((d) => String(d));
+      // // 2️⃣ Normalize incoming IDs into a de-duplicated array of strings.
+      // const normalized = Array.from(new Set(deviceList.map((d) => String(d))));
 
-      if (existingIndex !== -1) {
-        // Get current devices and merge with new ones
-        const currentDevices = [...self.devices[existingIndex].devices];
-        const mergedDevices = [
-          ...new Set([...currentDevices, ...normalizedDevices]),
-        ];
+      // // 3️⃣ Just replace the entire devices array in one go.
+      // self.devices.devices.replace(normalized);
+      self.devices.devices.replace(Array.from(new Set(deviceList)));
 
-        // Use put to update the array in a MobX-friendly way
-        self.devices[existingIndex].devices.clear();
-        mergedDevices.forEach((deviceId) => {
-          self.devices[existingIndex].devices.push(deviceId);
-        });
-      } else {
-        // Create new entry with normalized devices
-        self.devices.push(
-          DevicesModel.create({
-            currentProductId,
-            devices: normalizedDevices,
-          })
-        );
-      }
     },
-    getSelectedDevices(productId: string) {
-      const devices = self.devices.find(
-        (d) => d.currentProductId === productId
-      )?.devices;
-      return devices;
-    },
-    removeDevices(currentProductId?: string) {
-      self.devices.replace(
-        self.devices.filter((d) => d.currentProductId !== currentProductId)
-      );
-      // Empty the `devices` array for the matching `productId` in `saleItems`
-      self.saleItems.forEach((item) => {
-        if (item.productId === currentProductId) {
-          item.devices.replace([]); // Use `replace` to clear the array
-        }
-      });
-    },
-    // addOrUpdateTentativeDevices(
-    //   currentProductId: string,
-    //   deviceList: string[]
-    // ) {
-    //   const existingIndex = self.tentativeDevices.findIndex(
+
+    // addOrUpdateDevices( deviceList: string[]) {
+    //   const existingIndex = self.devices.findIndex(
     //     (d) => d.currentProductId === currentProductId
     //   );
 
@@ -560,6 +443,88 @@ const saleStore = types
 
     //   if (existingIndex !== -1) {
     //     // Get current devices and merge with new ones
+    //     const currentDevices = [...self.devices[existingIndex].devices];
+    //     const mergedDevices = [
+    //       ...new Set([...currentDevices, ...normalizedDevices]),
+    //     ];
+
+    //     // Use put to update the array in a MobX-friendly way
+    //     self.devices[existingIndex].devices.clear();
+    //     mergedDevices.forEach((deviceId) => {
+    //       self.devices[existingIndex].devices.push(deviceId);
+    //     });
+    //   } else {
+    //     // Create new entry with normalized devices
+    //     self.devices.push(
+    //       DevicesModel.create({
+    //         currentProductId,
+    //         devices: normalizedDevices,
+    //       })
+    //     );
+    //   }
+    // },
+    getSelectedDevices() {
+      return self.devices?.devices;
+
+    },
+    removeDevices() {
+      self.devices = null;
+    },
+
+    addOrUpdateTentativeDevices(
+      deviceList: string[],
+      inventoryId?: string
+    ) {
+      // 1) Ensure we have a tentativeDevices object
+      if (!self.tentativeDevices) {
+        self.tentativeDevices = TentativeDevicesModel.create({
+          devices: [],
+          inventories: [],
+        });
+      }
+
+      const td = self.tentativeDevices;
+
+      // 2) Normalize incoming list
+      const normalized = Array.from(new Set(deviceList.map(String)));
+
+      // 3) Merge into the main devices array
+      const mergedMain = Array.from(new Set([...td.devices, ...normalized]));
+      td.devices.replace(mergedMain);
+
+      // 4) If an inventoryId was passed, merge into that inventory
+      if (inventoryId) {
+        const idx = td.inventories.findIndex((inv) => inv.inventoryId === inventoryId);
+        if (idx >= 0) {
+          // merge into existing inventory
+          const mergedInv = Array.from(new Set([...td.inventories[idx].devices, ...normalized]));
+          td.inventories[idx].devices.replace(mergedInv);
+        } else {
+          // create a fresh inventory entry
+          td.inventories.push(
+            TentativeDeviceInventory.create({
+              inventoryId,
+              devices: normalized,
+            })
+          );
+        }
+      }
+    },
+
+
+    // addOrUpdateTentativeDevices(
+    //   currentProductId: string,
+    //   deviceList: string[],
+    //   inventoryId?: string // Optional inventory ID
+    // ) {
+    //   const existingIndex = self.tentativeDevices.findIndex(
+    //     (d) => d.currentProductId === currentProductId
+    //   );
+
+    //   const normalizedDevices = deviceList.map((d) => String(d));
+
+    //   if (existingIndex !== -1) {
+    //     // Update main devices list
     //     const currentDevices = [
     //       ...self.tentativeDevices[existingIndex].devices,
     //     ];
@@ -567,114 +532,123 @@ const saleStore = types
     //       ...new Set([...currentDevices, ...normalizedDevices]),
     //     ];
 
-    //     // Use put to update the array in a MobX-friendly way
     //     self.tentativeDevices[existingIndex].devices.clear();
     //     mergedDevices.forEach((deviceId) => {
     //       self.tentativeDevices[existingIndex].devices.push(deviceId);
     //     });
+
+    //     // Update inventory-specific devices if provided
+    //     if (inventoryId) {
+    //       const inventoryIndex = self.tentativeDevices[
+    //         existingIndex
+    //       ].inventories.findIndex((inv) => inv.inventoryId === inventoryId);
+
+    //       if (inventoryIndex !== -1) {
+    //         const currentInventoryDevices = [
+    //           ...self.tentativeDevices[existingIndex].inventories[
+    //             inventoryIndex
+    //           ].devices,
+    //         ];
+    //         const mergedInventoryDevices = [
+    //           ...new Set([...currentInventoryDevices, ...normalizedDevices]),
+    //         ];
+
+    //         self.tentativeDevices[existingIndex].inventories[
+    //           inventoryIndex
+    //         ].devices.clear();
+    //         mergedInventoryDevices.forEach((deviceId) => {
+    //           self.tentativeDevices[existingIndex].inventories[
+    //             inventoryIndex
+    //           ].devices.push(deviceId);
+    //         });
+    //       } else {
+    //         self.tentativeDevices[existingIndex].inventories.push(
+    //           TentativeDeviceInventory.create({
+    //             inventoryId,
+    //             devices: normalizedDevices,
+    //           })
+    //         );
+    //       }
+    //     }
     //   } else {
-    //     // Create new entry with normalized devices
-    //     self.tentativeDevices.push(
-    //       TentativeDevicesModel.create({
-    //         currentProductId,
+    //     // Create new entry
+    //     const newEntry: any = {
+    //       currentProductId,
+    //       devices: normalizedDevices,
+    //       inventories: [],
+    //     };
+
+    //     if (inventoryId) {
+    //       newEntry.inventories.push({
+    //         inventoryId,
     //         devices: normalizedDevices,
-    //       })
-    //     );
+    //       });
+    //     }
+
+    //     self.tentativeDevices.push(TentativeDevicesModel.create(newEntry));
     //   }
     // },
-    addOrUpdateTentativeDevices(
-      currentProductId: string,
-      deviceList: string[],
-      inventoryId?: string // Optional inventory ID
-    ) {
-      const existingIndex = self.tentativeDevices.findIndex(
-        (d) => d.currentProductId === currentProductId
-      );
 
-      const normalizedDevices = deviceList.map((d) => String(d));
+    // addOrUpdateTentativeDevices(
+    //   currentProductId: string,
+    //   deviceList: string[],
+    //   inventoryId?: string
+    // ) {
+    //   // If we don't yet have a tentativeDevices object, create one
+    //   if (!self.tentativeDevices) {
+    //     self.tentativeDevices = TentativeDevicesModel.create({
+    //       currentProductId,
+    //       devices: [],
+    //       inventories: [],
+    //     });
+    //   }
 
-      if (existingIndex !== -1) {
-        // Update main devices list
-        const currentDevices = [
-          ...self.tentativeDevices[existingIndex].devices,
-        ];
-        const mergedDevices = [
-          ...new Set([...currentDevices, ...normalizedDevices]),
-        ];
+    //   // If the stored productId doesn't match, reset it
+    //   if (self.tentativeDevices.currentProductId !== currentProductId) {
+    //     applySnapshot(self.tentativeDevices, {
+    //       currentProductId,
+    //       devices: [],
+    //       inventories: [],
+    //     });
+    //   }
 
-        self.tentativeDevices[existingIndex].devices.clear();
-        mergedDevices.forEach((deviceId) => {
-          self.tentativeDevices[existingIndex].devices.push(deviceId);
-        });
+    //   // Normalize incoming list
+    //   const normalized = Array.from(new Set(deviceList.map(String)));
 
-        // Update inventory-specific devices if provided
-        if (inventoryId) {
-          const inventoryIndex = self.tentativeDevices[
-            existingIndex
-          ].inventories.findIndex((inv) => inv.inventoryId === inventoryId);
+    //   // 1) Merge into the main devices array
+    //   const existing = Array.from(self.tentativeDevices.devices);
+    //   const merged = Array.from(new Set([...existing, ...normalized]));
+    //   self.tentativeDevices.devices.replace(merged);
 
-          if (inventoryIndex !== -1) {
-            const currentInventoryDevices = [
-              ...self.tentativeDevices[existingIndex].inventories[
-                inventoryIndex
-              ].devices,
-            ];
-            const mergedInventoryDevices = [
-              ...new Set([...currentInventoryDevices, ...normalizedDevices]),
-            ];
+    //   // 2) If an inventoryId was passed, merge into that slot
+    //   if (inventoryId) {
+    //     const invs = self.tentativeDevices.inventories;
+    //     const idx = invs.findIndex((inv) => inv.inventoryId === inventoryId);
 
-            self.tentativeDevices[existingIndex].inventories[
-              inventoryIndex
-            ].devices.clear();
-            mergedInventoryDevices.forEach((deviceId) => {
-              self.tentativeDevices[existingIndex].inventories[
-                inventoryIndex
-              ].devices.push(deviceId);
-            });
-          } else {
-            self.tentativeDevices[existingIndex].inventories.push(
-              TentativeDeviceInventory.create({
-                inventoryId,
-                devices: normalizedDevices,
-              })
-            );
-          }
-        }
-      } else {
-        // Create new entry
-        const newEntry: any = {
-          currentProductId,
-          devices: normalizedDevices,
-          inventories: [],
-        };
-
-        if (inventoryId) {
-          newEntry.inventories.push({
-            inventoryId,
-            devices: normalizedDevices,
-          });
-        }
-
-        self.tentativeDevices.push(TentativeDevicesModel.create(newEntry));
-      }
-    },
-    // getSelectedTentativeDevices(productId: string) {
-    //   const devices = self.tentativeDevices.find(
-    //     (d) => d.currentProductId === productId
-    //   )?.devices;
-    //   return devices;
+    //     if (idx >= 0) {
+    //       // merge into existing inventory
+    //       const cur = Array.from(invs[idx].devices);
+    //       const mergedInv = Array.from(new Set([...cur, ...normalized]));
+    //       invs[idx].devices.replace(mergedInv);
+    //     } else {
+    //       // create a fresh inventory entry
+    //       invs.push(
+    //         TentativeDeviceInventory.create({
+    //           inventoryId,
+    //           devices: normalized,
+    //         })
+    //       );
+    //     }
+    //   }
     // },
-    getAllTentativeDevices(productId: string) {
-      const productEntry = self.tentativeDevices.find(
-        (d) => d.currentProductId === productId
-      );
+
+    getAllTentativeDevices() {
+      const productEntry = self.tentativeDevices;
 
       return productEntry ? productEntry.devices : [];
     },
-    getSelectedTentativeDevices(productId: string, inventoryId?: string) {
-      const productEntry = self.tentativeDevices.find(
-        (d) => d.currentProductId === productId
-      );
+    getSelectedTentativeDevices(inventoryId?: string) {
+      const productEntry = self.tentativeDevices;
 
       if (!productEntry) return [];
 
@@ -689,155 +663,154 @@ const saleStore = types
       // Default to all devices for product
       return [...productEntry.devices];
     },
-    // removeSingleTentativeDevice(
-    //   currentProductId: string,
-    //   deviceIdToRemove: string
-    // ) {
-    //   const existingIndex = self.tentativeDevices.findIndex(
-    //     (d) => d.currentProductId === currentProductId
-    //   );
 
-    //   if (existingIndex !== -1) {
-    //     // Filter out the specific device ID
-    //     const updatedDevices = self.tentativeDevices[
-    //       existingIndex
-    //     ].devices.filter((deviceId) => deviceId !== deviceIdToRemove);
-
-    //     // Update the devices array
-    //     self.tentativeDevices[existingIndex].devices.replace(updatedDevices);
-
-    //     // If no devices left, remove the entire entry
-    //     if (updatedDevices.length === 0) {
-    //       self.tentativeDevices.replace(
-    //         self.tentativeDevices.filter(
-    //           (d) => d.currentProductId !== currentProductId
-    //         )
-    //       );
-    //     }
-    //   }
-    // },
     removeSingleTentativeDevice(
-      currentProductId: string,
       deviceIdToRemove: string,
       inventoryId?: string
     ) {
-      const productIndex = self.tentativeDevices.findIndex(
-        (d) => d.currentProductId === currentProductId
-      );
+      const td = self.tentativeDevices;
+      if (!td) return;
 
-      if (productIndex !== -1) {
-        // Remove from main devices list
-        const updatedDevices = self.tentativeDevices[
-          productIndex
-        ].devices.filter((deviceId) => deviceId !== deviceIdToRemove);
-        self.tentativeDevices[productIndex].devices.replace(updatedDevices);
+      // 1) remove from main devices
+      const filteredMain = td.devices.filter((id) => id !== deviceIdToRemove);
+      td.devices.replace(filteredMain);
 
-        // Remove from specific inventory if provided
-        if (inventoryId) {
-          const inventoryIndex = self.tentativeDevices[
-            productIndex
-          ].inventories.findIndex((inv) => inv.inventoryId === inventoryId);
-
-          if (inventoryIndex !== -1) {
-            const updatedInventoryDevices = self.tentativeDevices[
-              productIndex
-            ].inventories[inventoryIndex].devices.filter(
-              (deviceId) => deviceId !== deviceIdToRemove
-            );
-
-            self.tentativeDevices[productIndex].inventories[
-              inventoryIndex
-            ].devices.replace(updatedInventoryDevices);
-
-            // Remove inventory entry if empty
-            if (updatedInventoryDevices.length === 0) {
-              self.tentativeDevices[productIndex].inventories.splice(
-                inventoryIndex,
-                1
-              );
-            }
-          }
-        }
-
-        // Remove entire product entry if no devices left
-        if (
-          updatedDevices.length === 0 &&
-          self.tentativeDevices[productIndex].inventories.length === 0
-        ) {
-          self.tentativeDevices.splice(productIndex, 1);
-        }
-      }
-    },
-    // removeTentativeDevices(currentProductId?: string) {
-    //   self.tentativeDevices.replace(
-    //     self.tentativeDevices.filter(
-    //       (d) => d.currentProductId !== currentProductId
-    //     )
-    //   );
-    // },
-    removeTentativeDevices(currentProductId?: string, inventoryId?: string) {
-      if (!currentProductId) return;
-
+      // 2) if inventoryId, remove from that slot
       if (inventoryId) {
-        // Remove specific inventory devices only
-        const productIndex = self.tentativeDevices.findIndex(
-          (d) => d.currentProductId === currentProductId
-        );
-
-        if (productIndex !== -1) {
-          const inventoryIndex = self.tentativeDevices[
-            productIndex
-          ].inventories.findIndex((inv) => inv.inventoryId === inventoryId);
-
-          if (inventoryIndex !== -1) {
-            // Remove devices from main list that only belong to this inventory
-            const inventoryDevices = new Set(
-              self.tentativeDevices[productIndex].inventories[
-                inventoryIndex
-              ].devices
-            );
-
-            const updatedDevices = self.tentativeDevices[
-              productIndex
-            ].devices.filter((deviceId) => {
-              // Check if device exists in other inventories
-              const inOtherInventories = self.tentativeDevices[
-                productIndex
-              ].inventories.some(
-                (inv, idx) =>
-                  idx !== inventoryIndex && inv.devices.includes(deviceId)
-              );
-              return !inventoryDevices.has(deviceId) || inOtherInventories;
-            });
-
-            self.tentativeDevices[productIndex].devices.replace(updatedDevices);
-            self.tentativeDevices[productIndex].inventories.splice(
-              inventoryIndex,
-              1
-            );
-
-            // Remove product entry if empty
-            if (
-              updatedDevices.length === 0 &&
-              self.tentativeDevices[productIndex].inventories.length === 0
-            ) {
-              self.tentativeDevices.splice(productIndex, 1);
-            }
+        const invIdx = td.inventories.findIndex((inv) => inv.inventoryId === inventoryId);
+        if (invIdx !== -1) {
+          const filteredInv = td.inventories[invIdx].devices.filter((id) => id !== deviceIdToRemove);
+          td.inventories[invIdx].devices.replace(filteredInv);
+          // drop empty inventory
+          if (filteredInv.length === 0) {
+            td.inventories.splice(invIdx, 1);
           }
         }
-      } else {
-        // Remove all devices for product
-        self.tentativeDevices.replace(
-          self.tentativeDevices.filter(
-            (d) => d.currentProductId !== currentProductId
-          )
-        );
+      }
+
+      // 3) if nothing left anywhere, clear entire tentativeDevices
+      if (td.devices.length === 0 && td.inventories.length === 0) {
+        self.tentativeDevices = null;
       }
     },
+
+
+    // removeSingleTentativeDevice(
+    //   deviceIdToRemove: string,
+    //   inventoryId?: string
+    // ) {
+    //   const productIndex = self.tentativeDevices.findIndex(
+    //     (d) => d.currentProductId === currentProductId
+    //   );
+
+    //   if (productIndex !== -1) {
+    //     // Remove from main devices list
+    //     const updatedDevices = self.tentativeDevices[
+    //       productIndex
+    //     ].devices.filter((deviceId) => deviceId !== deviceIdToRemove);
+    //     self.tentativeDevices[productIndex].devices.replace(updatedDevices);
+
+    //     // Remove from specific inventory if provided
+    //     if (inventoryId) {
+    //       const inventoryIndex = self.tentativeDevices[
+    //         productIndex
+    //       ].inventories.findIndex((inv) => inv.inventoryId === inventoryId);
+
+    //       if (inventoryIndex !== -1) {
+    //         const updatedInventoryDevices = self.tentativeDevices[
+    //           productIndex
+    //         ].inventories[inventoryIndex].devices.filter(
+    //           (deviceId) => deviceId !== deviceIdToRemove
+    //         );
+
+    //         self.tentativeDevices[productIndex].inventories[
+    //           inventoryIndex
+    //         ].devices.replace(updatedInventoryDevices);
+
+    //         // Remove inventory entry if empty
+    //         if (updatedInventoryDevices.length === 0) {
+    //           self.tentativeDevices[productIndex].inventories.splice(
+    //             inventoryIndex,
+    //             1
+    //           );
+    //         }
+    //       }
+    //     }
+
+    //     // Remove entire product entry if no devices left
+    //     if (
+    //       updatedDevices.length === 0 &&
+    //       self.tentativeDevices[productIndex].inventories.length === 0
+    //     ) {
+    //       self.tentativeDevices.splice(productIndex, 1);
+    //     }
+    //   }
+    // },
+    removeTentativeDevices(currentProductId?: string) {
+      console.log(currentProductId)
+    },
+    // removeTentativeDevices(inventoryId?: string) {
+    //   // if (!currentProductId) return;
+
+    //   // if (inventoryId) {
+    //   //   // Remove specific inventory devices only
+    //   //   const productIndex = self.tentativeDevices.findIndex(
+    //   //     (d) => d.currentProductId === currentProductId
+    //   //   );
+
+    //   //   if (productIndex !== -1) {
+    //   //     const inventoryIndex = self.tentativeDevices[
+    //   //       productIndex
+    //   //     ].inventories.findIndex((inv) => inv.inventoryId === inventoryId);
+
+    //   //     if (inventoryIndex !== -1) {
+    //   //       // Remove devices from main list that only belong to this inventory
+    //   //       const inventoryDevices = new Set(
+    //   //         self.tentativeDevices[productIndex].inventories[
+    //   //           inventoryIndex
+    //   //         ].devices
+    //   //       );
+
+    //   //       const updatedDevices = self.tentativeDevices[
+    //   //         productIndex
+    //   //       ].devices.filter((deviceId) => {
+    //   //         // Check if device exists in other inventories
+    //   //         const inOtherInventories = self.tentativeDevices[
+    //   //           productIndex
+    //   //         ].inventories.some(
+    //   //           (inv, idx) =>
+    //   //             idx !== inventoryIndex && inv.devices.includes(deviceId)
+    //   //         );
+    //   //         return !inventoryDevices.has(deviceId) || inOtherInventories;
+    //   //       });
+
+    //   //       self.tentativeDevices[productIndex].devices.replace(updatedDevices);
+    //   //       self.tentativeDevices[productIndex].inventories.splice(
+    //   //         inventoryIndex,
+    //   //         1
+    //   //       );
+
+    //   //       // Remove product entry if empty
+    //   //       if (
+    //   //         updatedDevices.length === 0 &&
+    //   //         self.tentativeDevices[productIndex].inventories.length === 0
+    //   //       ) {
+    //   //         self.tentativeDevices.splice(productIndex, 1);
+    //   //       }
+    //   //     }
+    //   //   }
+    //   // } else {
+    //   //   // Remove all devices for product
+    //   //   self.tentativeDevices.replace(
+    //   //     self.tentativeDevices.filter(
+    //   //       (d) => d.currentProductId !== currentProductId
+    //   //     )
+    //   //   );
+    //   // }
+    // },
     getTentativeDevicesByInventory(productId: string, inventoryId: string) {
-      const productEntry = self.tentativeDevices.find(
-        (d) => d.currentProductId === productId
-      );
+      console.log(productId)
+      const productEntry = self.tentativeDevices;
 
       if (!productEntry) return [];
 
@@ -848,17 +821,21 @@ const saleStore = types
       return inventory ? [...inventory.devices] : [];
     },
     addIdentificationDetails(details: typeof self.identificationDetails) {
+      console.log("details real one:", details);
       self.identificationDetails = details;
     },
     removeIdentificationDetails() {
       self.identificationDetails = {
         idType: "",
         idNumber: "",
-        issuingCountry: "",
-        issueDate: "",
+        customerCountry: "",
+        customerState: "",
+        customerLGA: "",
         expirationDate: "",
-        fullNameAsOnID: "",
-        addressAsOnID: "",
+        installationAddress: "",
+        installationAddressLongitude: "",
+        installationAddressLatitude: "",
+        customerIdImage: null
       };
     },
     addNextOfKinDetails(details: typeof self.nextOfKinDetails) {
@@ -867,12 +844,7 @@ const saleStore = types
     removeNextOfKinDetails() {
       self.nextOfKinDetails = {
         fullName: "",
-        relationship: "",
         phoneNumber: "",
-        email: "",
-        homeAddress: "",
-        dateOfBirth: "",
-        nationality: "",
       };
     },
     addGuarantorDetails(details: typeof self.guarantorDetails) {
@@ -884,64 +856,53 @@ const saleStore = types
         phoneNumber: "",
         email: "",
         homeAddress: "",
-        dateOfBirth: "",
-        nationality: "",
-        identificationDetails: {
-          idType: "",
-          idNumber: "",
-          issuingCountry: "",
-          issueDate: "",
-          expirationDate: "",
-          fullNameAsOnID: "",
-          addressAsOnID: "",
-        },
       };
     },
-    addOrUpdateRecipient(
-      currentProductId: string,
-      recipient: {
-        firstname: string;
-        lastname: string;
-        address: string;
-        phone: string;
-        email: string;
-      }
-    ) {
-      const existingIndex = self.saleRecipient.findIndex(
-        (d) => d.currentProductId === currentProductId
-      );
+    // addOrUpdateRecipient(
+    //   currentProductId: string,
+    //   recipient: {
+    //     firstname: string;
+    //     lastname: string;
+    //     address: string;
+    //     phone: string;
+    //     email: string;
+    //   }
+    // ) {
+    //   // const existingIndex = self.saleRecipient.findIndex(
+    //   //   (d) => d.currentProductId === currentProductId
+    //   // );
 
-      if (existingIndex !== -1) {
-        // Update the existing recipient using applySnapshot
-        applySnapshot(self.saleRecipient[existingIndex].recipient, recipient);
-      } else {
-        // Add new recipient if not found
-        self.saleRecipient.push(
-          RecipientModel.create({
-            currentProductId,
-            recipient: toJS(recipient),
-          })
-        );
-      }
-    },
-    getRecipientByProductId(productId: string) {
-      const recipient = self.saleRecipient.find(
-        (r) => r.currentProductId === productId
-      )?.recipient;
-      return recipient;
-    },
-    removeRecipient(currentProductId: string) {
-      self.saleRecipient.replace(
-        self.saleRecipient.filter(
-          (d) => d.currentProductId !== currentProductId
-        )
-      );
-      self.saleItems.forEach((item) => {
-        if (item.productId === currentProductId) {
-          item.saleRecipient = undefined;
-        }
-      });
-    },
+    //   // if (existingIndex !== -1) {
+    //   //   // Update the existing recipient using applySnapshot
+    //   //   applySnapshot(self.saleRecipient[existingIndex].recipient, recipient);
+    //   // } else {
+    //   //   // Add new recipient if not found
+    //   //   self.saleRecipient.push(
+    //   //     RecipientModel.create({
+    //   //       currentProductId,
+    //   //       recipient: toJS(recipient),
+    //   //     })
+    //   //   );
+    //   // }
+    // },
+    // getRecipientByProductId(productId: string) {
+    //   // const recipient = self.saleRecipient.find(
+    //   //   (r) => r.currentProductId === productId
+    //   // )?.recipient;
+    //   // return recipient;
+    // },
+    // removeRecipient(currentProductId: string) {
+    //   // self.saleRecipient.replace(
+    //   //   self.saleRecipient.filter(
+    //   //     (d) => d.currentProductId !== currentProductId
+    //   //   )
+    //   // );
+    //   // self.saleItems.forEach((item) => {
+    //   //   if (item.productId === currentProductId) {
+    //   //     item.saleRecipient = undefined;
+    //   //   }
+    //   // });
+    // },
     addPaymentDetails(data: any) {
       self.paymentDetails = data;
     },
@@ -954,47 +915,32 @@ export const SaleStore = saleStore.create({
   category: "PRODUCT",
   customer: null,
   doesCustomerExist: false,
-  products: [],
+  products: null,
   doesProductCategoryExist: false,
-  parameters: [],
-  miscellaneousPrices: [],
-  devices: [],
-  saleItems: [],
-  saleRecipient: [],
+  parameters: null,
+  miscellaneousPrices: null,
+  devices: null,
+  saleItems: null,
   identificationDetails: {
     idType: "",
     idNumber: "",
-    issuingCountry: "",
-    issueDate: "",
+    customerCountry: "",
+    customerState: "",
+    customerLGA: "",
     expirationDate: "",
-    fullNameAsOnID: "",
-    addressAsOnID: "",
+    installationAddress: "",
+    installationAddressLongitude: "",
+    installationAddressLatitude: "",
   },
   nextOfKinDetails: {
     fullName: "",
-    relationship: "",
     phoneNumber: "",
-    email: "",
-    homeAddress: "",
-    dateOfBirth: "",
-    nationality: "",
   },
   guarantorDetails: {
     fullName: "",
     phoneNumber: "",
     email: "",
     homeAddress: "",
-    dateOfBirth: "",
-    nationality: "",
-    identificationDetails: {
-      idType: "",
-      idNumber: "",
-      issuingCountry: "",
-      issueDate: "",
-      expirationDate: "",
-      fullNameAsOnID: "",
-      addressAsOnID: "",
-    },
   },
   paymentDetails: {
     public_key: "",

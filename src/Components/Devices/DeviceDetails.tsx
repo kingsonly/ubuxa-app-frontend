@@ -12,8 +12,6 @@ import { CardComponent } from "../CardComponents/CardComponent";
 import { useNavigate } from "react-router-dom";
 import SelectDeviceInventoryModal from "./SelectDeviceInventoryModal";
 import { DeviceStore } from "@/stores/DeviceStore";
-// import { RiDeleteBin5Fill } from "react-icons/ri";
-// import roletwo from "../../assets/table/roletwo.svg";
 
 const DeviceFormSchema = z.object({
   serialNumber: z.string().trim(),

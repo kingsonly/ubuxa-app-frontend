@@ -36,7 +36,7 @@ export default {
 				textLightGrey: '#9BA4BA',
 				textDarkGrey: '#49526A',
 				textDarkBrown: '#32290E',
-				strokeGrey: '#F6F8FA',
+				strokeGrey: '#cccccc',
 				strokeGreyTwo: '#E0E0E0',
 				strokeGreyThree: '#EAEEF2',
 				strokeCream: 'var(--custom-primary)',

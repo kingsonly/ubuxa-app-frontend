@@ -4,10 +4,8 @@ import { Modal } from "../ModalComponent/Modal";
 import { z, ZodIssue } from "zod";
 import { useApiCall } from "@/utils/useApiCall";
 import {
-  Input,
   ModalInput,
   SelectInput,
-  ToggleInput,
 } from "../InputComponent/Input";
 import ProceedButton from "../ProceedButtonComponent/ProceedButtonComponent";
 import { SaleStore } from "@/stores/SaleStore";
@@ -21,7 +19,6 @@ import {
   formSchema,
   defaultSaleFormData,
   SalePayload,
-  SaleItem,
 } from "./salesSchema";
 import { revalidateStore } from "@/utils/helpers";
 import SalesSummary from "./SalesSummary";
@@ -89,11 +86,9 @@ const CreateNewSale = observer(
       const payload: SalePayload = {
         category: SaleStore.category,
         customerId: SaleStore.customer?.customerId as string,
-        saleItems: SaleStore.getTransformedSaleItems() as unknown as SaleItem[],
-        applyMargin: formData.applyMargin,
+        saleItems: SaleStore.getTransformedSaleItems(),
       };
       if (SaleStore.doesSaleItemHaveInstallment()) {
-        payload.bvn = formData.bvn;
         payload.identificationDetails = SaleStore.identificationDetails;
         payload.nextOfKinDetails = SaleStore.nextOfKinDetails;
         payload.guarantorDetails = SaleStore.guarantorDetails;
@@ -101,25 +96,21 @@ const CreateNewSale = observer(
       return payload;
     }, [formData]);
 
-    const handleInputChange = (name: string, value: any) => {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-      resetFormErrors(name);
-    };
-
     const payload = getPayload();
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
+
+      if (summaryState === false) {
+        validateSummaryState()
+        return
+      }
+
       setLoading(true);
 
       try {
-        // Step 1: Validate data
         const validatedData = formSchema.parse(payload);
 
-        // Step 2: API call
         const response = await apiCall({
           endpoint: "/v1/sales/create",
           method: "post",
@@ -192,8 +183,7 @@ const CreateNewSale = observer(
     const getIsFormFilled = () => {
       const isPayloadValid = formSchema.safeParse(payload).success;
       const doesParamsExist =
-        SaleStore.parameters.length > 0 &&
-        SaleStore.parameters.every((param) => param.currentProductId !== "");
+        SaleStore.parameters;
       return isPayloadValid && doesParamsExist;
     };
 
@@ -203,25 +193,27 @@ const CreateNewSale = observer(
 
     const getSaleItemFieldErrorByIndex = (
       fieldName: string,
-      productId: string
     ) => {
-      return formErrors
+      console.log("fieldName :", fieldName);
+      console.log("formErrors:", formErrors);
+      let errorHandler = formErrors
         .filter((error: ZodIssue) => {
           // Ensure the error is related to the saleItems array
           if (error.path[0] === "saleItems") {
             // Check if the error is for the specific productId
-            const saleItemIndex = error.path[1] as number;
-            const saleItem = SaleStore.saleItems[saleItemIndex];
-            return saleItem && saleItem.productId === productId;
+            const saleItem = SaleStore.saleItems;
+            return saleItem;
           }
           return false;
         })
         .filter((error) => {
           // Filter errors for the specific fieldName
-          const errorField = error.path[2]; // The field name in the saleItemSchema
+          const errorField = error.path[1]; // The field name in the saleItemSchema
           return errorField === fieldName;
         })
         .map((error) => error.message);
+      console.log("na me be errors :", errorHandler);
+      return errorHandler
     };
 
     revalidateStore(SaleStore);
@@ -319,26 +311,24 @@ const CreateNewSale = observer(
                     }}
                     placeholder="Select Product"
                     required={true}
-                    isItemsSelected={selectedProducts.length > 0}
+                    isItemsSelected={Boolean(selectedProducts?.productId)}
                     itemsSelected={
                       <div className="flex flex-wrap items-center w-full gap-6">
-                        {selectedProducts?.map((data, index) => {
-                          return (
-                            <ProductSaleDisplay
-                              key={index}
-                              productData={data}
-                              onRemoveProduct={(productId) =>
-                                SaleStore.removeProduct(productId)
-                              }
-                              setExtraInfoModal={(value) => {
-                                setCurrentProductId(data.productId);
-                                setExtraInfoModal(value);
-                              }}
-                              getIsFormFilled={getIsFormFilled}
-                              getFieldError={getSaleItemFieldErrorByIndex}
-                            />
-                          );
-                        })}
+                        {selectedProducts?.productId && (
+                          <ProductSaleDisplay
+                            productData={selectedProducts}
+                            onRemoveProduct={() =>
+                              SaleStore.removeProduct()
+                            }
+                            setExtraInfoModal={(value) => {
+                              setCurrentProductId(selectedProducts?.productId);
+                              setExtraInfoModal(value);
+                            }}
+                            getIsFormFilled={getIsFormFilled}
+                            getFieldError={getSaleItemFieldErrorByIndex}
+                          />
+                        )
+                        }
                       </div>
                     }
                     errorMessage={
@@ -349,25 +339,6 @@ const CreateNewSale = observer(
                   />
                   {SaleStore.doesSaleItemHaveInstallment() && (
                     <>
-                      <Input
-                        type="text"
-                        name="bvn"
-                        label="BANK VERIFICATION NUUMBER"
-                        value={formData.bvn as string}
-                        onChange={(e) => {
-                          const numericValue = e.target.value.replace(
-                            /\D/g,
-                            ""
-                          ); // Remove non-numeric characters
-                          if (numericValue.length <= 11) {
-                            handleInputChange(e.target.name, numericValue);
-                          }
-                        }}
-                        placeholder="Enter 11 digit BVN"
-                        required={false}
-                        errorMessage={getFieldError("bvn")}
-                        maxLength={11}
-                      />
                       <ModalInput
                         type="button"
                         name="identificationDetails"
@@ -376,7 +347,7 @@ const CreateNewSale = observer(
                           setExtraInfoModal("identification");
                         }}
                         placeholder="Enter Identification"
-                        required={false}
+                        required={true}
                         isItemsSelected={Boolean(
                           SaleStore.identificationDetails.idNumber
                         )}
@@ -395,6 +366,35 @@ const CreateNewSale = observer(
                         }
                         errorMessage={getFieldError("identificationDetails")}
                       />
+
+                      <ModalInput
+                        type="button"
+                        name="guarantorDetails"
+                        label="GUARANTOR DETAILS"
+                        onClick={() => {
+                          setExtraInfoModal("guarantor");
+                        }}
+                        placeholder="Enter Guarantor"
+                        required={true}
+                        isItemsSelected={Boolean(
+                          SaleStore.guarantorDetails.fullName
+                        )}
+                        customSelectedText="Update Guarantor"
+                        itemsSelected={
+                          <div className="flex flex-col w-full gap-2 bg-[#F9F9F9] p-3 border-[0.6px] border-strokeGreyThree rounded-md">
+                            {SaleStore.guarantorDetails.fullName && (
+                              <ExtraInfoSection
+                                label="Guarantor"
+                                onClear={() =>
+                                  SaleStore.removeGuarantorDetails()
+                                }
+                              />
+                            )}
+                          </div>
+                        }
+                        errorMessage={getFieldError("guarantorDetails")}
+                      />
+
                       <ModalInput
                         type="button"
                         name="nextOfKinDetails"
@@ -422,37 +422,10 @@ const CreateNewSale = observer(
                         }
                         errorMessage={getFieldError("nextOfKinDetails")}
                       />
-                      <ModalInput
-                        type="button"
-                        name="guarantorDetails"
-                        label="GUARANTOR DETAILS"
-                        onClick={() => {
-                          setExtraInfoModal("guarantor");
-                        }}
-                        placeholder="Enter Guarantor"
-                        required={false}
-                        isItemsSelected={Boolean(
-                          SaleStore.guarantorDetails.fullName
-                        )}
-                        customSelectedText="Update Guarantor"
-                        itemsSelected={
-                          <div className="flex flex-col w-full gap-2 bg-[#F9F9F9] p-3 border-[0.6px] border-strokeGreyThree rounded-md">
-                            {SaleStore.guarantorDetails.fullName && (
-                              <ExtraInfoSection
-                                label="Guarantor"
-                                onClear={() =>
-                                  SaleStore.removeGuarantorDetails()
-                                }
-                              />
-                            )}
-                          </div>
-                        }
-                        errorMessage={getFieldError("guarantorDetails")}
-                      />
                     </>
                   )}
 
-                  <div className="flex items-center justify-between gap-2 w-full">
+                  {/* <div className="flex items-center justify-between gap-2 w-full">
                     <p className="text-sm text-textBlack font-semibold">
                       Apply Margin
                     </p>
@@ -462,14 +435,13 @@ const CreateNewSale = observer(
                         handleInputChange("applyMargin", checked);
                       }}
                     />
-                  </div>
+                  </div> */}
 
                   <ProceedButton
-                    type="button"
+                    type="submit"
                     loading={false}
                     variant={getIsFormFilled() ? "gradient" : "gray"}
                     disabled={false}
-                    onClick={validateSummaryState}
                   />
                 </>
               ) : (

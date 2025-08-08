@@ -350,7 +350,7 @@ const CreateNewProduct: React.FC<CreatNewProductProps> = observer(
                 style={{ textShadow: "1px 1px grey" }}
                 className="text-xl text-textBlack font-semibold font-secondary"
               >
-                New Product {formType === "newCategory" && "Category"}
+                New Package {formType === "newCategory" && "Category"}
               </h2>
             </div>
             <div className="flex flex-col items-center justify-center w-full px-[2.5em] gap-4 py-8">
@@ -369,28 +369,30 @@ const CreateNewProduct: React.FC<CreatNewProductProps> = observer(
                     value={categoryId}
                     onChange={(selectedValue) => handleSelectChange("categoryId", selectedValue)}
                     required={true}
-                    placeholder="Select Product Category"
+                    placeholder="Select Package Category"
                     errorMessage={getFieldError("categoryId")}
                   />
 
                   <Input
                     type="text"
                     name="name"
-                    label="PRODUCT NAME"
+                    label="PACKAGE NAME"
                     value={name}
                     onChange={handleInputChange}
-                    placeholder="Product Name"
+                    placeholder="Package Name"
                     required={true}
                     errorMessage={getFieldError("name")}
                   />
 
                   <ProductDescriptionInput
+                    label={"PACKAGE DESCRIPTION"}
                     value={formData.description}
                     onChange={handleDescriptionChange}
                     errorMessage={getFieldError("productDescription")}
                   />
 
                   <ProductCapacityForm
+                    label={"PACKAGE CAPACITY"}
                     value={formData.productCapacity}
                     onChange={handleCapacityChange}
                     errorMessage={getFieldError("productCapacity")}
@@ -451,11 +453,11 @@ const CreateNewProduct: React.FC<CreatNewProductProps> = observer(
 
                   <FileInput
                     name="productImage"
-                    label="PRODUCT IMAGE"
+                    label="PACKAGE IMAGE"
                     onChange={handleInputChange}
                     required={true}
                     accept=".jpg,.jpeg,.png,.svg"
-                    placeholder="Upload Product Image"
+                    placeholder="Upload Package Image"
                     errorMessage={getFieldError("productImage")}
                   />
                 </>

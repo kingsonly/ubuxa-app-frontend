@@ -1,21 +1,26 @@
 import { useState } from "react";
-import { Input, SelectInput } from "../InputComponent/Input";
+import { FileInput, Input, SelectInput } from "../InputComponent/Input";
 import { z } from "zod";
 import { identificationDetailsSchema } from "./salesSchema";
 import { SaleStore } from "@/stores/SaleStore";
 import { formatDateForInput } from "@/utils/helpers";
 import SecondaryButton from "../SecondaryButton/SecondaryButton";
+import { GooglePlacesInput } from "../InputComponent/GooglePlacesInput";
+
 
 type FormData = z.infer<typeof identificationDetailsSchema>;
 
 const defaultFormData: FormData = {
   idType: "",
   idNumber: "",
-  issuingCountry: "",
-  issueDate: "",
+  customerCountry: "",
+  customerState: "",
+  customerLGA: "",
   expirationDate: "",
-  fullNameAsOnID: "",
-  addressAsOnID: "",
+  installationAddress: "",
+  installationAddressLongitude: "",
+  installationAddressLatitude: "",
+  customerIdImage: new File([], ''),
 };
 
 const IdentificationForm = ({ handleClose }: { handleClose: () => void }) => {
@@ -23,8 +28,8 @@ const IdentificationForm = ({ handleClose }: { handleClose: () => void }) => {
 
   const [formData, setFormData] = useState<FormData>({
     ...savedData,
-    issueDate: formatDateForInput(savedData.issueDate),
     expirationDate: formatDateForInput(savedData.expirationDate),
+    customerIdImage: savedData.customerIdImage ?? new File([], ''),
   });
   const [formErrors, setFormErrors] = useState<z.ZodIssue[]>([]);
 
@@ -39,13 +44,20 @@ const IdentificationForm = ({ handleClose }: { handleClose: () => void }) => {
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: any
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    const { name, value, files } = e.target;
+    if (name === "customerIdImage" && files && files.length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        customerIdImage: files[0],
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
     validateItems();
     setFormErrors((prev) => prev.filter((error) => error.path[0] !== name));
   };
@@ -69,12 +81,9 @@ const IdentificationForm = ({ handleClose }: { handleClose: () => void }) => {
     if (!validateItems()) return;
     SaleStore.addIdentificationDetails({
       ...formData,
-      issueDate: !formData.issueDate
-        ? ""
-        : new Date(formData.issueDate)?.toISOString(),
-      expirationDate: !formData.issueDate
-        ? ""
-        : new Date(formData.expirationDate)?.toISOString(),
+      customerLGA: formData.customerLGA ?? "",
+      customerIdImage: formData.customerIdImage,
+      expirationDate: new Date(formData.expirationDate)?.toISOString(),
     });
     handleClose();
   };
@@ -108,27 +117,48 @@ const IdentificationForm = ({ handleClose }: { handleClose: () => void }) => {
         required={true}
         errorMessage={getFieldError("idNumber")}
       />
+      {formData.customerIdImage.name}
+      <FileInput
+        name="customerIdImage"
+        label="ID Image"
+        onChange={handleInputChange}
+        required={true}
+        accept=".jpg,.jpeg,.png,.svg"
+        placeholder="ID Image"
+        errorMessage={getFieldError("customerIdImage")}
+        value={formData.customerIdImage}
+      />
       <Input
         type="text"
-        name="issuingCountry"
-        label="Issuing Country"
-        value={formData.issuingCountry}
+        name="customerCountry"
+        label="Customer Country"
+        value={formData.customerCountry}
         onChange={handleInputChange}
-        placeholder="Enter Issuing Country"
+        placeholder="Enter Customer Country"
         required={true}
-        errorMessage={getFieldError("issuingCountry")}
+        errorMessage={getFieldError("customerCountry")}
       />
       <Input
-        type="date"
-        name="issueDate"
-        label="Issue Date"
-        value={formData.issueDate}
+        type="text"
+        name="customerState"
+        label="Customer State"
+        value={formData.customerState}
         onChange={handleInputChange}
-        placeholder="Enter Issue Date"
+        placeholder="Enter Customer State"
         required={true}
-        errorMessage={getFieldError("issueDate")}
-        description={"Enter Issue Date"}
+        errorMessage={getFieldError("customerState")}
       />
+      <Input
+        type="text"
+        name="customerLGA"
+        label="Customer LGA"
+        value={formData.customerLGA || ""}
+        onChange={handleInputChange}
+        placeholder="Enter Customer LGA"
+        required={true}
+        errorMessage={getFieldError("customerLGA")}
+      />
+
       <Input
         type="date"
         name="expirationDate"
@@ -140,25 +170,22 @@ const IdentificationForm = ({ handleClose }: { handleClose: () => void }) => {
         errorMessage={getFieldError("expirationDate")}
         description={"Enter Expiration Date"}
       />
-      <Input
+      <GooglePlacesInput
         type="text"
-        name="fullNameAsOnID"
-        label="Full Name as on ID"
-        value={formData.fullNameAsOnID}
-        onChange={handleInputChange}
-        placeholder="Enter Full Name as on ID"
+        name="homeAddress"
+        label="Home Address"
+        value={formData.installationAddress}
+        placeholder="Search for a location"
         required={true}
-        errorMessage={getFieldError("fullNameAsOnID")}
-      />
-      <Input
-        type="text"
-        name="addressAsOnID"
-        label="Address as on ID"
-        value={formData.addressAsOnID}
-        onChange={handleInputChange}
-        placeholder="Enter Address as on ID"
-        required={false}
-        errorMessage={getFieldError("addressAsOnID")}
+        errorMessage={getFieldError("installationAddress")}
+        onChange={(value) => {
+          setFormData((prev) => ({
+            ...prev,
+            installationAddress: value.address,
+            installationAddressLongitude: value.coordinates?.lng || "",
+            installationAddressLatitude: value.coordinates?.lat || "",
+          }));
+        }}
       />
       <div className="flex items-center justify-between gap-1 mt-4">
         <SecondaryButton

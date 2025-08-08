@@ -4,8 +4,6 @@ import { formatDateTime } from "@/utils/helpers";
 import { GoDotFill } from "react-icons/go";
 
 
-
-
 const CategoryDetails = ({
     categoryData,
 }: {
